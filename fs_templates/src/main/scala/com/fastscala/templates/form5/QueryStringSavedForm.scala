@@ -4,11 +4,10 @@ import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form5.fields.QuerySerializableStringField
 import com.fastscala.xml.scala_xml.JS
+import org.eclipse.jetty.server.Request
 
 import java.net.URLEncoder
 import scala.jdk.CollectionConverters.MapHasAsScala
-
-import org.eclipse.jetty.server.Request
 
 trait QueryStringSavedForm extends Form5 {
 
