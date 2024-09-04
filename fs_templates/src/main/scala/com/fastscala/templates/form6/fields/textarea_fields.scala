@@ -3,7 +3,7 @@ package com.fastscala.templates.form6.fields
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
-import com.fastscala.xml.scala_xml.FSScalaXmlSupport
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
 import scala.util.chaining.scalaUtilChainingOps
@@ -62,7 +62,7 @@ abstract class F6TextareaField[T]()(implicit renderer: TextareaF6FieldRenderer) 
         _setter(currentValue)
         Nil
       case Left(error) =>
-        List((this, FSScalaXmlSupport.fsXmlSupport.buildText(s"Could not parse value '$str': $error")))
+        List((this, buildText(s"Could not parse value '$str': $error")))
     }
   }
 
@@ -78,7 +78,7 @@ abstract class F6TextareaField[T]()(implicit renderer: TextareaF6FieldRenderer) 
   def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
 
   def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem = {
-    if (!enabled()) <div style="display:none;" id={aroundId}></div>
+    if (!enabled) <div style="display:none;" id={aroundId}></div>
     else {
       withFieldRenderHints { implicit hints =>
         renderer.render(this)(
@@ -113,7 +113,7 @@ class F6StringTextareaField()(implicit renderer: TextareaF6FieldRenderer) extend
   def fromString(str: String): Either[String, String] = Right(str)
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required() && currentValue == "") Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (required && currentValue == "") Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 }
 
 class F6StringOptTextareaField()(implicit renderer: TextareaF6FieldRenderer) extends F6TextareaField[Option[String]] {
@@ -125,6 +125,5 @@ class F6StringOptTextareaField()(implicit renderer: TextareaF6FieldRenderer) ext
   def fromString(str: String): Either[String, Option[String]] = Right(Some(str).filter(_ != ""))
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required() && currentValue.isEmpty) Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 }
-

@@ -16,7 +16,7 @@ class F6RawHtmlField(
   with F6FieldWithEnabled {
 
   override def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem =
-    if (!enabled()) <div style="display:none;" id={aroundId}></div>
+    if (!enabled) <div style="display:none;" id={aroundId}></div>
     else <div id={aroundId}>{gen}</div>
 
   override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] = if (predicate.applyOrElse[F6Field, Boolean](this, _ => false)) List(this) else Nil
@@ -33,7 +33,7 @@ class F6SurroundWithHtmlField[T <: F6Field](
     with F6FieldWithDisabled
     with F6FieldWithEnabled {
   override def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem =
-    if (!enabled()) <div style="display:none;" id={aroundId}></div>
+    if (!enabled) <div style="display:none;" id={aroundId}></div>
     else <div id={aroundId}>{wrap(field.render())}</div>
 
   override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] =
@@ -42,4 +42,3 @@ class F6SurroundWithHtmlField[T <: F6Field](
 
   override def onEvent(event: FormEvent)(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js = field.onEvent(event)
 }
-

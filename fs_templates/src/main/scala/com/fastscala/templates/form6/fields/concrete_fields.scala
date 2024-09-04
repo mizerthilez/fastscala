@@ -203,12 +203,12 @@ trait ButtonF6FieldRenderer {
   def render(field: F6SaveButtonField[_])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem
 }
 
-class F6SaveButtonField[B <% Elem](
-                                                     btn: FSContext => B
-                                                     , val toInitialState: B => B = identity[B] _
-                                                     , val toChangedState: B => B = identity[B] _
-                                                     , val toErrorState: B => B = identity[B] _
-                                                   )(implicit renderer: ButtonF6FieldRenderer)
+class F6SaveButtonField[B](using Conversion[B, Elem])(
+        btn: FSContext => B
+        , val toInitialState: B => B = identity[B] _
+        , val toChangedState: B => B = identity[B] _
+        , val toErrorState: B => B = identity[B] _
+      )(implicit renderer: ButtonF6FieldRenderer)
   extends StandardF6Field
     with F6FieldWithReadOnly
     with F6FieldWithDependencies
@@ -237,7 +237,7 @@ class F6SaveButtonField[B <% Elem](
   })
 
   override def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem =
-    if (!enabled()) <div style="display:none;" id={aroundId}></div>
+    if (!enabled) <div style="display:none;" id={aroundId}></div>
     else {
       withFieldRenderHints { implicit hints =>
         renderer.render(this)({

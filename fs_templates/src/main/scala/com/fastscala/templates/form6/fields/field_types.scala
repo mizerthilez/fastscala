@@ -20,13 +20,13 @@ trait F6Field {
    */
   def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field]
 
-  def enabledFields: List[F6Field] = fieldsMatching(_.enabled())
+  def enabledFields: List[F6Field] = fieldsMatching(_.enabled)
 
   def onEvent(event: FormEvent)(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js = Js.void
 
   def deps: Set[F6Field]
 
-  def enabled(): Boolean
+  def enabled: Boolean
 }
 
 trait FocusableF6Field extends F6Field {
@@ -42,20 +42,20 @@ abstract class StandardF6Field() extends F6Field with ElemWithRandomId {
     JS.replace(aroundId, render())
   }
 
-  def visible: () => Boolean = () => enabled()
+  def visible: () => Boolean = () => enabled
 
   override def onEvent(event: FormEvent)(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js = super.onEvent(event) & (event match {
     case ChangedField(field) if deps.contains(field) => reRender() & form.onEvent(ChangedField(this))
     case _ => Js.void
   })
 
-  def disabled(): Boolean
+  def disabled: Boolean
 
-  def readOnly(): Boolean
+  def readOnly: Boolean
 
   def withFieldRenderHints[T](f: Seq[RenderHint] => T)(implicit renderHints: Seq[RenderHint]): T = f {
-    List(DisableFieldsHint).filter(_ => disabled()) ++
-      List(ReadOnlyFieldsHint).filter(_ => readOnly()) ++
+    List(DisableFieldsHint).filter(_ => disabled) ++
+      List(ReadOnlyFieldsHint).filter(_ => readOnly) ++
       renderHints
   }
 }

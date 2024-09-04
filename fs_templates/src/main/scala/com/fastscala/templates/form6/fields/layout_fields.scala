@@ -4,7 +4,8 @@ import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
-import com.fastscala.xml.scala_xml.{FSScalaXmlSupport, JS}
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
+import com.fastscala.xml.scala_xml.JS
 
 import scala.xml.{Elem, NodeSeq}
 
@@ -15,16 +16,16 @@ class F6VerticalField()(children: F6Field*)
     with F6FieldWithDisabled
     with F6FieldWithReadOnly {
 
-  var currentlyEnabled = enabled()
+  var currentlyEnabled = enabled
 
   override def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem = {
-    currentlyEnabled = enabled()
+    currentlyEnabled = enabled
     if (!currentlyEnabled) <div style="display:none;" id={aroundId}></div>
-    else FSScalaXmlSupport.fsXmlSupport.buildElem("div", "id" -> aroundId)(children.map(_.render()).mkNS)
+    else buildElem("div", "id" -> aroundId)(children.map(_.render()).mkNS)
   }
 
   override def reRender()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js = {
-    if (enabled() != currentlyEnabled) {
+    if (enabled != currentlyEnabled) {
       JS.replace(aroundId, render())
     } else {
       children.map(_.reRender()).reduceOption[Js](_ & _).getOrElse(Js.void)
@@ -49,10 +50,10 @@ class F6ContainerField(aroundClass: String)(children: (String, F6Field)*)
     with F6FieldWithDisabled
     with F6FieldWithReadOnly {
 
-  var currentlyEnabled = enabled()
+  var currentlyEnabled = enabled
 
   override def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem = {
-    currentlyEnabled = enabled()
+    currentlyEnabled = enabled
     if (!currentlyEnabled) <div style="display:none;" id={aroundId}></div>
     else {
       withFieldRenderHints { implicit hints =>
@@ -65,7 +66,7 @@ class F6ContainerField(aroundClass: String)(children: (String, F6Field)*)
   }
 
   override def reRender()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js = {
-    if (enabled() != currentlyEnabled) {
+    if (enabled != currentlyEnabled) {
       JS.replace(aroundId, render())
     } else {
       children.map(_._2.reRender()).reduceOption[Js](_ & _).getOrElse(Js.void)

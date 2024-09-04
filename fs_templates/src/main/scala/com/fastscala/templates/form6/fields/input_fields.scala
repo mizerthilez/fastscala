@@ -4,7 +4,7 @@ import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
 import com.fastscala.utils.Lazy
-import com.fastscala.xml.scala_xml.FSScalaXmlSupport
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -44,9 +44,9 @@ trait F6FieldWithValue[T] extends F6FieldMixin {
 
   var _getter: () => T = () => internalValue()
 
-  def getter(): () => T = _getter
+  def getter = _getter
 
-  def get(): T = getter()()
+  def get(): T = getter()
 
   def getInternalValue(): T = internalValue()
 
@@ -54,13 +54,13 @@ trait F6FieldWithValue[T] extends F6FieldMixin {
     internalValue() = v
   })
 
-  def setter(): T => Js = _setter
+  def setter = _setter
 
   def setInternalValue(value: T): this.type = mutate {
     internalValue() = value
   }
 
-  def set(value: T): Js = setter()(value)
+  def set(value: T): Js = setter(value)
 
   def setter(setter: T => Js): this.type = mutate({
     _setter = setter
@@ -82,7 +82,7 @@ trait F6FieldWithValue[T] extends F6FieldMixin {
 trait F6FieldWithDisabled extends F6FieldInputFieldMixin {
   var _disabled: () => Boolean = () => false
 
-  def disabled() = _disabled()
+  def disabled: Boolean = _disabled()
 
   def isDisabled: this.type = disabled(true)
 
@@ -102,7 +102,7 @@ trait F6FieldWithDisabled extends F6FieldInputFieldMixin {
 trait F6FieldWithRequired extends F6FieldInputFieldMixin {
   var _required: () => Boolean = () => false
 
-  def required() = _required()
+  def required: Boolean = _required()
 
   def isRequired: this.type = required(true)
 
@@ -122,7 +122,7 @@ trait F6FieldWithRequired extends F6FieldInputFieldMixin {
 trait F6FieldWithReadOnly extends F6FieldInputFieldMixin {
   var _readOnly: () => Boolean = () => false
 
-  def readOnly() = _readOnly()
+  def readOnly: Boolean = _readOnly()
 
   def isReadOnly: this.type = readOnly(true)
 
@@ -142,7 +142,7 @@ trait F6FieldWithReadOnly extends F6FieldInputFieldMixin {
 trait F6FieldWithEnabled extends F6FieldInputFieldMixin {
   var _enabled: () => Boolean = () => true
 
-  def enabled(): Boolean = _enabled()
+  def enabled: Boolean = _enabled()
 
   def isEnabled: this.type = enabled(true)
 
@@ -158,7 +158,7 @@ trait F6FieldWithEnabled extends F6FieldInputFieldMixin {
 trait F6FieldWithTabIndex extends F6FieldInputFieldMixin {
   var _tabIndex: () => Option[Int] = () => None
 
-  def tabIndex() = _tabIndex()
+  def tabIndex: Option[Int] = _tabIndex()
 
   def tabIndex(v: Option[Int]): this.type = mutate {
     _tabIndex = () => v
@@ -180,7 +180,7 @@ trait F6FieldWithTabIndex extends F6FieldInputFieldMixin {
 trait F6FieldWithName extends F6FieldInputFieldMixin {
   var _name: () => Option[String] = () => None
 
-  def name(): Option[String] = _name()
+  def name: Option[String] = _name()
 
   def name(v: String): this.type = mutate {
     _name = () => Some(v)
@@ -202,7 +202,7 @@ trait F6FieldWithName extends F6FieldInputFieldMixin {
 trait F6FieldWithSize extends F6FieldInputFieldMixin {
   var _size: () => Option[Int] = () => None
 
-  def size(): Option[Int] = _size()
+  def size: Option[Int] = _size()
 
   def size(v: Int): this.type = mutate {
     _size = () => Some(v)
@@ -224,7 +224,7 @@ trait F6FieldWithSize extends F6FieldInputFieldMixin {
 trait F6FieldWithPlaceholder extends F6FieldInputFieldMixin {
   var _placeholder: () => Option[String] = () => None
 
-  def placeholder() = _placeholder()
+  def placeholder: Option[String] = _placeholder()
 
   def placeholder(v: Option[String]): this.type = mutate {
     _placeholder = () => v
@@ -246,7 +246,7 @@ trait F6FieldWithPlaceholder extends F6FieldInputFieldMixin {
 trait F6FieldWithLabel extends F6FieldInputFieldMixin {
   var _label: () => Option[NodeSeq] = () => None
 
-  def label() = _label()
+  def label: Option[NodeSeq] = _label()
 
   def label(v: Option[NodeSeq]): this.type = mutate {
     _label = () => v
@@ -257,7 +257,7 @@ trait F6FieldWithLabel extends F6FieldInputFieldMixin {
   }
 
   def label(v: String): this.type = mutate {
-    _label = () => Some(FSScalaXmlSupport.fsXmlSupport.buildText(v))
+    _label = () => Some(buildText(v))
   }
 
   def label(f: () => Option[NodeSeq]): this.type = mutate {
@@ -272,7 +272,7 @@ trait F6FieldWithLabel extends F6FieldInputFieldMixin {
 trait F6FieldWithMaxlength extends F6FieldInputFieldMixin {
   var _maxlength: () => Option[Int] = () => None
 
-  def maxlength() = _maxlength()
+  def maxlength: Option[Int] = _maxlength()
 
   def maxlength(v: Option[Int]): this.type = mutate {
     _maxlength = () => v
@@ -296,7 +296,7 @@ trait F6FieldWithInputType extends F6FieldInputFieldMixin {
 
   var _inputType: () => String = () => _inputTypeDefault
 
-  def inputType() = _inputType()
+  def inputType: String = _inputType()
 
   def inputType(v: String): this.type = mutate {
     _inputType = () => v
@@ -314,7 +314,7 @@ trait F6FieldWithInputType extends F6FieldInputFieldMixin {
 trait F6FieldWithAdditionalAttrs extends F6FieldInputFieldMixin {
   var _additionalAttrs: () => Seq[(String, String)] = () => Nil
 
-  def additionalAttrs() = _additionalAttrs()
+  def additionalAttrs: Seq[(String, String)] = _additionalAttrs()
 
   def additionalAttrs(v: Seq[(String, String)]): this.type = mutate {
     _additionalAttrs = () => v
@@ -332,7 +332,7 @@ trait F6FieldWithAdditionalAttrs extends F6FieldInputFieldMixin {
 trait F6FieldWithDependencies extends F6FieldInputFieldMixin {
   var _deps: () => Set[F6Field] = () => Set()
 
-  def deps() = _deps()
+  def deps: Set[F6Field] = _deps()
 
   def deps(v: Set[F6Field]): this.type = mutate {
     _deps = () => v
@@ -347,7 +347,7 @@ trait F6FieldWithPrefix extends F6FieldMixin {
 
   var _prefix: () => String = () => ""
 
-  def prefix() = _prefix()
+  def prefix: String = _prefix()
 
   def prefix(v: String): this.type = mutate {
     _prefix = () => v
@@ -362,7 +362,7 @@ trait F6FieldWithSuffix extends F6FieldMixin {
 
   var _suffix: () => String = () => ""
 
-  def suffix() = _suffix()
+  def suffix: String = _suffix()
 
   def suffix(v: String): this.type = mutate {
     _suffix = () => v
@@ -376,7 +376,7 @@ trait F6FieldWithSuffix extends F6FieldMixin {
 trait F6FieldWithMin extends F6FieldInputFieldMixin {
   var _min: () => Option[String] = () => None
 
-  def min() = _min()
+  def min: Option[String] = _min()
 
   def min(v: Option[String]): this.type = mutate {
     _min = () => v
@@ -398,7 +398,7 @@ trait F6FieldWithMin extends F6FieldInputFieldMixin {
 trait F6FieldWithStep extends F6FieldInputFieldMixin {
   var _step: () => Option[Int] = () => None
 
-  def step(): Option[Int] = _step()
+  def step: Option[Int] = _step()
 
   def step(v: Option[Int]): this.type = mutate {
     _step = () => v
@@ -420,7 +420,7 @@ trait F6FieldWithStep extends F6FieldInputFieldMixin {
 trait F6FieldWithMax extends F6FieldInputFieldMixin {
   var _max: () => Option[String] = () => None
 
-  def max() = _max()
+  def max: Option[String] = _max()
 
   def max(v: Option[String]): this.type = mutate {
     _max = () => v
@@ -468,7 +468,7 @@ abstract class F6TextField[T]()(implicit renderer: TextF6FieldRenderer) extends 
         _setter(currentValue)
         Nil
       case Left(error) =>
-        List((this, FSScalaXmlSupport.fsXmlSupport.buildText(s"Could not parse value '$str': $error")))
+        List((this, buildText(s"Could not parse value '$str': $error")))
     }
   }
 
@@ -484,7 +484,7 @@ abstract class F6TextField[T]()(implicit renderer: TextF6FieldRenderer) extends 
   def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
 
   def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem = {
-    if (!enabled()) <div style="display:none;" id={aroundId}></div>
+    if (!enabled) <div style="display:none;" id={aroundId}></div>
     else {
       withFieldRenderHints { implicit hints =>
         renderer.render(this)(
@@ -517,7 +517,7 @@ class F6StringField()(implicit renderer: TextF6FieldRenderer) extends F6TextFiel
   def fromString(str: String): Either[String, String] = Right(str)
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (_required() && currentValue.trim == "") Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (_required() && currentValue.trim == "") Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 }
 
 
@@ -530,7 +530,7 @@ class F6StringOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextF
   def fromString(str: String): Either[String, Option[String]] = Right(Some(str).filter(_ != ""))
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required() && currentValue.isEmpty) Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 }
 
 object F6DateOptField {
@@ -554,7 +554,7 @@ class F6DateOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextFie
   def fromString(str: String): Either[String, Option[java.time.LocalDate]] = Right(Some(str).filter(_.trim != "").map(str => java.time.LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required() && currentValue.isEmpty) Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 }
 
 class F6DateField(dflt: time.LocalDate = time.LocalDate.now())(implicit renderer: TextF6FieldRenderer) extends F6TextField[java.time.LocalDate] {
@@ -577,7 +577,7 @@ class F6DateTimeOptField()(implicit renderer: TextF6FieldRenderer) extends F6Tex
   def fromString(str: String): Either[String, Option[java.time.LocalDateTime]] = Right(Some(str).filter(_.trim != "").map(str => java.time.LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))))
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required() && currentValue.isEmpty) Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 }
 
 class F6DoubleOptField()(implicit renderer: TextF6FieldRenderer)
@@ -610,7 +610,7 @@ class F6DoubleOptField()(implicit renderer: TextF6FieldRenderer)
   }
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required() && currentValue.isEmpty) Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 }
 
 class F6IntOptField()(implicit renderer: TextF6FieldRenderer)
@@ -642,7 +642,7 @@ class F6IntOptField()(implicit renderer: TextF6FieldRenderer)
   }
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required() && currentValue.isEmpty) Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 }
 
 class F6TimeOfDayField()(implicit renderer: TextF6FieldRenderer)
@@ -656,7 +656,7 @@ class F6TimeOfDayField()(implicit renderer: TextF6FieldRenderer)
   override def defaultValue: Option[Int] = None
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required() && currentValue.isEmpty) Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 
 
   def toString(value: Option[Int]): String = value.map(value => DateTimeFormat.forPattern("HH:mm").print(new DateTime().withTime(value / 60, value % 60, 0, 0))).map(_.trim).getOrElse("")

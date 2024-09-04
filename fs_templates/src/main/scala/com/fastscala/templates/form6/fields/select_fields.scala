@@ -3,7 +3,7 @@ package com.fastscala.templates.form6.fields
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
-import com.fastscala.xml.scala_xml.FSScalaXmlSupport
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 
 import scala.xml.{Elem, NodeSeq}
 
@@ -23,14 +23,14 @@ trait F6FieldWithOptions[T] extends F6FieldMixin {
 
 trait F6FieldWithOptionsNsLabel[T] extends F6FieldMixin {
 
-  var _option2NodeSeq: T => NodeSeq = opt => FSScalaXmlSupport.fsXmlSupport.buildText(opt.toString)
+  var _option2NodeSeq: T => NodeSeq = opt => buildText(opt.toString)
 
   def option2NodeSeq(f: T => NodeSeq): this.type = mutate {
     _option2NodeSeq = f
   }
 
   def option2String(f: T => String): this.type = mutate {
-    _option2NodeSeq = opt => FSScalaXmlSupport.fsXmlSupport.buildText(f(opt))
+    _option2NodeSeq = opt => buildText(f(opt))
   }
 }
 
@@ -81,7 +81,7 @@ abstract class F6SelectFieldBase[T]()(implicit renderer: SelectF6FieldRenderer) 
         _setter(v)
         Nil
       case None =>
-        List((this, FSScalaXmlSupport.fsXmlSupport.buildText(s"Not found id: '$str'")))
+        List((this, buildText(s"Not found id: '$str'")))
     }
   }
 
@@ -106,7 +106,7 @@ abstract class F6SelectFieldBase[T]()(implicit renderer: SelectF6FieldRenderer) 
 
     val errorsAtRenderTime = errors()
 
-    if (!enabled()) <div style="display:none;" id={aroundId}></div>
+    if (!enabled) <div style="display:none;" id={aroundId}></div>
     else {
       withFieldRenderHints { hints =>
         val onchangeJs = fsc.callback(Js.elementValueById(elemId), {
@@ -145,7 +145,7 @@ class F6SelectField[T](opts: () => Seq[T])(implicit renderer: SelectF6FieldRende
 
   def this(opts: Seq[T])(implicit renderer: SelectF6FieldRenderer) = this(() => opts)
 
-  override def defaultValue: T = options.head
+  override def defaultValue: T = options().head
 }
 
 abstract class F6MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF6FieldRenderer) extends StandardF6Field
@@ -199,7 +199,7 @@ abstract class F6MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF6Field
 
     val errorsAtRenderTime = errors()
 
-    if (!enabled()) <div style="display:none;" id={aroundId}></div>
+    if (!enabled) <div style="display:none;" id={aroundId}></div>
     else {
       withFieldRenderHints { hints =>
         val onchangeJs = fsc.callback(Js.selectedValues(Js.elementById(elemId)), {

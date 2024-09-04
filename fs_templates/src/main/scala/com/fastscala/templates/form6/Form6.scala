@@ -5,7 +5,7 @@ import com.fastscala.js.Js
 import com.fastscala.templates.form6.fields._
 import com.fastscala.templates.utils.ElemWithRandomId
 import com.fastscala.utils.RenderableWithFSContext
-import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
+import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS, given}
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
 import scala.xml.{Elem, NodeSeq}
@@ -19,7 +19,7 @@ abstract class DefaultForm6()(implicit val formRenderer: F6FormRenderer) extends
 
 trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRandomId {
 
-  implicit def form = this
+  given form: Form6 = this
 
   val rootField: F6Field
 
