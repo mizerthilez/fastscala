@@ -1,7 +1,6 @@
 package com.fastscala.utils
 
-import com.fastscala.core.FSXmlUtils.elem2NodeSeq
-import com.fastscala.core.{FSXmlEnv, FSXmlSupport}
+import com.fastscala.core.FSXmlEnv
 import com.fastscala.server._
 
 import java.awt.geom.AffineTransform
@@ -25,8 +24,8 @@ object FSOptimizedResourceHandler {
 
   def cssLoaderUrl(files: String*): String = "/static/optimized/css_loader.css?" + files.map("f=" + URLEncoder.encode(_, "UTF-8")).mkString("&")
 
-  def cssLoaderElem[E <: FSXmlEnv : FSXmlSupport](files: String*): E#Elem =
-    implicitly[FSXmlSupport[E]].buildElem("link", "rel" -> "stylesheet", "type" -> "text/css", "href" -> cssLoaderUrl(files: _*))(implicitly[FSXmlSupport[E]].Empty)
+  def cssLoaderElem[Env <: FSXmlEnv](files: String*)(using env: Env): env.Elem =
+    env.buildElem("link", "rel" -> "stylesheet", "type" -> "text/css", "href" -> cssLoaderUrl(files: _*))(env.Empty)
 }
 
 class FSOptimizedResourceHandler(
@@ -173,11 +172,11 @@ class FSOptimizedResourceHandler(
 
   var version = System.currentTimeMillis()
 
-  def optimizedCss[E <: FSXmlEnv : FSXmlSupport](cssFiles: String*): E#NodeSeq =
-    elem2NodeSeq(implicitly[FSXmlSupport[E]].buildElem("link",
+  def optimizedCss[Env <: FSXmlEnv](cssFiles: String*)(using env: Env): env.NodeSeq =
+    env.buildElem("link",
       "rel" -> "stylesheet",
       "type" -> "text/css",
       "media" -> "all",
       "href" -> (s"/static/css_loader.css?version=$version&" + cssFiles.map("f=" + _).mkString("&"))
-    )(implicitly[FSXmlSupport[E]].Empty))
+    )(env.Empty)
 }

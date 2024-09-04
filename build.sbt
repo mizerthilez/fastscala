@@ -6,11 +6,11 @@ import scala.concurrent.duration.*
 resolvers += Resolver.mavenLocal
 
 ThisBuild / organization := "com.fastscala"
-ThisBuild / scalaVersion := "2.13.14"
+ThisBuild / scalaVersion := "3.3.3"
 
 ThisBuild / shellPrompt := { state => Project.extract(state).currentRef.project + "> " }
 
-scalacOptions += "-Ypartial-unification"
+ThisBuild / scalacOptions ++= Seq("-Xmax-inlines", "64")
 
 val FSRoot = "./"
 

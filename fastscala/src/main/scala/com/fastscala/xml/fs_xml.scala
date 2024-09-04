@@ -1,37 +1,47 @@
 package com.fastscala.core
 
-trait FSXmlEnv {
+trait FSXmlEnv:
+
   type NodeSeq
   type Elem
-}
 
-trait FSXmlSupport[Env <: FSXmlEnv] {
+  def render(elem: NodeSeq): String
 
-  def render(elem: Env#NodeSeq): String
+  def buildElemFrom[E <: FSXmlEnv](using e: E)(other: e.Elem): Elem
 
-  def buildElemFrom[E <: FSXmlEnv : FSXmlSupport](other: E#Elem): Env#Elem
+  def buildNodeSeqFrom[E <: FSXmlEnv](using e: E)(other: e.NodeSeq): NodeSeq
 
-  def buildNodeSeqFrom[E <: FSXmlEnv : FSXmlSupport](other: E#NodeSeq): Env#NodeSeq
+  def Empty: NodeSeq
 
-  def Empty: Env#NodeSeq
+  def buildUnparsed(unparsed: String): NodeSeq
 
-  def buildUnparsed(unparsed: String): Env#NodeSeq
+  def buildText(text: String): NodeSeq
 
-  def buildText(text: String): Env#NodeSeq
+  def buildElem(label: String, attrs: (String, String)*)(children: NodeSeq*): Elem
 
-  def buildElem(label: String, attrs: (String, String)*)(children: Env#NodeSeq*): Env#Elem
+  def contents(elem: Elem): NodeSeq
 
-  def contents(elem: Env#Elem): Env#NodeSeq
+  def attribute(elem: Elem, attrNamenv: String): Option[String]
 
-  def attribute(elem: Env#Elem, attrName: String): Option[String]
+  def attributes(elem: Elem): List[(String, String)]
 
-  def attributes(elem: Env#Elem): List[(String, String)]
+  def transformAttribute(elem: Elem, attrNamenv: String, transform: Option[String] => String): Elem
 
-  def transformAttribute(elem: Env#Elem, attrName: String, transform: Option[String] => String): Env#Elem
+  def transformContents[E <: FSXmlEnv](using e: E)(elem: Elem, transform: NodeSeq => e.NodeSeq): Elem
 
-  def transformContents[E <: FSXmlEnv : FSXmlSupport](elem: Env#Elem, transform: Env#NodeSeq => E#NodeSeq): Env#Elem
+  def concat(ns1: NodeSeq, ns2: NodeSeq): NodeSeq
 
-  def concat(ns1: Env#NodeSeq, ns2: Env#NodeSeq): Env#NodeSeq
+  def elem2NodeSeq(elem: Elem): NodeSeq
 
-  def elem2NodeSeq(elem: Env#Elem): Env#NodeSeq
-}
+  given Conversion[Elem, NodeSeq] = elem2NodeSeq(_)
+
+  extension (elem: Elem)
+    def getId(): Option[String] = attribute(elem, "id")
+
+    def withId(id: String): Elem = transformAttribute(elem, "id", _ => id)
+
+    def withIdIfNotSet(id: String): Elem = transformAttribute(elem, "id", _.getOrElse(id))
+
+    def withContents[E <: FSXmlEnv](using e: E)(contents: e.NodeSeq): Elem = transformContents(elem, _ => contents)
+
+end FSXmlEnv

@@ -1,6 +1,6 @@
 package com.fastscala.server
 
-import com.fastscala.core.{FSSession, FSSystem, FSXmlEnv, FSXmlSupport}
+import com.fastscala.core.{FSSession, FSSystem, FSXmlEnv}
 import com.fastscala.js.Js
 import com.fastscala.utils.RenderableWithFSContext
 import org.eclipse.jetty.http.{HttpHeader, HttpCookie, MimeTypes}
@@ -191,9 +191,9 @@ trait RedirectResponse extends TextResponse {
 }
 
 object Ok {
-  def html[E <: FSXmlEnv : FSXmlSupport](ns: E#NodeSeq) = new OkHtml(implicitly[FSXmlSupport[E]].render(ns))
+  def html[Env <: FSXmlEnv](using env: Env)(ns: env.NodeSeq) = new OkHtml(env.render(ns))
 
-  def html(ns: String) = new OkHtml(ns)
+  def apply(ns: String) = new OkHtml(ns)
 
   def plain(text: String) = new OkTextBased(text, "text/plain;charset=utf-8")
 
@@ -496,8 +496,11 @@ abstract class RoutingHandlerNoSessionHelper extends Handler.Abstract {
 
 abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandlerNoSessionHelper {
 
-  def servePage[E <: FSXmlEnv : FSXmlSupport](renderable: RenderableWithFSContext[E], debugLbl: Option[String] = None)(implicit req: Request, session: FSSession): Response = {
-    session.createPage(implicit fsc => Ok.html(renderable.render())
+  def servePage[Env <: FSXmlEnv]
+        (renderable: RenderableWithFSContext[Env], debugLbl: Option[String] = None)
+        (implicit req: Request, session: FSSession): Response = {
+    import renderable.given
+    session.createPage(implicit fsc => Ok.html(renderable.render)
       .addHeaders(
         "Cache-Control" -> "no-cache, max-age=0, no-store"
         , "Pragma" -> "no-cache"
