@@ -219,7 +219,7 @@ trait TableBase {
     case Array() => SQLSyntax.createUnsafely("''::bytea")
     case v: Int => SQLSyntax.createUnsafely(v + "::integer")
     case v: Double => SQLSyntax.createUnsafely(v + "::double precision")
-    case v: Boolean => SQLSyntax.createUnsafely(v + "::boolean")
+    case v: Boolean => SQLSyntax.createUnsafely(String.valueOf(v) + "::boolean")
     case v: Char => SQLSyntax.createUnsafely(v + "::char")
     case v: Short => SQLSyntax.createUnsafely(v + "::integer")
     case v: Float => SQLSyntax.createUnsafely(v + "::real")
@@ -238,8 +238,8 @@ trait TableBase {
       val sampleClass = sample.getClass
       val field = sampleClass.getField("$outer")
       field.setAccessible(true)
-      val enum = field.get(sample)
-      enum.asInstanceOf[scala.Enumeration](id)
+      val `enum` = field.get(sample)
+      `enum`.asInstanceOf[scala.Enumeration](id)
   }
 
   def insertFields: List[Field]

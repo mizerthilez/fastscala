@@ -22,7 +22,7 @@ object TestEntity3 extends PgTable[TestEntity3] {
 
 trait TableRowSpecBase extends AnyFlatSpec {
 
-  def runTests() {
+  def runTests() = {
   "Create table" should "succeed" in {
     DB.localTx({ implicit session =>
       TestEntity3.__createTableSQL.foreach(_.execute())

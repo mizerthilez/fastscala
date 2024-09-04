@@ -8,7 +8,7 @@ import scalikejdbc.interpolation.SQLSyntax
 
 class TableCache[K, R <: Row[R] with ObservableRowBase with RowWithId[K, R]](
                                                                               val table: TableWithId[R, K],
-                                                                              val loadAll: Table[R] => Seq[R] = (_: Table[R]).selectAll().toVector,
+                                                                              val loadAll: [R] => Table[R] => Seq[R] = [R] => (r: Table[R]) => r.selectAll().toVector,
                                                                               var status: CacheStatus.Value = CacheStatus.NONE_LOADED,
                                                                               val entries: collection.mutable.Map[K, R] = collection.mutable.Map[K, R]()
                                                                             ) extends DBObserver with TableCacheLike[K, R] {
