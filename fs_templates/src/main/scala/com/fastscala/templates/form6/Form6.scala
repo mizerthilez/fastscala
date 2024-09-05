@@ -21,7 +21,7 @@ trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRan
 
   given form: Form6 = this
 
-  val rootField: F6Field
+  lazy val rootField: F6Field
 
   def initForm()(implicit fsc: FSContext): Unit = ()
 
@@ -50,7 +50,7 @@ trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRan
     rootField.reRender() & afterRendering()
   }
 
-  def render()(implicit fsc: FSContext): Elem = {
+  override def render()(implicit fsc: FSContext): Elem = {
     implicit val renderHints = formRenderHits()
     val rendered = rootField.render()
     if (afterRendering() != Js.void) {

@@ -500,7 +500,7 @@ abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandl
         (renderable: RenderableWithFSContext[Env], debugLbl: Option[String] = None)
         (implicit req: Request, session: FSSession): Response = {
     import renderable.given
-    session.createPage(implicit fsc => Ok.html(renderable.render)
+    session.createPage(implicit fsc => Ok.html(renderable.render())
       .addHeaders(
         "Cache-Control" -> "no-cache, max-age=0, no-store"
         , "Pragma" -> "no-cache"
