@@ -9,6 +9,7 @@ import com.fastscala.templates.bootstrap5.modals.BSModal5
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form6._
 import com.fastscala.templates.form6.fields._
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv.given
 
 import scala.xml.NodeSeq
 
@@ -44,7 +45,7 @@ class BasicFormExamplePage extends SingleCodeExamplePage() {
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
     // === code snippet ===
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     var editing = new User1(
       firstName = "",
       lastName = "",
@@ -92,11 +93,11 @@ class BasicFormExamplePage extends SingleCodeExamplePage() {
           , new F6IntOptField().label("Security Level").rw(Some(editing.securityLevel), oi => editing.securityLevel = oi.getOrElse(0))
           , F6DateOptField(editing.birthDay, editing.birthDay = _).label("BirthDay")
           , _provField
-          , new F6SelectField[City](() => CitiesData.data(_provField.currentValue)).label("City").rw(editing.city, editing.city = _).option2String(_.name).deps(() => Set(_provField))
+          , new F6SelectField[City](() => CitiesData.data(_provField.currentValue)).label("City").rw(editing.city, editing.city = _).option2String(_.name).deps(Set(_provField))
           , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Create User").btn.d_block)
         )
 
-        override def formRenderer: F6FormRenderer = formRenderer
+        override def formRenderer: F6FormRenderer = BSFormRenderer.formRenderer
       }.render()
     }
     // === code snippet ===

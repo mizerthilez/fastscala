@@ -3,7 +3,6 @@ package com.fastscala.demo.docs.fastscala
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.templates.bootstrap5.utils.FileUpload
-import com.fastscala.xml.scala_xml.FSScalaXmlSupport.fsXmlSupport
 import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
 
 import scala.xml.NodeSeq
@@ -14,7 +13,7 @@ class AnonymousPage() extends SingleCodeExamplePage() {
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
     // === code snippet ===
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     JS.rerenderable(rerenderer => implicit fsc => {
       div.border.p_2.rounded.apply {
         h3.apply("Upload an image:") ++
@@ -29,5 +28,3 @@ class AnonymousPage() extends SingleCodeExamplePage() {
     // === code snippet ===
   }
 }
-
-

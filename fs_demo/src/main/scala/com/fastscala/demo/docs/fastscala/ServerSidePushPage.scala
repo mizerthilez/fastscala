@@ -20,7 +20,7 @@ class ServerSidePushPage extends SingleCodeExamplePage() {
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
     // === code snippet ===
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     val id = IdGen.id
     val N = 30
 

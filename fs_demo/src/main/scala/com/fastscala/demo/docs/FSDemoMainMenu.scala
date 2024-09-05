@@ -6,8 +6,9 @@ import com.fastscala.demo.docs.fastscala._
 import com.fastscala.demo.docs.forms.FormInputTypesPage
 import com.fastscala.demo.docs.html.{HtmlTagsPage, HtmlUtilsPage, ScalaTagsPage}
 import com.fastscala.demo.docs.js.JsUtilsPage
-import com.fastscala.demo.docs.navigation.DefaultBSMenuRenderer._
+import com.fastscala.demo.docs.navigation.DefaultBSMenuRenderer.given
 import com.fastscala.demo.docs.navigation.{BSMenu, MenuSection, RoutingMenuItem, SimpleMenuItem}
+
 
 object FSDemoMainMenu extends BSMenu(
   MenuSection("About FastScala")(

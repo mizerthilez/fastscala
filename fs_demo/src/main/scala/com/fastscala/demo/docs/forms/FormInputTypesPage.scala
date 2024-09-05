@@ -7,6 +7,7 @@ import com.fastscala.templates.bootstrap5.modals.BSModal5
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form6.DefaultForm6
 import com.fastscala.templates.form6.fields._
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv.given
 
 import java.awt.Color
 import java.time.format.DateTimeFormatter
@@ -16,7 +17,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
   override def pageTitle: String = "Form 6 Input Types"
 
   import DefaultBSForm6Renderer._
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
   override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit = {
     renderSnippet("String input") {

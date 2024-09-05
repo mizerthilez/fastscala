@@ -10,14 +10,14 @@ class HtmlUtilsPage extends MultipleCodeExamples2Page() {
 
   override def pageTitle: String = "HTML Basics"
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers._
-
   override def renderExplanation()(implicit fsc: FSContext): NodeSeq =
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     <p>
-      Remember you need the import: {span.apply("import com.fastscala.templates.bootstrap5.classes.BSHelpers._").text_bg_primary.d_inline}
+      Remember you need the import: {span.apply("import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}").text_bg_primary.d_inline}
     </p>
 
   override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit = {
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     renderSnippet("Adding a class") {
       span.apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").withClass("text-bg-success")
     }

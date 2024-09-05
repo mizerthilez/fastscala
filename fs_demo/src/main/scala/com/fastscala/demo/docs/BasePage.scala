@@ -30,7 +30,7 @@ trait BasePage extends ScalaXmlRenderableWithFSContext {
 com.fastscala.demo.pages.include_file_in_body
    */
   def render()(implicit fsc: FSContext): NodeSeq = {
-    import BSHelpers._
+    import BSHelpers.{given, *}
 
     <html>
       <head>

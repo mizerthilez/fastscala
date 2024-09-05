@@ -7,6 +7,8 @@ import com.fastscala.xml.scala_xml.JS
 import java.time.LocalDate
 import scala.xml.NodeSeq
 
+import com.fastscala.xml.scala_xml.given
+
 abstract class LoggedInPage() extends BasePage {
 
   implicit val atTime: LocalDate = LocalDate.now()

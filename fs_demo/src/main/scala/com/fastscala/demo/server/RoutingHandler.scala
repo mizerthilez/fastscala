@@ -9,7 +9,6 @@ import com.fastscala.demo.docs.forms.BasicFormExamplePage
 import com.fastscala.demo.docs.tables._
 import com.fastscala.server.{Ok, Redirect, Response, RoutingHandlerHelper}
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
-import com.fastscala.xml.scala_xml.FSScalaXmlSupport.fsXmlSupport
 import org.slf4j.LoggerFactory
 
 import java.nio.charset.StandardCharsets

@@ -51,7 +51,7 @@ class LoggerUISysoutOnly(val title: String) extends LoggerUI {
 
 class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI {
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
   val loggerOutputId = IdGen.id
   private var continue: Boolean = true
@@ -105,7 +105,7 @@ class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI 
 
 object LoggerUI {
 
-  implicit val Default = new LoggerUISysoutOnly("Default")
+  given LoggerUISysoutOnly = new LoggerUISysoutOnly("Default")
 
   def runInSeparateThreadAndOpenProgressModal(title: String)(code: LoggerUI => Unit)(implicit fsc: FSContext): Js = {
     val loggerUI = new LoggerUIImpl(title)
