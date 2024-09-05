@@ -7,7 +7,7 @@ import scala.xml.{Elem, NodeSeq}
 
 object SimpleAlert {
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
   def apply(
              contents: NodeSeq,

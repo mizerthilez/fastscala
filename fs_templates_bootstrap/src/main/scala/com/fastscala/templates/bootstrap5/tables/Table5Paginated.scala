@@ -9,7 +9,7 @@ import scala.xml.{Elem, NodeSeq}
 
 trait Table5Paginated extends Table5SeqDataSource {
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
   def defaultNumberOfAdditionalPagesEachSide = 3
 

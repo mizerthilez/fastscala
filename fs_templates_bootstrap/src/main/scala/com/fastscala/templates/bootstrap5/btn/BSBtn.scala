@@ -5,14 +5,14 @@ import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.utils.IcnFA.RichIcn
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
-import com.fastscala.xml.scala_xml.{FSScalaXmlSupport, JS}
+import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
 
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.xml.{Elem, NodeSeq}
 
 object BSBtn {
 
-  def apply(): BSBtn = new BSBtn("", FSScalaXmlSupport.fsXmlSupport.Empty)
+  def apply(): BSBtn = new BSBtn("", FSScalaXmlEnv.Empty)
 }
 
 case class BSBtn(
@@ -55,7 +55,7 @@ case class BSBtn(
 
   def icn(i: Elem): BSBtn = copy(content = i ++ <span> </span> ++ content)
 
-  def lbl(s: String): BSBtn = copy(content = content ++ FSScalaXmlSupport.fsXmlSupport.buildText(s))
+  def lbl(s: String): BSBtn = copy(content = content ++ FSScalaXmlEnv.buildText(s))
 
   def ns(ns: NodeSeq): BSBtn = copy(content = ns)
 

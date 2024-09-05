@@ -18,7 +18,7 @@ object BSModal5Size extends Enumeration {
 
 abstract class BSModal5Base {
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
   val modalId = IdGen.id("modal")
   val modalContentId = IdGen.id("modal-content")

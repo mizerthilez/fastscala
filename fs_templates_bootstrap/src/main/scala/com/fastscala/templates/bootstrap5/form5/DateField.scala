@@ -5,7 +5,7 @@ import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.utils.ImmediateInputFields
 import com.fastscala.templates.form5.Form5
 import com.fastscala.templates.form5.fields._
-import com.fastscala.xml.scala_xml.{FSScalaXmlSupport, JS}
+import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
 import org.joda.time.{DateTime, LocalDate}
 
 import java.util.Locale
@@ -22,7 +22,7 @@ trait DateFieldOptRenderer {
     daySelectElem: Elem,
     error: Option[NodeSeq]
   )(implicit hints: Seq[RenderHint]): Elem = {
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     div.withId(field.aroundId).apply {
       val showErrors = hints.contains(ShowValidationsHint)
       labelOpt.map(_.form_label.withFor(field.elemId)).getOrElse(Empty) ++
@@ -78,7 +78,7 @@ class DateFieldOpt(
 
   override def errors(): Seq[(ValidatableField, NodeSeq)] =
     if (required() && (currentYear.isEmpty || currentMonth.isEmpty || currentDay.isEmpty))
-      Seq((this, FSScalaXmlSupport.fsXmlSupport.buildText(renderer.defaultRequiredFieldLabel))) else Seq()
+      Seq((this, FSScalaXmlEnv.buildText(renderer.defaultRequiredFieldLabel))) else Seq()
 
   def render()(implicit form: Form5, fsc: FSContext, hints: Seq[RenderHint]): Elem = {
     withFieldRenderHints { implicit hints =>

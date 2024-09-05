@@ -8,7 +8,7 @@ import scala.xml.{Elem, NodeSeq}
 
 abstract class BSForm6Renderer {
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers._
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
   def defaultRequiredFieldLabel: String
 
@@ -33,7 +33,7 @@ abstract class BSForm6Renderer {
                             inputElem: Elem,
                             error: Option[NodeSeq]
                           )(implicit hints: Seq[RenderHint]): Elem = {
-      if (!field.enabled()) div.withId(field.aroundId).withStyle(";display:none;")
+      if (!field.enabled) div.withId(field.aroundId).withStyle(";display:none;")
       else div.mb_3.withId(field.aroundId).apply {
         val showErrors = hints.contains(ShowValidationsHint)
         label.map(lbl => BSHelpers.label.form_label.withAttr("for" -> field.elemId)(lbl)).getOrElse(Empty) ++
@@ -63,7 +63,7 @@ abstract class BSForm6Renderer {
                             inputElem: Elem,
                             error: Option[NodeSeq]
                           )(implicit hints: Seq[RenderHint]): Elem = {
-      if (!field.enabled()) div.withId(field.aroundId).withStyle(";display:none;")
+      if (!field.enabled) div.withId(field.aroundId).withStyle(";display:none;")
       else div.mb_3.withId(field.aroundId).apply {
         val showErrors = hints.contains(ShowValidationsHint)
         label.map(lbl => BSHelpers.label.form_label.withAttr("for" -> field.elemId)(lbl)).getOrElse(Empty) ++
@@ -91,7 +91,7 @@ abstract class BSForm6Renderer {
                             elem: Elem,
                             error: Option[NodeSeq]
                           )(implicit hints: Seq[RenderHint]): Elem = {
-      if (!field.enabled()) div.withId(field.aroundId).withStyle(";display:none;")
+      if (!field.enabled) div.withId(field.aroundId).withStyle(";display:none;")
       else div.mb_3.withId(field.aroundId).apply {
         val showErrors = true // hints.contains(ShowValidationsHint)
         label.map(lbl => BSHelpers.label.form_label.withAttr("for" -> field.elemId)(lbl)).getOrElse(Empty) ++
@@ -115,7 +115,7 @@ abstract class BSForm6Renderer {
     def defaultRequiredFieldLabel: String = BSForm6Renderer.this.defaultRequiredFieldLabel
 
     override def render[T](field: F6MultiSelectFieldBase[T])(label: Option[Elem], elem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem = {
-      if (!field.enabled()) div.withId(field.aroundId).withStyle(";display:none;")
+      if (!field.enabled) div.withId(field.aroundId).withStyle(";display:none;")
       else div.mb_3.withId(field.aroundId).apply {
         val showErrors = true // hints.contains(ShowValidationsHint)
         label.map(lbl => BSHelpers.label.form_label.withAttr("for" -> field.elemId)(lbl)).getOrElse(Empty) ++
@@ -143,7 +143,7 @@ abstract class BSForm6Renderer {
                          elem: Elem,
                          error: Option[NodeSeq]
                        )(implicit hints: Seq[RenderHint]): Elem = {
-      if (!field.enabled()) div.withId(field.aroundId).withStyle(";display:none;")
+      if (!field.enabled) div.withId(field.aroundId).withStyle(";display:none;")
       else div.mb_3.form_check.withId(field.aroundId).apply {
         val showErrors = hints.contains(ShowValidationsHint)
         elem
@@ -163,7 +163,7 @@ abstract class BSForm6Renderer {
 
   implicit def buttonFieldRenderer: ButtonF6FieldRenderer = new ButtonF6FieldRenderer {
     override def render(field: F6SaveButtonField[_])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem = {
-      if (!field.enabled()) div.withId(field.aroundId).withStyle(";display:none;")
+      if (!field.enabled) div.withId(field.aroundId).withStyle(";display:none;")
       else div.mb_3.addClass("d-grid gap-2 d-md-flex justify-content-md-end").withId(field.aroundId)(
         btn
           .withAttrIf(hints.contains(DisableFieldsHint), "disabled" -> "true")

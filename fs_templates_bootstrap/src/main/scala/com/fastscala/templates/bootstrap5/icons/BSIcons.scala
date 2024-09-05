@@ -1,6 +1,6 @@
 package com.fastscala.templates.bootstrap5.icons
 
-import com.fastscala.xml.scala_xml.FSScalaXmlSupport
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 import org.eclipse.jetty.util.IO
 
 import scala.xml.{Elem, XML}
@@ -9,7 +9,7 @@ class BSIcon(val name: String) {
 
   def clas = "bi-" + name
 
-  def icon: Elem = FSScalaXmlSupport.fsXmlSupport.buildElem("i", "class" -> clas)()
+  def icon: Elem = FSScalaXmlEnv.buildElem("i", "class" -> clas)()
 
   def asCssUrl: String = s"url(\"data:image/svg+xml,$svg\")"
 

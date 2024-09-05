@@ -1,6 +1,6 @@
 package com.fastscala.templates.bootstrap5.utils
 
-import com.fastscala.xml.scala_xml.FSScalaXmlSupport
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 import scala.xml.Elem
 
@@ -8,7 +8,7 @@ object IcnFA {
   type FaIcn = String
 
   implicit class RichIcn(i: FaIcn) {
-    def icn: Elem = FSScalaXmlSupport.fsXmlSupport.buildElem("i", "class" -> i)()
+    def icn: Elem = FSScalaXmlEnv.buildElem("i", "class" -> i)()
   }
 
   val adjust: FaIcn = " fa fa-adjust "
@@ -794,7 +794,7 @@ object AIcn {
   val dropbox: Icn = "icon-dropbox"
   val droplet: Icn = "icon-droplet"
   val evernote: Icn = "icon-evernote"
-  val export: Icn = "icon-export"
+  val `export`: Icn = "icon-export"
   val eye: Icn = "icon-eye"
   val facebook: Icn = "icon-facebook"
   val facebook_squared: Icn = "icon-facebook-squared"

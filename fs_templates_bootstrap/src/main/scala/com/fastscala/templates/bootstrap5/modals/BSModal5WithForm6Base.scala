@@ -6,6 +6,8 @@ import com.fastscala.templates.form6.{F6FormRenderer, Form6}
 
 import scala.xml.NodeSeq
 
+import com.fastscala.xml.scala_xml.given
+
 abstract class BSModal5WithForm6Base(
                                       val modalHeaderTitle: String
                                     )(implicit val formRenderer: F6FormRenderer) extends BSModal5Base with Form6 {
