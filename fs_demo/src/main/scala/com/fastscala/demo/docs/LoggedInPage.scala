@@ -10,7 +10,6 @@ import scala.xml.NodeSeq
 import com.fastscala.xml.scala_xml.given
 
 abstract class LoggedInPage() extends BasePage:
-
   implicit val atTime: LocalDate = LocalDate.now()
 
   override def navBarTopRight()(implicit fsc: FSContext): NodeSeq =
@@ -25,16 +24,15 @@ abstract class LoggedInPage() extends BasePage:
   //      }).btn.ms_2
 
   def renderSideMenu()(implicit fsc: FSContext): NodeSeq =
-    FSDemoMainMenu.render() // ++
-    //      hr ++
-    //      p_3.d_flex.align_items_center.apply {
-    //        a.apply(user.miniHeadshotOrPlaceholderRendered.withStyle("width: 55px;border-radius: 55px;")) ++
-    //          a.text_decoration_none.fw_bold.text_warning.ms_2.apply(user.fullName)
-    //      }
+  FSDemoMainMenu.render() // ++
+  //      hr ++
+  //      p_3.d_flex.align_items_center.apply {
+  //        a.apply(user.miniHeadshotOrPlaceholderRendered.withStyle("width: 55px;border-radius: 55px;")) ++
+  //          a.text_decoration_none.fw_bold.text_warning.ms_2.apply(user.fullName)
+  //      }
 
-  lazy val pageRenderer = JS.rerenderableContents(rerenderer => implicit fsc => {
-    renderPageContents()
-  })
+  lazy val pageRenderer =
+    JS.rerenderableContents(rerenderer => implicit fsc => renderPageContents())
 
   def rerenderPageContents(): Js = pageRenderer.rerender()
 

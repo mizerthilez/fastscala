@@ -1,20 +1,19 @@
 package com.fastscala.server
 
 import com.fastscala.core.FSSystem
-import com.fastscala.utils.{FSOptimizedResourceHandler, Jetty12StatisticsCollector}
+import com.fastscala.utils.{ FSOptimizedResourceHandler, Jetty12StatisticsCollector }
 import com.fastscala.websockets.FSWebsocketJettyContextHandler
 import com.typesafe.config.ConfigFactory
 import org.eclipse.jetty.http.CompressedContentFormat
-import org.eclipse.jetty.server._
+import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.gzip.GzipHandler
-import org.eclipse.jetty.server.handler.{ContextHandler, ResourceHandler, StatisticsHandler}
-import org.eclipse.jetty.util.resource.{Resources, ResourceFactory}
+import org.eclipse.jetty.server.handler.{ ContextHandler, ResourceHandler, StatisticsHandler }
+import org.eclipse.jetty.util.resource.{ Resources, ResourceFactory }
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 import org.eclipse.jetty.util.VirtualThreads
 
 abstract class JettyServerHelper():
-
   val config = ConfigFactory.load()
 
   def appName: String
@@ -61,15 +60,20 @@ abstract class JettyServerHelper():
     val jettyStaticFilesHandler = new FSOptimizedResourceHandler(resourceRoots)
 
     val resourceHandler = new ResourceHandler()
-    resourceHandler.setPrecompressedFormats(CompressedContentFormat.GZIP, CompressedContentFormat.BR, new CompressedContentFormat("bzip", ".bz"))
+    resourceHandler.setPrecompressedFormats(
+      CompressedContentFormat.GZIP,
+      CompressedContentFormat.BR,
+      new CompressedContentFormat("bzip", ".bz"),
+    )
     resourceHandler.setEtags(true)
     resourceHandler.setCacheControl("public, max-age=31536000")
     resourceHandler.setDirAllowed(false)
     resourceHandler.setBaseResource(ResourceFactory.combine({
       val resourceFactory = ResourceFactory.of(resourceHandler)
-      resourceRoots.map(resourceFactory.newClassLoaderResource(_))
-                   .filter(Resources.isReadableDirectory(_))
-    }: _*))
+      resourceRoots
+        .map(resourceFactory.newClassLoaderResource(_))
+        .filter(Resources.isReadableDirectory(_))
+    }*))
 
     val wsHandler = FSWebsocketJettyContextHandler(server, "/" + fss.FSPrefix)
     val gzipHandler = new GzipHandler():
@@ -79,17 +83,19 @@ abstract class JettyServerHelper():
 
     val mainHandler = buildMainHandler()
 
-    gzipHandler.setHandler(new Handler.Sequence(
-      (prependToHandlerList :::
-        List(
-          new ContextHandler(jettyStaticFilesHandler, "/static/optimized")
-          , fss
-          , mainHandler
-          , wsHandler
-          , resourceHandler
-        ) :::
-        appendToHandlerList): _*
-    ))
+    gzipHandler.setHandler(
+      new Handler.Sequence(
+        (prependToHandlerList :::
+          List(
+            new ContextHandler(jettyStaticFilesHandler, "/static/optimized"),
+            fss,
+            mainHandler,
+            wsHandler,
+            resourceHandler,
+          ) :::
+          appendToHandlerList)*
+      )
+    )
 
     val statHandler = new StatisticsHandler(gzipHandler)
     // register prometheus metrics
@@ -109,5 +115,4 @@ abstract class JettyServerHelper():
       println("Stopped the server")
       postStop()
       println("Post stop finished running")
-    else
-      while true do Thread.sleep(10000)
+    else while true do Thread.sleep(10000)

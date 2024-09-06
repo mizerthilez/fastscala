@@ -1,15 +1,14 @@
 package com.fastscala.templates.bootstrap5.tables
 
 import com.fastscala.core.FSContext
-import com.fastscala.templates.bootstrap5.utils.{BSBtn, ImmediateInputFields}
+import com.fastscala.templates.bootstrap5.utils.{ BSBtn, ImmediateInputFields }
 import com.fastscala.utils.Lazy
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 
-import scala.xml.{Elem, NodeSeq}
+import scala.xml.{ Elem, NodeSeq }
 
 trait Table5Paginated extends Table5SeqDataSource:
-
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
 
   def defaultNumberOfAdditionalPagesEachSide = 3
 
@@ -26,45 +25,57 @@ trait Table5Paginated extends Table5SeqDataSource:
   def maxPages = (seqRowsSource.size - 1) / currentPageSize()
 
   override def rowsHints(): Seq[RowsHint] = super.rowsHints() :+ PagingRowsHint(
-    offset = currentPage() * currentPageSize()
-    , limit = currentPageSize()
+    offset = currentPage() * currentPageSize(),
+    limit = currentPageSize(),
   )
 
   def visiblePages(): List[Int] =
-    (math.max(0, currentPage() - defaultNumberOfAdditionalPagesEachSide) to math.min(maxPages, (currentPage() + (defaultNumberOfAdditionalPagesEachSide * 2)))).take(defaultNumberOfAdditionalPagesEachSide * 2 + 1)
+    (math.max(0, currentPage() - defaultNumberOfAdditionalPagesEachSide) to math.min(
+      maxPages,
+      currentPage() + (defaultNumberOfAdditionalPagesEachSide * 2),
+    )).take(defaultNumberOfAdditionalPagesEachSide * 2 + 1)
       .toList
       .filter(_ >= 0)
 
   def renderPagesButtons()(implicit fsc: FSContext): Elem = div.d_grid.d_flex.mb_3.mx_3.gap_1.apply:
-    BSBtn().BtnLight.lbl("«").ajax(implicit fsc => {
-      currentPage() = math.max(0, currentPage() - 1)
-      rerenderTableAround()
-    }).btn ++
-      visiblePages().map(page => {
+    BSBtn().BtnLight
+      .lbl("«")
+      .ajax { implicit fsc =>
+        currentPage() = math.max(0, currentPage() - 1)
+        rerenderTableAround()
+      }
+      .btn ++
+      visiblePages().map { page =>
         (if currentPage() == page then BSBtn().BtnPrimary else BSBtn().BtnLight)
           .lbl((page + 1).toString)
-          .ajax(implicit fsc => {
+          .ajax { implicit fsc =>
             currentPage() = page
             rerenderTableAround()
-          })
+          }
           .btn
-      }).mkNS ++
-      BSBtn().BtnLight.lbl("»").ajax(implicit fsc => {
-        currentPage() = math.min(maxPages, currentPage() + 1)
-        rerenderTableAround()
-      }).btn
+      }.mkNS ++
+      BSBtn().BtnLight
+        .lbl("»")
+        .ajax { implicit fsc =>
+          currentPage() = math.min(maxPages, currentPage() + 1)
+          rerenderTableAround()
+        }
+        .btn
 
   def renderPageSizeDropdown()(implicit fsc: FSContext): Elem =
-    ImmediateInputFields.select[Int](
-      () => visiblePageSizes,
-      () => currentPageSize(),
-      pageSize => {
-        currentPageSize() = pageSize
-        currentPage() = 0
-        rerenderTableAround()
-      },
-      style = "max-width: 200px; float: right;"
-    ).mb_3.mx_3
+    ImmediateInputFields
+      .select[Int](
+        () => visiblePageSizes,
+        () => currentPageSize(),
+        pageSize =>
+          currentPageSize() = pageSize
+          currentPage() = 0
+          rerenderTableAround()
+        ,
+        style = "max-width: 200px; float: right;",
+      )
+      .mb_3
+      .mx_3
 
   def renderPaginationBottomControls()(implicit fsc: FSContext): Elem =
     row.apply:

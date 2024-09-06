@@ -4,10 +4,9 @@ import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 
 class BootstrapTypographyPage extends MultipleCodeExamples2Page():
-
   override def pageTitle: String = "Bootstrap Typography"
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
 
   override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
     renderSnippet("Headings"):
@@ -27,7 +26,9 @@ class BootstrapTypographyPage extends MultipleCodeExamples2Page():
     renderSnippet("Lead"):
       lead.apply("Lead paragraph example")
     renderSnippet("Inline text elements"):
-      <p>{mark.apply("Lorem ipsum")} dolor sit amet, consectetur adipiscing elit. Nulla luctus magna at lorem faucibus, vel condimentum lacus imperdiet.</p> ++
+      <p>{
+        mark.apply("Lorem ipsum")
+      } dolor sit amet, consectetur adipiscing elit. Nulla luctus magna at lorem faucibus, vel condimentum lacus imperdiet.</p> ++
         p.apply(del.apply("del tag example")) ++
         p.apply(s.apply("s tag example")) ++
         p.apply(ins.apply("ins tag example")) ++
@@ -38,11 +39,19 @@ class BootstrapTypographyPage extends MultipleCodeExamples2Page():
     renderSnippet("Abbreviations"):
       p.apply(abbr.apply("WWW").withTitle("World Wide Web"))
     renderSnippet("Blockquotes"):
-      blockquote.apply(p.apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum a porttitor elit, eu viverra nibh.")) ++
+      blockquote.apply(
+        p.apply(
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum a porttitor elit, eu viverra nibh."
+        )
+      ) ++
         blockquote.apply(p.apply("Centered blockquote")).text_center ++
         blockquote.apply(p.apply("Aligned to the right blockquote")).text_end
     renderSnippet("Blockquotes"):
-      blockquote.apply(p.apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum a porttitor elit, eu viverra nibh.")) ++
+      blockquote.apply(
+        p.apply(
+          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum a porttitor elit, eu viverra nibh."
+        )
+      ) ++
         blockquote.apply(p.apply("Centered blockquote")).text_center ++
         blockquote.apply(p.apply("Aligned to the right blockquote")).text_end
     renderSnippet("Lists"):
@@ -52,13 +61,14 @@ class BootstrapTypographyPage extends MultipleCodeExamples2Page():
           li.apply("Item 3") ++
           li.apply("Item 4") ++
           li.apply("Item 5") ++
-          li.apply(p.apply("Nested list:") ++
-            ul.apply {
-              li.apply("Item 1") ++
-                li.apply("Item 2") ++
-                li.apply("Item 3") ++
-                li.apply("Item 4") ++
-                li.apply("Item 5")
-            }
+          li.apply(
+            p.apply("Nested list:") ++
+              ul.apply {
+                li.apply("Item 1") ++
+                  li.apply("Item 2") ++
+                  li.apply("Item 3") ++
+                  li.apply("Item 4") ++
+                  li.apply("Item 5")
+              }
           )
     closeSnippet()

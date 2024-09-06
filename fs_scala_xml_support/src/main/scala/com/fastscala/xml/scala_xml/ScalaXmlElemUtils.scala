@@ -3,7 +3,7 @@ package com.fastscala.xml.scala_xml
 import com.fastscala.js.Js
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
 
-import scala.xml._
+import scala.xml.*
 
 trait ScalaXmlElemUtils:
   def elem: Elem
@@ -11,31 +11,43 @@ trait ScalaXmlElemUtils:
   def attributeTransform(attrName: String, transform: Option[String] => String): Elem =
 
     def updateMetaData(
-                        metaData: MetaData = Option(elem.attributes).getOrElse(Null),
-                        found: Boolean = false
-                      ): MetaData = metaData match
+      metaData: MetaData = Option(elem.attributes).getOrElse(Null),
+      found: Boolean = false,
+    ): MetaData = metaData match
       case Null if !found => new UnprefixedAttribute(attrName, transform(None), Null)
       case Null if found => Null
       case PrefixedAttribute((pre, key, value, next)) if key == attrName =>
-        new PrefixedAttribute(pre, key, value match {
-          case null => Seq(Text(transform(None)))
-          case Seq(Text(value)) => Seq(Text(transform(Some(value))))
-          case other => other
-        }, updateMetaData(next, found = true))
+        new PrefixedAttribute(
+          pre,
+          key,
+          value match
+            case null => Seq(Text(transform(None)))
+            case Seq(Text(value)) => Seq(Text(transform(Some(value))))
+            case other => other
+          ,
+          updateMetaData(next, found = true),
+        )
       case UnprefixedAttribute((key, value, next)) if key == attrName =>
-        new UnprefixedAttribute(key, value match {
-          case null => Seq(Text(transform(None)))
-          case Seq(Text(value)) => Seq(Text(transform(Some(value))))
-          case other => other
-        }, updateMetaData(next, found = true))
-      case PrefixedAttribute((pre, key, value, next)) => new PrefixedAttribute(pre, key, value, updateMetaData(next, found))
-      case UnprefixedAttribute((key, value, next)) => new UnprefixedAttribute(key, value, updateMetaData(next, found))
+        new UnprefixedAttribute(
+          key,
+          value match
+            case null => Seq(Text(transform(None)))
+            case Seq(Text(value)) => Seq(Text(transform(Some(value))))
+            case other => other
+          ,
+          updateMetaData(next, found = true),
+        )
+      case PrefixedAttribute((pre, key, value, next)) =>
+        new PrefixedAttribute(pre, key, value, updateMetaData(next, found))
+      case UnprefixedAttribute((key, value, next)) =>
+        new UnprefixedAttribute(key, value, updateMetaData(next, found))
 
-    new Elem(elem.prefix, elem.label, updateMetaData(), elem.scope, elem.minimizeEmpty, elem.child: _*)
+    new Elem(elem.prefix, elem.label, updateMetaData(), elem.scope, elem.minimizeEmpty, elem.child*)
 
   def addClass(`class`: String): Elem = attributeTransform("class", _.getOrElse("") + " " + `class`)
 
-  def withClass(`class`: String): Elem = attributeTransform("class", _.getOrElse("") + " " + `class`)
+  def withClass(`class`: String): Elem =
+    attributeTransform("class", _.getOrElse("") + " " + `class`)
 
   def addOnClick(js: String): Elem = attributeTransform("onclick", _.getOrElse("") + ";" + js)
 
@@ -45,7 +57,8 @@ trait ScalaXmlElemUtils:
 
   def withAttrIf(bool: Boolean, kv: (String, String)): Elem = if bool then withAttr(kv) else elem
 
-  def withStyle(style: String): Elem = attributeTransform("style", _.map(_ + ";").getOrElse("") + style)
+  def withStyle(style: String): Elem =
+    attributeTransform("style", _.map(_ + ";").getOrElse("") + style)
 
   def withFor(`for`: String): Elem = attributeTransform("for", _ => `for`)
 
@@ -59,13 +72,16 @@ trait ScalaXmlElemUtils:
 
   def withTypeSubmit(): Elem = attributeTransform("type", _ => "submit")
 
-  def withAttr(name: String)(value: Option[String] => String): Elem = attributeTransform(name, value)
+  def withAttr(name: String)(value: Option[String] => String): Elem =
+    attributeTransform(name, value)
 
   def withAttr(kv: (String, String)): Elem = withAttr(kv._1)(_ => kv._2)
 
-  def withAttrs(attrs: (String, String)*): Elem = attrs.foldLeft[Elem](elem)((acc, next) => new ScalaXmlElemUtils {
-    override def elem: Elem = acc
-  }.withAttr(next))
+  def withAttrs(attrs: (String, String)*): Elem = attrs.foldLeft[Elem](elem)((acc, next) =>
+    new ScalaXmlElemUtils:
+      override def elem: Elem = acc
+    .withAttr(next)
+  )
 
   def withRole(role: String): Elem = attributeTransform("role", _ => role)
 
@@ -75,7 +91,8 @@ trait ScalaXmlElemUtils:
 
   def withId(id: String): Elem = attributeTransform("id", _ => id)
 
-  def withIdIfNotSet(id: String): Elem = attributeTransform("id", existing => existing.getOrElse(id))
+  def withIdIfNotSet(id: String): Elem =
+    attributeTransform("id", existing => existing.getOrElse(id))
 
   def withPrependedToContents(value: NodeSeq): Elem = elem.copy(child = value ++ elem.child)
 
@@ -93,16 +110,18 @@ trait ScalaXmlElemUtils:
 
   def showIf(bool: Boolean): NodeSeq = if bool then elem else NodeSeq.Empty
 
-  def getAttrs: List[(String, String)] = elem.attributes.toList.map(a => a.key -> a.value.map(_.toString()).mkString(" "))
+  def getAttrs: List[(String, String)] =
+    elem.attributes.toList.map(a => a.key -> a.value.map(_.toString()).mkString(" "))
 
-  def getClassAttr: String = elem.attributes.get("class").map(_.map(_.toString()).mkString(" ")).getOrElse("")
+  def getClassAttr: String =
+    elem.attributes.get("class").map(_.map(_.toString()).mkString(" ")).getOrElse("")
 
-  def getStyleAttr: String = elem.attributes.get("style").map(_.map(_.toString()).mkString(" ")).getOrElse("")
+  def getStyleAttr: String =
+    elem.attributes.get("style").map(_.map(_.toString()).mkString(" ")).getOrElse("")
 
   def getId: Option[String] = elem.attributes.get("id").map(_.map(_.toString()).mkString(" "))
 
 object ScalaXmlElemUtils:
-
   implicit class RichElem(val elem: Elem) extends ScalaXmlElemUtils
 
   def showIf(b: Boolean)(ns: => NodeSeq): NodeSeq = if b then ns else NodeSeq.Empty

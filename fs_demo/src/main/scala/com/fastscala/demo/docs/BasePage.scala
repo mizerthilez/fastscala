@@ -2,16 +2,14 @@ package com.fastscala.demo.docs
 
 import com.fastscala.core.FSContext
 import com.fastscala.templates.bootstrap5.classes.BSHelpers
-import com.fastscala.xml.scala_xml.{JS, ScalaXmlRenderableWithFSContext}
+import com.fastscala.xml.scala_xml.{ JS, ScalaXmlRenderableWithFSContext }
 import com.typesafe.config.ConfigFactory
 
 import scala.io.Source
 import scala.util.Try
 import scala.xml.NodeSeq
 
-
 trait BasePage extends ScalaXmlRenderableWithFSContext:
-
   val config = ConfigFactory.load()
 
   def navBarTopRight()(implicit fsc: FSContext): NodeSeq
@@ -30,7 +28,7 @@ trait BasePage extends ScalaXmlRenderableWithFSContext:
 com.fastscala.demo.pages.include_file_in_body
    */
   def render()(implicit fsc: FSContext): NodeSeq =
-    import BSHelpers.{given, *}
+    import BSHelpers.{ given, * }
 
     <html>
       <head>
@@ -45,7 +43,12 @@ com.fastscala.demo.pages.include_file_in_body
         <link href="/static/custom_base_page.css" rel="stylesheet"/>
         {JS.inScriptTag(fsc.fsPageScript())}
         {append2Head()}
-        {Try(config.getString("com.fastscala.demo.pages.include_file_in_head")).map(Source.fromFile(_).getLines().mkString("\n")).map(scala.xml.Unparsed(_)).getOrElse(NodeSeq.Empty)}
+        {
+      Try(config.getString("com.fastscala.demo.pages.include_file_in_head"))
+        .map(Source.fromFile(_).getLines().mkString("\n"))
+        .map(scala.xml.Unparsed(_))
+        .getOrElse(NodeSeq.Empty)
+    }
       </head>
       <body>
 
@@ -96,7 +99,11 @@ com.fastscala.demo.pages.include_file_in_body
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <script src="//cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>
         {append2Body()}
-        {Try(config.getString("com.fastscala.demo.pages.include_file_in_body")).map(Source.fromFile(_).getLines().mkString("\n")).map(scala.xml.Unparsed(_)).getOrElse(NodeSeq.Empty)}
+        {
+      Try(config.getString("com.fastscala.demo.pages.include_file_in_body"))
+        .map(Source.fromFile(_).getLines().mkString("\n"))
+        .map(scala.xml.Unparsed(_))
+        .getOrElse(NodeSeq.Empty)
+    }
       </body>
     </html>
-

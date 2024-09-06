@@ -7,7 +7,6 @@ import com.fastscala.templates.utils.ElemWithRandomId
 import scala.xml.NodeSeq
 
 trait Form extends ElemWithRandomId:
-
   implicit def form: Form = this
 
   val rootField: FormField

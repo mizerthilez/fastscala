@@ -2,7 +2,7 @@ package com.fastscala.demo.docs.navigation
 
 import com.fastscala.core.FSContext
 
-import scala.xml.{Elem, NodeSeq}
+import scala.xml.{ Elem, NodeSeq }
 
 trait BSMenuRenderer:
   def render(elem: BSMenu)(implicit fsc: FSContext): NodeSeq

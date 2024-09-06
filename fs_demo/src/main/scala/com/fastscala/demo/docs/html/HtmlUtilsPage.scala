@@ -7,23 +7,33 @@ import com.fastscala.js.Js
 import scala.xml.NodeSeq
 
 class HtmlUtilsPage extends MultipleCodeExamples2Page():
-
   override def pageTitle: String = "HTML Basics"
 
   override def renderExplanation()(implicit fsc: FSContext): NodeSeq =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     <p>
-      Remember you need the import: {span.apply("import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}").text_bg_primary.d_inline}
+      Remember you need the import: {
+      span
+        .apply("import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}")
+        .text_bg_primary
+        .d_inline
+    }
     </p>
 
   override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     renderSnippet("Adding a class"):
-      span.apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").withClass("text-bg-success")
+      span
+        .apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
+        .withClass("text-bg-success")
     renderSnippet("Adding a style"):
-      span.apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").withStyle("color: green;")
+      span
+        .apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
+        .withStyle("color: green;")
     renderSnippet("Adding an onclick handler"):
-      span.apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").addOnClick(Js.alert("Clicked"))
+      span
+        .apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
+        .addOnClick(Js.alert("Clicked"))
     renderSnippet("Adding a class conditionally"):
       val value = math.random() - 0.5
       span.apply(f"$value%.2f").withClassIf(value < 0, "text-bg-danger")
@@ -39,7 +49,9 @@ class HtmlUtilsPage extends MultipleCodeExamples2Page():
     renderSnippet("Setting id"):
       span.apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").withId("main_label")
     renderSnippet("Setting id if not set already"):
-      span.apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.").withIdIfNotSet("main_label")
+      span
+        .apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
+        .withIdIfNotSet("main_label")
     renderSnippet("Setting href"):
       a.apply("open google").withHref("https://www.google.com")
     renderSnippet("Prepend/Append to contents"):

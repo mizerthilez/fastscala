@@ -2,17 +2,15 @@ package com.fastscala.demo.docs.tables
 
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
-import com.fastscala.demo.docs.data.{CountriesData, Country}
+import com.fastscala.demo.docs.data.{ CountriesData, Country }
 import com.fastscala.js.Js
-import com.fastscala.templates.bootstrap5.tables._
+import com.fastscala.templates.bootstrap5.tables.*
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 
 import java.util.Date
 import scala.xml.NodeSeq
 
-
 class BasicTableExamplePage() extends SingleCodeExamplePage():
-
   override def pageTitle: String = "Table example"
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
@@ -22,20 +20,29 @@ class BasicTableExamplePage() extends SingleCodeExamplePage():
       with Table5Paginated
       with Table5SeqSortableDataSource
       with Table5StandardColumns
-      with Table5Sortable {
+      with Table5Sortable:
       override type R = Country
 
+      override def aroundClasses()(implicit fsc: FSContext): String =
+        super.aroundClasses() + " mb-5"
 
+      override def tableHeadStyle: Option[Table5BootrapStyles.Value] =
+        Some(Table5BootrapStyles.Primary)
 
-      override def aroundClasses()(implicit fsc: FSContext): String = super.aroundClasses() + " mb-5"
+      override def tableResponsive: Option[Table5BootrapResponsiveSizes.Value] =
+        Some(Table5BootrapResponsiveSizes.ALL)
 
-      override def tableHeadStyle: Option[Table5BootrapStyles.Value] = Some(Table5BootrapStyles.Primary)
-
-      override def tableResponsive: Option[Table5BootrapResponsiveSizes.Value] = Some(Table5BootrapResponsiveSizes.ALL)
-
-      val ColActions = ColNs("Actions", implicit fsc => row => BSBtn().BtnPrimary.sm.lbl("Time?").ajax(implicit fsc => {
-        Js.alert(s"Time on server is: ${new Date().toGMTString}")
-      }).btn)
+      val ColActions = ColNs(
+        "Actions",
+        implicit fsc =>
+          row =>
+            BSBtn().BtnPrimary.sm
+              .lbl("Time?")
+              .ajax { implicit fsc =>
+                Js.alert(s"Time on server is: ${new Date().toGMTString}")
+              }
+              .btn,
+      )
       val ColName = ColStr("Name", _.name.common)
       val ColCCA2 = ColStr("CCA2", _.cca2)
       val ColCCN3 = ColStr("CCN3", _.ccn3)
@@ -54,8 +61,8 @@ class BasicTableExamplePage() extends SingleCodeExamplePage():
       val ColCallingCodes = ColStr("Calling Codes", _.callingCodes.mkString(", "))
       val ColFlag = ColStr("Flag", _.flag)
 
-
-      override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
+      override def rowsSorter
+        : PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
         case ColName => _.sortBy(_.name.common)
         case ColCCA2 => _.sortBy(_.cca2)
         case ColCCN3 => _.sortBy(_.ccn3)
@@ -75,12 +82,12 @@ class BasicTableExamplePage() extends SingleCodeExamplePage():
         case ColFlag => _.sortBy(_.flag)
 
       override def columns(): List[C] = List(
-        ColName
-        , ColCCA2
-        , ColCCN3
-        , ColCCA3
-        , ColCIOC
-        , ColActions
+        ColName,
+        ColCCA2,
+        ColCCN3,
+        ColCCA3,
+        ColCIOC,
+        ColActions,
         //        , ColStatus
         //        , ColUNMember
         //        , ColCapital
@@ -96,6 +103,5 @@ class BasicTableExamplePage() extends SingleCodeExamplePage():
       )
 
       override def seqRowsSource: Seq[Country] = CountriesData.data
-
-    }.render()
+    .render()
     // === code snippet ===

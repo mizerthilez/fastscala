@@ -1,6 +1,6 @@
 package com.fastscala.db.observable
 
-import com.fastscala.db.{RowBase, TableBase}
+import com.fastscala.db.{ RowBase, TableBase }
 
 trait DBObserver:
   def observingTables: Seq[TableBase]

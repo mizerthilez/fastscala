@@ -9,16 +9,19 @@ import scalatags.Text.TypedTag
 import scala.xml.NodeSeq
 
 class ScalaTagsPage extends MultipleCodeExamples2Page():
-
   override def pageTitle: String = "ScalaTags interoperability"
 
   override def renderExplanation()(implicit fsc: FSContext): NodeSeq =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     <p>
-      Fastscala is not tied to {span.badge.text_bg_secondary.apply("scala-xml")}, but the libraries that are on top of do use it.
+      Fastscala is not tied to {
+      span.badge.text_bg_secondary.apply("scala-xml")
+    }, but the libraries that are on top of do use it.
     </p>
     <p>
-      If you want to use ScalaTags, you can use for example an implicit conversion to {span.badge.text_bg_secondary.apply("scala-xml")}:
+      If you want to use ScalaTags, you can use for example an implicit conversion to {
+      span.badge.text_bg_secondary.apply("scala-xml")
+    }:
       <b><pre>implicit def scalaTags2ScalaXml(frag: TypedTag[String]): NodeSeq = scala.xml.Unparsed(frag.render)</pre></b>
     </p>
 
@@ -28,14 +31,18 @@ class ScalaTagsPage extends MultipleCodeExamples2Page():
       implicit def scalaTags2ScalaXml(frag: TypedTag[String]): NodeSeq =
         scala.xml.Unparsed(frag.render)
 
-      BSBtn().BtnPrimary.lbl("Open Modal").ajax(implicit fsc =>
-        BSModal5.verySimple("Simple modal", "Close")({ modal =>
-          implicit fsc =>
-            import scalatags.Text.all._
+      BSBtn().BtnPrimary
+        .lbl("Open Modal")
+        .ajax(implicit fsc =>
+          BSModal5.verySimple("Simple modal", "Close") { modal => implicit fsc =>
+            import scalatags.Text.all.*
             div(
-              p("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id elit velit. Proin convallis ultrices nisi ac fermentum."),
-              p("Nunc a lobortis arcu. Nullam cursus dapibus risus in pulvinar.")
+              p(
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id elit velit. Proin convallis ultrices nisi ac fermentum."
+              ),
+              p("Nunc a lobortis arcu. Nullam cursus dapibus risus in pulvinar."),
             )
-        })
-      ).btn
+          }
+        )
+        .btn
     closeSnippet()

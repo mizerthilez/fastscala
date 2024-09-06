@@ -25,7 +25,13 @@ trait DefaultMenuSectionRenderer extends MenuSectionRenderer:
     val isOpen = elem.items.exists(_.matches(fsc.page.req.getHttpURI.getPath))
     val id = IdGen.id
     <li class="mb-1">
-      <button class={"text-white btn bi btn-toggle d-inline-flex align-items-center rounded border-0" + (if isOpen then "" else " collapsed")} data-bs-toggle="collapse" data-bs-target={s"#$id"} aria-expanded={isOpen.toString}>
+      <button class={
+      "text-white btn bi btn-toggle d-inline-flex align-items-center rounded border-0" + (if isOpen
+                                                                                          then ""
+                                                                                          else
+                                                                                            " collapsed"
+      )
+    } data-bs-toggle="collapse" data-bs-target={s"#$id"} aria-expanded={isOpen.toString}>
         {elem.name}
       </button>
       <div class={"collapse" + (if isOpen then " show" else "")} id={id}>
@@ -36,10 +42,17 @@ trait DefaultMenuSectionRenderer extends MenuSectionRenderer:
     </li>
 
 trait DefaultSimpleMenuItemRenderer extends SimpleMenuItemRenderer:
-  def render(elem: SimpleMenuItem)(implicit fsc: FSContext): NodeSeq = <li><a href={elem.href} class="text-white d-inline-flex text-decoration-none rounded">{elem.name}</a></li>
+  def render(elem: SimpleMenuItem)(implicit fsc: FSContext): NodeSeq = <li><a href={
+    elem.href
+  } class="text-white d-inline-flex text-decoration-none rounded">{elem.name}</a></li>
 
 trait DefaultRoutingMenuItemRenderer extends RoutingMenuItemRenderer:
-  def render(elem: RoutingMenuItem)(implicit fsc: FSContext): NodeSeq = <li><a href={elem.href} class="text-white d-inline-flex text-decoration-none rounded">{elem.name}</a></li>
+  def render(elem: RoutingMenuItem)(implicit fsc: FSContext): NodeSeq = <li><a href={
+    elem.href
+  } class="text-white d-inline-flex text-decoration-none rounded">{elem.name}</a></li>
 
 trait DefaultHeaderMenuItemRenderer extends HeaderMenuItemRenderer:
-  def render(elem: HeaderMenuItem)(implicit fsc: FSContext): NodeSeq = <li class="mt-3"><span class="menu-heading fw-bold text-uppercase fs-7 ">{elem.title}</span></li>
+  def render(elem: HeaderMenuItem)(implicit fsc: FSContext): NodeSeq =
+    <li class="mt-3"><span class="menu-heading fw-bold text-uppercase fs-7 ">{
+      elem.title
+    }</span></li>

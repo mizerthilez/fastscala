@@ -5,7 +5,6 @@ import java.util.Base64
 import scala.util.Random
 
 object IdGen:
-
   private val rand = new Random()
   private val randGen = new SecureRandom()
 

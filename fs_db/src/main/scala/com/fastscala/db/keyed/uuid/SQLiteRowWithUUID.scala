@@ -1,21 +1,19 @@
 package com.fastscala.db.keyed.uuid
 
-import com.fastscala.db.{Row, SQLiteTableWithUUID}
-import scalikejdbc._
+import com.fastscala.db.{ Row, SQLiteTableWithUUID }
+import scalikejdbc.*
 
 import java.util.UUID
 
 trait SQLiteRowWithUUID[R <: SQLiteRowWithUUID[R]] extends Row[R] with RowWithUuidIdBase:
   self: R =>
-
   def table: SQLiteTableWithUUID[R]
 
   def saveSQL(): SQL[Nothing, NoExtractor] =
     val sql = if uuid.isEmpty then
       uuid = Some(UUID.randomUUID())
       table.insertSQL(this)
-    else
-      table.updateSQL(this, sqls" where uuid = ${uuid.get.toString}")
+    else table.updateSQL(this, sqls" where uuid = ${uuid.get.toString}")
     sql
 
   def reload(): R =
@@ -24,25 +22,26 @@ trait SQLiteRowWithUUID[R <: SQLiteRowWithUUID[R]] extends Row[R] with RowWithUu
       case None => this
 
   def save(): this.type =
-    DB.localTx({ implicit session => saveSQL().update() })
+    DB.localTx(implicit session => saveSQL().update())
     this
 
   def update(): Unit =
-    uuid.foreach(uuid => {
-      DB.localTx({ implicit session =>
+    uuid.foreach { uuid =>
+      DB.localTx { implicit session =>
         table.updateSQL(this, sqls" where uuid = ${uuid.toString}").execute()
-      })
-    })
+      }
+    }
 
   def delete(): Unit =
-    uuid.foreach(uuid => {
-      DB.localTx({ implicit session =>
+    uuid.foreach { uuid =>
+      DB.localTx { implicit session =>
         table.deleteSQL(this, sqls"where uuid = $uuid").execute()
-      })
-    })
+      }
+    }
 
   override def insert(): Unit =
-    if uuid.isDefined then throw new Exception(s"Row already inserted with uuid ${uuid.get.toString}")
+    if uuid.isDefined then
+      throw new Exception(s"Row already inserted with uuid ${uuid.get.toString}")
     super.insert()
 
   override def hashCode(): Int = uuid.hashCode() * 41
@@ -51,6 +50,5 @@ trait SQLiteRowWithUUID[R <: SQLiteRowWithUUID[R]] extends Row[R] with RowWithUu
     if obj.isInstanceOf[R] then
       val obj2 = obj.asInstanceOf[R]
       (obj2.uuid.isDefined && uuid.isDefined && obj2.uuid == uuid) ||
-        (obj2.uuid.isEmpty && uuid.isEmpty && super.equals(obj2))
-    else
-      false
+      (obj2.uuid.isEmpty && uuid.isEmpty && super.equals(obj2))
+    else false

@@ -3,7 +3,6 @@ package com.fastscala.templates.utils
 import scala.xml.NodeSeq
 
 case class DivBuilder(classes: String = ""):
-
   def containerfluid = copy(classes = classes + " container-fluid")
 
   def row = copy(classes = classes + " row")

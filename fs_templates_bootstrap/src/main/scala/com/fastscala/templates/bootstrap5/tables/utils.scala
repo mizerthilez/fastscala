@@ -2,7 +2,6 @@ package com.fastscala.templates.bootstrap5.tables
 
 import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer
 
-
 class AroundId(val id: String) extends AnyVal
 
 class TableId(val id: String) extends AnyVal

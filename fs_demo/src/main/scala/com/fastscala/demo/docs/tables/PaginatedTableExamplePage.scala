@@ -2,14 +2,12 @@ package com.fastscala.demo.docs.tables
 
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
-import com.fastscala.demo.docs.data.{CountriesData, Country}
-import com.fastscala.templates.bootstrap5.tables._
+import com.fastscala.demo.docs.data.{ CountriesData, Country }
+import com.fastscala.templates.bootstrap5.tables.*
 
 import scala.xml.NodeSeq
 
-
 class PaginatedTableExamplePage extends SingleCodeExamplePage():
-
   override def pageTitle: String = "Paginated Table Example"
 
   // === code snippet ===
@@ -18,11 +16,9 @@ class PaginatedTableExamplePage extends SingleCodeExamplePage():
       with Table5BaseBootrapSupport
       with Table5StandardColumns
       with Table5SeqSortableDataSource
-      with Table5Paginated {
+      with Table5Paginated:
 
       override type R = Country
-
-
 
       override def defaultPageSize = 10
 
@@ -32,16 +28,17 @@ class PaginatedTableExamplePage extends SingleCodeExamplePage():
       val ColArea = ColStr("Area", _.area.toString)
 
       override def columns(): List[C] = List(
-        ColName
-        , ColCapital
-        , ColRegion
-        , ColArea
+        ColName,
+        ColCapital,
+        ColRegion,
+        ColArea,
       )
 
-
-      override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
+      override def rowsSorter
+        : PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
         case ColName => _.sortBy(_.name.common)
 
       override def seqRowsSource: Seq[Country] = CountriesData.data
-    }.render()
+    .render()
+
   // === code snippet ===

@@ -1,7 +1,12 @@
 package com.fastscala.xml.scala_xml
 
-import com.fastscala.js.{Js, JsXmlUtils, RichJsXmlUtils}
-import com.fastscala.js.rerenderers.{ContentRerenderer, ContentRerendererP, Rerenderer, RerendererP}
+import com.fastscala.js.{ Js, JsXmlUtils, RichJsXmlUtils }
+import com.fastscala.js.rerenderers.{
+  ContentRerenderer,
+  ContentRerendererP,
+  Rerenderer,
+  RerendererP,
+}
 
 object JS extends JsXmlUtils[FSScalaXmlEnv.type]:
   type ScalaXmlRerenderer = Rerenderer[FSScalaXmlEnv.type]

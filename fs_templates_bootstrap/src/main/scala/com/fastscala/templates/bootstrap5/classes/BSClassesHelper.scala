@@ -1,7 +1,6 @@
 package com.fastscala.templates.bootstrap5.classes
 
 trait BSClassesHelper[T]:
-
   protected def withClass(clas: String): T
 
   def accordion: T = withClass("accordion")

@@ -1,55 +1,60 @@
 package com.fastscala.templates.bootstrap5.utils
 
-import com.fastscala.core.{FSContext, FSUploadedFile}
+import com.fastscala.core.{ FSContext, FSUploadedFile }
 import com.fastscala.js.Js
 import com.fastscala.utils.IdGen
-import com.fastscala.xml.scala_xml.{JS, ScalaXmlElemUtils}
+import com.fastscala.xml.scala_xml.{ JS, ScalaXmlElemUtils }
 
 import java.io.ByteArrayInputStream
 import java.util.Base64
 import java.util.zip.ZipInputStream
 import scala.util.chaining.scalaUtilChainingOps
-import scala.xml.{Elem, NodeSeq}
+import scala.xml.{ Elem, NodeSeq }
 
 object FileUpload:
-
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
 
   def apply(
-             processUpload: Seq[FSUploadedFile] => Js,
-             labelOpt: Option[Elem] = None,
-             transformSubmit: Elem => Elem = (_: Elem).apply("Upload").btn.btn_success.mt_2.w_100,
-             buttonLbl: Option[String] = None,
-             multiple: Boolean = false,
-             clipboardUpload: Boolean = false,
-             acceptTypes: Option[String] = None
-           )(implicit fsc: FSContext): NodeSeq =
-    val actionUrl = fsc.fileUploadActionUrl({
+    processUpload: Seq[FSUploadedFile] => Js,
+    labelOpt: Option[Elem] = None,
+    transformSubmit: Elem => Elem = (_: Elem).apply("Upload").btn.btn_success.mt_2.w_100,
+    buttonLbl: Option[String] = None,
+    multiple: Boolean = false,
+    clipboardUpload: Boolean = false,
+    acceptTypes: Option[String] = None,
+  )(implicit fsc: FSContext
+  ): NodeSeq =
+    val actionUrl = fsc.fileUploadActionUrl {
       case uploadedFile => processUpload(uploadedFile)
-    })
+    }
     val targetId = IdGen.id("targetFrame")
     val inputId = IdGen.id("input")
     val buttonId = IdGen.id("btn")
-    (ScalaXmlElemUtils.showIf(clipboardUpload) {
-      val callback = fsc.callbackJSON(Js("[fileName, fileType, base64String]"), json => {
-        json.arrayOrObject(
-          JS.void,
-          {
-            case Vector(fileName, fileType, contentsEncoded) =>
-              processUpload(
-                Seq(new FSUploadedFile(
-                  fileName.asString.get,
-                  fileName.asString.get,
-                  fileType.asString.get,
-                  Base64.getDecoder().decode(contentsEncoded.asString.get)
-                ))
-              )
-          },
-          obj => JS.void
-        )
-      })
-      JS.inScriptTag(Js(
-        s"""document.addEventListener('paste', function (evt) {
+    ScalaXmlElemUtils.showIf(clipboardUpload) {
+      val callback = fsc.callbackJSON(
+        Js("[fileName, fileType, base64String]"),
+        json =>
+          json.arrayOrObject(
+            JS.void,
+            {
+              case Vector(fileName, fileType, contentsEncoded) =>
+                processUpload(
+                  Seq(
+                    new FSUploadedFile(
+                      fileName.asString.get,
+                      fileName.asString.get,
+                      fileType.asString.get,
+                      Base64.getDecoder().decode(contentsEncoded.asString.get),
+                    )
+                  )
+                )
+            },
+            obj => JS.void,
+          ),
+      )
+      JS.inScriptTag(
+        Js(
+          s"""document.addEventListener('paste', function (evt) {
            |    const items = evt.clipboardData.items;
            |    if (items.length === 0) { return; }
            |    const item = items[0];
@@ -66,40 +71,57 @@ object FileUpload:
            |	reader.readAsDataURL(blob);
            |});
            |""".stripMargin
-      ).onDOMContentLoaded)
+        ).onDOMContentLoaded
+      )
     } ++
-      <iframe id={targetId} name={targetId} src="about:blank" onload="eval(this.contentWindow.document.body.innerText)" style="width:0;height:0;border:0px solid #fff;"><html><body></body></html></iframe> ++
-      <form target={targetId} action={actionUrl} method="post" encoding="multipart/form-data" enctype="multipart/form-data" >
+      <iframe id={targetId} name={
+        targetId
+      } src="about:blank" onload="eval(this.contentWindow.document.body.innerText)" style="width:0;height:0;border:0px solid #fff;"><html><body></body></html></iframe> ++
+      <form target={targetId} action={
+        actionUrl
+      } method="post" encoding="multipart/form-data" enctype="multipart/form-data" >
         {
         labelOpt.map(label => label.withFor(inputId)).getOrElse(Empty)
-        }
-        <input class="form-control" name="file" type="file" accept={acceptTypes.getOrElse(null)} multiple={Some("true").filter(_ => multiple).getOrElse(null)} id={inputId} onchange={JS.show(buttonId).cmd} />
+      }
+        <input class="form-control" name="file" type="file" accept={
+        acceptTypes.getOrElse(null)
+      } multiple={Some("true").filter(_ => multiple).getOrElse(null)} id={inputId} onchange={
+        JS.show(buttonId).cmd
+      } />
         {
-        transformSubmit(button.withId(buttonId).withStyle("display:none").withTypeSubmit()).pipe(btn => buttonLbl.map(lbl => btn.apply(lbl)).getOrElse(btn))
-        }
-      </form>)
+        transformSubmit(button.withId(buttonId).withStyle("display:none").withTypeSubmit()).pipe(
+          btn => buttonLbl.map(lbl => btn.apply(lbl)).getOrElse(btn)
+        )
+      }
+      </form>
 
   def withZipSupport(
-                      callback: List[(String, Array[Byte])] => Js,
-                      labelOpt: Option[Elem] = None,
-                      transformSubmit: Elem => Elem = (_: Elem).apply("Upload").btn.btn_success.mt_2.w_100,
-                      buttonLbl: Option[String] = None,
-                      multiple: Boolean = false
-                    )(implicit fsc: FSContext): NodeSeq = apply(uploadedFiles =>
+    callback: List[(String, Array[Byte])] => Js,
+    labelOpt: Option[Elem] = None,
+    transformSubmit: Elem => Elem = (_: Elem).apply("Upload").btn.btn_success.mt_2.w_100,
+    buttonLbl: Option[String] = None,
+    multiple: Boolean = false,
+  )(implicit fsc: FSContext
+  ): NodeSeq = apply(
+    uploadedFiles =>
+      callback(uploadedFiles.flatMap { uploadedFile =>
+        if uploadedFile.name.trim.toLowerCase.endsWith(".zip") then
+          val zipFile = new ZipInputStream(new ByteArrayInputStream(uploadedFile.content))
 
-    callback(uploadedFiles.flatMap(uploadedFile => {
-      if uploadedFile.name.trim.toLowerCase.endsWith(".zip") then {
-        val zipFile = new ZipInputStream(new ByteArrayInputStream(uploadedFile.content))
-
-        Iterator.continually(zipFile.getNextEntry).takeWhile(_ != null).map(entry => {
-          (entry.getName, Iterator.continually(zipFile.read()).takeWhile(_ >= 0).map(_.toByte).toArray[Byte])
-        }).toList
-      } else {
-        List((uploadedFile.name, uploadedFile.content))
-      }
-    }).toList)
-    , labelOpt = labelOpt
-    , transformSubmit = transformSubmit
-    , buttonLbl = buttonLbl
-    , multiple = multiple
+          Iterator
+            .continually(zipFile.getNextEntry)
+            .takeWhile(_ != null)
+            .map { entry =>
+              (
+                entry.getName,
+                Iterator.continually(zipFile.read()).takeWhile(_ >= 0).map(_.toByte).toArray[Byte],
+              )
+            }
+            .toList
+        else List((uploadedFile.name, uploadedFile.content))
+      }.toList),
+    labelOpt = labelOpt,
+    transformSubmit = transformSubmit,
+    buttonLbl = buttonLbl,
+    multiple = multiple,
   )

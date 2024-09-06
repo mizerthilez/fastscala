@@ -12,6 +12,8 @@ trait F6FieldWithValidations extends ValidatableF6Field with F6FieldMixin:
     _validations += (() => if !valid_?() then Some(error) else None)
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    _validations.flatMap({
-      case validation => validation()
-    }).map(ns => this -> ns)
+    _validations
+      .flatMap {
+        case validation => validation()
+      }
+      .map(ns => this -> ns)

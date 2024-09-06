@@ -7,7 +7,7 @@ import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer
 
-import scala.xml.{Elem, NodeSeq}
+import scala.xml.{ Elem, NodeSeq }
 
 object BSModal5Size extends Enumeration:
   val SM = Value("modal-sm")
@@ -16,15 +16,15 @@ object BSModal5Size extends Enumeration:
   val XL = Value("modal-xl")
 
 abstract class BSModal5Base:
-
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
 
   val modalId = IdGen.id("modal")
   val modalContentId = IdGen.id("modal-content")
 
   def modalSize: BSModal5Size.Value = BSModal5Size.NORMAL
 
-  def transformModalElem(elem: Elem): Elem = elem.modal.fade.withId(modalId).withClass(modalSize.toString)
+  def transformModalElem(elem: Elem): Elem =
+    elem.modal.fade.withId(modalId).withClass(modalSize.toString)
 
   def transformModalDialogElem(elem: Elem): Elem = elem.modal_dialog
 
@@ -38,26 +38,30 @@ abstract class BSModal5Base:
 
   lazy val modalRenderer: ScalaXmlRerenderer = JS.rerenderable(_ => implicit fsc => renderModal())
 
-  lazy val modalContentsRenderer: ScalaXmlRerenderer = JS.rerenderable(_ => implicit fsc => renderModalContent())
+  lazy val modalContentsRenderer: ScalaXmlRerenderer =
+    JS.rerenderable(_ => implicit fsc => renderModalContent())
 
-  lazy val modalContentsFooterRenderer: ScalaXmlRerenderer = JS.rerenderable(_ => implicit fsc => renderModalFooterContent())
+  lazy val modalContentsFooterRenderer: ScalaXmlRerenderer =
+    JS.rerenderable(_ => implicit fsc => renderModalFooterContent())
 
   def append2DOM()(implicit fsc: FSContext): Js = JS.append2Body(renderModal())
 
   def installAndShow(
-                      backdrop: Boolean = true
-                      , backdropStatic: Boolean = false
-                      , focus: Boolean = true
-                      , keyboard: Boolean = true
-                    )(implicit fsc: FSContext): Js =
+    backdrop: Boolean = true,
+    backdropStatic: Boolean = false,
+    focus: Boolean = true,
+    keyboard: Boolean = true,
+  )(implicit fsc: FSContext
+  ): Js =
     install(backdrop, backdropStatic, focus, keyboard) & show() & removeOnHidden()
 
   def install(
-               backdrop: Boolean = true
-               , backdropStatic: Boolean = false
-               , focus: Boolean = true
-               , keyboard: Boolean = true
-             )(implicit fsc: FSContext): Js =
+    backdrop: Boolean = true,
+    backdropStatic: Boolean = false,
+    focus: Boolean = true,
+    keyboard: Boolean = true,
+  )(implicit fsc: FSContext
+  ): Js =
     append2DOM() &
       Js(
         s""";new bootstrap.Modal(document.getElementById('$modalId'), {
@@ -83,11 +87,15 @@ abstract class BSModal5Base:
 
   def onShow(js: Js): Js = Js(s"""$$('#$modalId').on('show.bs.modal', function (e) {${js.cmd}});""")
 
-  def onShown(js: Js): Js = Js(s"""$$('#$modalId').on('shown.bs.modal', function (e) {${js.cmd}});""")
+  def onShown(js: Js): Js = Js(
+    s"""$$('#$modalId').on('shown.bs.modal', function (e) {${js.cmd}});"""
+  )
 
   def onHide(js: Js): Js = Js(s"""$$('#$modalId').on('hide.bs.modal', function (e) {${js.cmd}});""")
 
-  def onHidden(js: Js): Js = Js(s"""$$('#$modalId').on('hidden.bs.modal', function (e) {${js.cmd}});""")
+  def onHidden(js: Js): Js = Js(
+    s"""$$('#$modalId').on('hidden.bs.modal', function (e) {${js.cmd}});"""
+  )
 
   def removeOnHidden(): Js = onHidden(remove())
 
@@ -107,14 +115,17 @@ abstract class BSModal5Base:
 
   def rerenderModalContent()(implicit fsc: FSContext): Js = modalContentsRenderer.rerender()
 
-  def rerenderModalFooterContent()(implicit fsc: FSContext): Js = modalContentsFooterRenderer.rerender()
+  def rerenderModalFooterContent()(implicit fsc: FSContext): Js =
+    modalContentsFooterRenderer.rerender()
 
   def renderModalFooterContent()(implicit fsc: FSContext): Elem =
-    modalFooterContents().map(contents => {
-      transformModalFooterElem {
-        div.apply(contents)
-      }: Elem
-    }).getOrElse(<div style="display:none;"></div>)
+    modalFooterContents()
+      .map { contents =>
+        transformModalFooterElem {
+          div.apply(contents)
+        }: Elem
+      }
+      .getOrElse(<div style="display:none;"></div>)
 
   def renderModalContent()(implicit fsc: FSContext): Elem =
     transformModalContentElem:
@@ -137,18 +148,20 @@ abstract class BSModal5Base:
             modalContentsRenderer.render()
 
 object BSModal5:
-
   def verySimple(
-                  title: String,
-                  closeBtnText: String,
-                  onHidden: Js = JS.void
-                )(
-                  contents: BSModal5Base => FSContext => NodeSeq
-                )(implicit fsc: FSContext): Js =
+    title: String,
+    closeBtnText: String,
+    onHidden: Js = JS.void,
+  )(
+    contents: BSModal5Base => FSContext => NodeSeq
+  )(implicit fsc: FSContext
+  ): Js =
     val modal = new BSModal5Base:
       override def modalHeaderTitle: String = title
 
       override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = contents(this)(fsc)
 
-      override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some(BSBtn().BtnPrimary.lbl(closeBtnText).onclick(hideAndRemove()).btn)
+      override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some(
+        BSBtn().BtnPrimary.lbl(closeBtnText).onclick(hideAndRemove()).btn
+      )
     modal.installAndShow() & modal.onHidden(onHidden)

@@ -1,6 +1,6 @@
 package com.fastscala.demo.docs.navigation
 
-import com.fastscala.core.{FSContext, FSSession}
+import com.fastscala.core.{ FSContext, FSSession }
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.ScalaXmlRenderableWithFSContext
 
@@ -15,7 +15,6 @@ case class BSMenu(items: MenuItem*)(implicit renderer: BSMenuRenderer):
     items.map(_.serve()).find(_.isDefined).flatten
 
 case class BSNav(items: MenuItem*)(implicit renderer: BSNavBarRenderer):
-
   val navBarId = IdGen.id("navBar")
 
   def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
@@ -30,39 +29,48 @@ trait MenuItem:
 
   def matches(uri: String): Boolean
 
-case class MenuSection(name: String)(val items: MenuItem*)(implicit renderer: MenuSectionRenderer) extends MenuItem:
-
+case class MenuSection(name: String)(val items: MenuItem*)(implicit renderer: MenuSectionRenderer)
+    extends MenuItem:
   def matches(uri: String): Boolean = items.exists(_.matches(uri))
 
   override def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
 
-  override def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] =
+  override def serve()(implicit req: Request, session: FSSession)
+    : Option[ScalaXmlRenderableWithFSContext] =
     items.map(_.serve()).find(_.isDefined).flatten
 
-case class SimpleMenuItem(name: String, href: String)(implicit renderer: SimpleMenuItemRenderer) extends MenuItem:
-
+case class SimpleMenuItem(name: String, href: String)(implicit renderer: SimpleMenuItemRenderer)
+    extends MenuItem:
   def matches(uri: String): Boolean = href == uri
 
-  def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] = None
+  def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] =
+    None
 
   def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
 
-class RoutingMenuItem(matching: String*)(val name: String, page: () => ScalaXmlRenderableWithFSContext)(implicit renderer: RoutingMenuItemRenderer) extends MenuItem:
-
+class RoutingMenuItem(
+  matching: String*
+)(
+  val name: String,
+  page: () => ScalaXmlRenderableWithFSContext,
+)(implicit renderer: RoutingMenuItemRenderer
+) extends MenuItem:
   def matches(uri: String): Boolean = href == uri
 
   def href: String = matching.mkString("/", "/", "")
 
   def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
 
-  import com.fastscala.server.RoutingHandlerHelper._
+  import com.fastscala.server.RoutingHandlerHelper.*
 
-  def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] = Some(req).collect:
-    case Get(path@_*) if path == matching => page()
+  def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] =
+    Some(req).collect:
+      case Get(path*) if path == matching => page()
 
 class HeaderMenuItem(val title: String)(implicit renderer: HeaderMenuItemRenderer) extends MenuItem:
   override def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
 
-  override def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] = None
+  override def serve()(implicit req: Request, session: FSSession)
+    : Option[ScalaXmlRenderableWithFSContext] = None
 
   override def matches(uri: String): Boolean = false

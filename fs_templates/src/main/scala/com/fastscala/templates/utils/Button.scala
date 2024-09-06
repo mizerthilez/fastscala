@@ -3,18 +3,17 @@ package com.fastscala.templates.utils
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 
-import scala.xml.{Elem, Node, NodeSeq}
+import scala.xml.{ Elem, Node, NodeSeq }
 
 case class Button(
-                   classes: String = "btn",
-                   styles: String = "",
-                   onclick: Option[Js] = None,
-                   href: Option[String] = None,
-                   target: Option[String] = None,
-                   id: Option[String] = None,
-                   contentsNs: NodeSeq = NodeSeq.Empty
-                 ):
-
+  classes: String = "btn",
+  styles: String = "",
+  onclick: Option[Js] = None,
+  href: Option[String] = None,
+  target: Option[String] = None,
+  id: Option[String] = None,
+  contentsNs: NodeSeq = NodeSeq.Empty,
+):
   def lg = copy(classes = classes + " btn-lg")
   def md = copy(classes = classes + " btn-md")
   def sm = copy(classes = classes + " btn-sm")
@@ -28,7 +27,8 @@ case class Button(
   def contents(ns: Node) = copy(contentsNs = ns)
 
   def onclick(onclick: Js) = copy(onclick = Some(onclick))
-  def ajax(callback: () => Js)(implicit fsc: FSContext) = copy(onclick = Some(fsc.callback(() => callback())))
+  def ajax(callback: () => Js)(implicit fsc: FSContext) =
+    copy(onclick = Some(fsc.callback(() => callback())))
 
   def id(_id: String): Button = this.copy(`id` = Some(_id))
 
@@ -40,4 +40,3 @@ case class Button(
             target={target.getOrElse(null)}
             id={id.getOrElse(null)}
     >{contentsNs}</button>
-

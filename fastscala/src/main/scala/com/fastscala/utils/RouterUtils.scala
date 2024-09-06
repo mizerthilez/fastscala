@@ -1,21 +1,20 @@
 package com.fastscala.utils
 
 import java.awt.geom.AffineTransform
-import java.awt.image.{AffineTransformOp, BufferedImage}
+import java.awt.image.{ AffineTransformOp, BufferedImage }
 import java.io.ByteArrayOutputStream
 import javax.imageio.stream.MemoryCacheImageOutputStream
-import javax.imageio.{IIOImage, ImageIO, ImageWriteParam}
+import javax.imageio.{ IIOImage, ImageIO, ImageWriteParam }
 import scala.annotation.tailrec
 
 object RouterUtils:
-
-
   private def rescale(scale: Double, bi: BufferedImage): BufferedImage =
     val originalWidth = bi.getWidth
     val originalHeight = bi.getHeight
     val imgType = if bi.getType == 0 then BufferedImage.TYPE_INT_ARGB else bi.getType
 
-    val resizedImage = new BufferedImage((originalWidth * scale).toInt, (originalHeight * scale).toInt, imgType)
+    val resizedImage =
+      new BufferedImage((originalWidth * scale).toInt, (originalHeight * scale).toInt, imgType)
     //    val g = resizedImage.createGraphics
     //    g.drawImage(bi, 0, 0, (originalWidth * scale).toInt, (originalHeight * scale).toInt, null)
     //    g.dispose()

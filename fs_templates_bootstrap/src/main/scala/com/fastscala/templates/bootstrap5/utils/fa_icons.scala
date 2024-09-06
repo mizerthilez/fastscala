@@ -560,10 +560,7 @@ object IcnFA:
   val youtube_square: FaIcn = " fa fa-youtube-square "
   val youtube: FaIcn = " fa fa-youtube "
 
-
-
 object IcnSLI:
-
   type SliIcn = String
 
   val icnAction_redo: SliIcn = " icon-action-redo "
@@ -729,9 +726,7 @@ object IcnSLI:
   val icnWallet: SliIcn = " icon-wallet "
   val icnWrench: SliIcn = " icon-wrench "
 
-
 object AIcn:
-
   type Icn = String
 
   val address: Icn = "icon-address"

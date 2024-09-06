@@ -2060,5 +2060,3 @@ object BsIcn:
   val biSuitcase2Fill: BsIcn = "bi-suitcase2-fill"
   val biSuitcase2: BsIcn = "bi-suitcase2"
   val biVignette: BsIcn = "bi-vignette"
-
-

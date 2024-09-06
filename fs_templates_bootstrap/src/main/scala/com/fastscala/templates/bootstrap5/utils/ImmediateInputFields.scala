@@ -9,20 +9,22 @@ import com.fastscala.xml.scala_xml.JS
 import scala.xml.Elem
 
 object ImmediateInputFields:
-
   def checkbox(
-                get: () => Boolean,
-                set: Boolean => Js,
-                label: String,
-                classes: String = "",
-                name: String = "",
-                tabindex: Option[Int] = None,
-                onSubmitClientSide: Js => Js = _ => JS.void
-              )(implicit fsc: FSContext): Elem =
+    get: () => Boolean,
+    set: Boolean => Js,
+    label: String,
+    classes: String = "",
+    name: String = "",
+    tabindex: Option[Int] = None,
+    onSubmitClientSide: Js => Js = _ => JS.void,
+  )(implicit fsc: FSContext
+  ): Elem =
     val inputId = "input" + fsc.session.nextID()
-    val submit = JS.withVarStmt("value", JS.checkboxIsChecked(inputId))(value => {
-      onSubmitClientSide(value) & fsc.callback(value, v => set(v.toBoolean))
-    }).cmd
+    val submit = JS
+      .withVarStmt("value", JS.checkboxIsChecked(inputId)) { value =>
+        onSubmitClientSide(value) & fsc.callback(value, v => set(v.toBoolean))
+      }
+      .cmd
     <div class="form-check form-check-custom form-check-solid">
       <input class={"form-check-input " + classes}
              type="checkbox"
@@ -36,125 +38,153 @@ object ImmediateInputFields:
     </div>
 
   def text(
-            get: () => String,
-            set: String => Js,
-            classes: String = "form-control",
-            style: String = "",
-            name: String = "",
-            autocomplete: String = "off",
-            `type`: String = "text",
-            placeholder: String = "",
-            changeOnEnter: Boolean = true,
-            btn: Option[BSBtn] = None,
-            id: Option[String] = None,
-            onSubmitClientSide: Js => Js = _ => JS.void,
-            ignoreUnchangedValue: Boolean = true
-          )(implicit fsc: FSContext): Elem =
+    get: () => String,
+    set: String => Js,
+    classes: String = "form-control",
+    style: String = "",
+    name: String = "",
+    autocomplete: String = "off",
+    `type`: String = "text",
+    placeholder: String = "",
+    changeOnEnter: Boolean = true,
+    btn: Option[BSBtn] = None,
+    id: Option[String] = None,
+    onSubmitClientSide: Js => Js = _ => JS.void,
+    ignoreUnchangedValue: Boolean = true,
+  )(implicit fsc: FSContext
+  ): Elem =
     val inputId = id.getOrElse("input" + fsc.session.nextID())
 
     val initialValue = get()
 
-    val submit = JS.withVarStmt("value", JS.elementValueById(inputId))(value => {
-      JS._if(
-        if ignoreUnchangedValue then value `_!=` JS.varOrElseUpdate(Js(s"window.currentValue$inputId"), JS.asJsStr(initialValue))
-        else JS._true,
-        _then =
-          JS.consoleLog(value) &
-            onSubmitClientSide(value) & fsc.callback(value, str => set(str.trim))
-      )
-    }).cmd
-    val onkeypress = if changeOnEnter then s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13) {${JS.blur(inputId).cmd}}" else null
+    val submit = JS
+      .withVarStmt("value", JS.elementValueById(inputId)) { value =>
+        JS._if(
+          if ignoreUnchangedValue then
+            value `_!=` JS
+              .varOrElseUpdate(Js(s"window.currentValue$inputId"), JS.asJsStr(initialValue))
+          else JS._true,
+          _then = JS.consoleLog(value) &
+            onSubmitClientSide(value) & fsc.callback(value, str => set(str.trim)),
+        )
+      }
+      .cmd
+    val onkeypress = if changeOnEnter then
+      s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13) {${JS.blur(inputId).cmd}}"
+    else null
     val onblur = if btn.isEmpty then submit else null
 
-    val inputNS = <input id={inputId} type={`type`} value={initialValue} onblur={onblur} onkeypress={onkeypress} class={classes} style={style} autocomplete="autocomplete"
+    val inputNS = <input id={inputId} type={`type`} value={initialValue} onblur={
+      onblur
+    } onkeypress={onkeypress} class={classes} style={style} autocomplete="autocomplete"
        placeholder={if placeholder == "" then null else placeholder}
        name={if name == "" then null else name}
       />
 
-    btn.map(btn => {
-      <div class="input-group ">
+    btn
+      .map { btn =>
+        <div class="input-group ">
         {inputNS}
         {btn.withClass("input-group-text").onclick(Js(submit)).btn}
       </div>
-    }).getOrElse(inputNS)
+      }
+      .getOrElse(inputNS)
 
   def range(
-             get: () => Int,
-             set: Int => Js,
-             min: Int,
-             max: Int,
-             classes: String = "",
-             style: String = "",
-             name: String = "",
-             `type`: String = "range",
-             id: Option[String] = None,
-             onSubmitClientSide: Js => Js = _ => JS.void,
-             ignoreUnchangedValue: Boolean = true,
-             timeBeforeChangeMs: Long = 600
-           )(implicit fsc: FSContext): Elem =
+    get: () => Int,
+    set: Int => Js,
+    min: Int,
+    max: Int,
+    classes: String = "",
+    style: String = "",
+    name: String = "",
+    `type`: String = "range",
+    id: Option[String] = None,
+    onSubmitClientSide: Js => Js = _ => JS.void,
+    ignoreUnchangedValue: Boolean = true,
+    timeBeforeChangeMs: Long = 600,
+  )(implicit fsc: FSContext
+  ): Elem =
     val inputId = id.getOrElse("input" + fsc.session.nextID())
 
     val initialValue = get()
 
-    val submit = JS.withVarStmt("value", JS.elementValueById(inputId))(value => {
-      Js(
-        s"""try {
+    val submit = JS
+      .withVarStmt("value", JS.elementValueById(inputId)) { value =>
+        Js(
+          s"""try {
            |  window.clearTimeout(window.timeout$inputId);
            |} catch(err) { }
-           |window.timeout$inputId = window.setTimeout(function () { """.stripMargin + JS._if(
-          if ignoreUnchangedValue then value `_!=` JS.varOrElseUpdate(Js(s"window.currentValue$inputId"), JS.asJsStr(initialValue.toString))
-          else JS._true,
-          _then = onSubmitClientSide(value) & fsc.callback(value, str => set(str.toInt))
-        ).cmd + s"}, $timeBeforeChangeMs);"
-      )
-    }).cmd
+           |window.timeout$inputId = window.setTimeout(function () { """.stripMargin + JS
+            ._if(
+              if ignoreUnchangedValue then
+                value `_!=` JS.varOrElseUpdate(
+                  Js(s"window.currentValue$inputId"),
+                  JS.asJsStr(initialValue.toString),
+                )
+              else JS._true,
+              _then = onSubmitClientSide(value) & fsc.callback(value, str => set(str.toInt)),
+            )
+            .cmd + s"}, $timeBeforeChangeMs);"
+        )
+      }
+      .cmd
 
-    val inputNS = <input min={min.toString} max={max.toString} id={inputId} type={`type`} value={initialValue.toString} class={classes} style={style}
+    val inputNS = <input min={min.toString} max={max.toString} id={inputId} type={`type`} value={
+      initialValue.toString
+    } class={classes} style={style}
        name={if name == "" then null else name}
         onchange={submit}
       />
     inputNS
 
   def select[T](
-                 all: () => Seq[T],
-                 get: () => T,
-                 set: T => Js,
-                 classes: String = "form-select",
-                 style: String = "",
-                 toString: T => String = (_: T).toString,
-                 elemId: String = IdGen.id,
-                 onSubmitClientSide: Js => Js = _ => JS.void
-               )(implicit fsc: FSContext): Elem =
+    all: () => Seq[T],
+    get: () => T,
+    set: T => Js,
+    classes: String = "form-select",
+    style: String = "",
+    toString: T => String = (_: T).toString,
+    elemId: String = IdGen.id,
+    onSubmitClientSide: Js => Js = _ => JS.void,
+  )(implicit fsc: FSContext
+  ): Elem =
     val values = all()
 
-    val submit = JS.withVarStmt("value", JS.elementValueById(elemId))(value => {
-      onSubmitClientSide(value) & fsc.callback(value, idxStr => set(values(idxStr.toInt)))
-    }).cmd
+    val submit = JS
+      .withVarStmt("value", JS.elementValueById(elemId)) { value =>
+        onSubmitClientSide(value) & fsc.callback(value, idxStr => set(values(idxStr.toInt)))
+      }
+      .cmd
 
     <select id={elemId} class={classes} style={style} onchange={submit}>
       {
-      values.zipWithIndex.map({
-        case (value, idx) if value == get() => <option value={idx.toString} selected="selected">{toString(value)}</option>
+      values.zipWithIndex.map {
+        case (value, idx) if value == get() =>
+          <option value={idx.toString} selected="selected">{toString(value)}</option>
         case (value, idx) => <option value={idx.toString}>{toString(value)}</option>
-      })
       }
+    }
     </select>
 
   def textarea(
-                get: () => String,
-                set: String => Js,
-                classes: String = "",
-                style: String = "",
-                name: String = "",
-                placeholder: String = "",
-                rows: Int = 8,
-                onSubmitClientSide: Js => Js = _ => JS.void
-              )(implicit fsc: FSContext): Elem =
+    get: () => String,
+    set: String => Js,
+    classes: String = "",
+    style: String = "",
+    name: String = "",
+    placeholder: String = "",
+    rows: Int = 8,
+    onSubmitClientSide: Js => Js = _ => JS.void,
+  )(implicit fsc: FSContext
+  ): Elem =
     val inputId = "input" + fsc.session.nextID()
 
-    val submit = JS.withVarStmt("value", JS.elementValueById(inputId))(value => {
-      onSubmitClientSide(value) & fsc.callback(value, str => set(str.trim))
-    }).cmd
+    val submit = JS
+      .withVarStmt("value", JS.elementValueById(inputId)) { value =>
+        onSubmitClientSide(value) & fsc.callback(value, str => set(str.trim))
+      }
+      .cmd
 
     val inputNS = <textarea
       id={inputId} onblur={submit} class={classes} style={style}
@@ -166,15 +196,16 @@ object ImmediateInputFields:
     inputNS
 
   def password(
-                get: () => String,
-                set: String => Js,
-                classes: String = "",
-                name: String = "",
-                autocomplete: String = "off",
-                placeholder: String = "",
-                id: Option[String] = None,
-                onSubmitClientSide: Js => Js = _ => JS.void
-              )(implicit fsc: FSContext): Elem = text(
+    get: () => String,
+    set: String => Js,
+    classes: String = "",
+    name: String = "",
+    autocomplete: String = "off",
+    placeholder: String = "",
+    id: Option[String] = None,
+    onSubmitClientSide: Js => Js = _ => JS.void,
+  )(implicit fsc: FSContext
+  ): Elem = text(
     get = get,
     set = set,
     classes = classes,
@@ -183,6 +214,5 @@ object ImmediateInputFields:
     `type` = "password",
     placeholder = placeholder,
     id = id,
-    onSubmitClientSide = onSubmitClientSide
+    onSubmitClientSide = onSubmitClientSide,
   )
-

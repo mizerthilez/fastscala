@@ -6,10 +6,9 @@ import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 
 class BootstrapButtonsPage extends MultipleCodeExamples2Page():
-
   override def pageTitle: String = "Bootstrap Buttons"
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
 
   override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
 
@@ -18,7 +17,7 @@ class BootstrapButtonsPage extends MultipleCodeExamples2Page():
         BSBtn().BtnPrimary.lbl("Example Button").onclick(Js.alert("clicked!")).btn
     renderSnippet("Button styles"):
       div.withContents:
-        (BSBtn().BtnPrimary.lbl("Style Primary").sm.btn.ms_2.mb_2 ++
+        BSBtn().BtnPrimary.lbl("Style Primary").sm.btn.ms_2.mb_2 ++
           BSBtn().BtnSecondary.lbl("Style Secondary").sm.btn.ms_2.mb_2 ++
           BSBtn().BtnInfo.lbl("Style Info").sm.btn.ms_2.mb_2 ++
           BSBtn().BtnDanger.lbl("Style Danger").sm.btn.ms_2.mb_2 ++
@@ -34,7 +33,7 @@ class BootstrapButtonsPage extends MultipleCodeExamples2Page():
           BSBtn().BtnOutlinePrimary.lbl("Style Primary Outline").sm.btn.ms_2.mb_2 ++
           BSBtn().BtnOutlineSecondary.lbl("Style Secondary Outline").sm.btn.ms_2.mb_2 ++
           BSBtn().BtnOutlineSuccess.lbl("Style Success Outline").sm.btn.ms_2.mb_2 ++
-          BSBtn().BtnOutlineWarning.lbl("Style Warning Outline").sm.btn.ms_2.mb_2)
+          BSBtn().BtnOutlineWarning.lbl("Style Warning Outline").sm.btn.ms_2.mb_2
     renderSnippet("Button sizes"):
       BSBtn().BtnPrimary.lbl("Size lg").lg.btn.ms_2 ++
         BSBtn().BtnPrimary.lbl("Size normal").btn.ms_2 ++

@@ -1,19 +1,18 @@
 package com.fastscala.server
 
-import com.fastscala.core.{FSSession, FSSystem, FSXmlEnv}
+import com.fastscala.core.{ FSSession, FSSystem, FSXmlEnv }
 import com.fastscala.js.Js
 import com.fastscala.utils.RenderableWithFSContext
-import org.eclipse.jetty.http.{HttpHeader, HttpCookie, MimeTypes}
-import org.eclipse.jetty.server.{Request, Response => JettyServerResponse, Handler}
-import org.eclipse.jetty.util.{BufferUtil, Callback}
+import org.eclipse.jetty.http.{ HttpHeader, HttpCookie, MimeTypes }
+import org.eclipse.jetty.server.{ Request, Response as JettyServerResponse, Handler }
+import org.eclipse.jetty.util.{ BufferUtil, Callback }
 
-import java.nio.file.{Path, Files}
+import java.nio.file.{ Path, Files }
 import java.nio.charset.StandardCharsets.UTF_8
 
 case class HttpStatus(name: String, code: Int)
 
 object HttpStatuses:
-
   val Continue = HttpStatus("Continue", 100)
   val SwitchingProtocols = HttpStatus("SwitchingProtocols", 101)
   val Processing = HttpStatus("Processing", 102)
@@ -89,18 +88,17 @@ object HttpStatuses:
   val NetworkConnectTimeout = HttpStatus("NetworkConnectTimeout", 599)
 
   val redirects = List(
-    HttpStatuses.MultipleChoices
-    , HttpStatuses.MovedPermanently
-    , HttpStatuses.Found
-    , HttpStatuses.SeeOther
-    , HttpStatuses.NotModified
-    , HttpStatuses.UseProxy
-    , HttpStatuses.TemporaryRedirect
-    , HttpStatuses.PermanentRedirect
+    HttpStatuses.MultipleChoices,
+    HttpStatuses.MovedPermanently,
+    HttpStatuses.Found,
+    HttpStatuses.SeeOther,
+    HttpStatuses.NotModified,
+    HttpStatuses.UseProxy,
+    HttpStatuses.TemporaryRedirect,
+    HttpStatuses.PermanentRedirect,
   )
 
 trait Response:
-
   def status: HttpStatus
 
   val headers = collection.mutable.ListBuffer[(String, String)]()
@@ -116,9 +114,9 @@ trait Response:
     this
 
   def addHeaders(headers: (String, String)*): this.type =
-    headers.foreach({
+    headers.foreach {
       case (name, value) => addHeader(name, value)
-    })
+    }
     this
 
   def respond(response: JettyServerResponse, callback: Callback): Boolean =
@@ -151,7 +149,7 @@ trait BinaryResponse extends Response:
 
   def contentType: String
 
-  override final def respond(response: JettyServerResponse, callback: Callback): Boolean =
+  final override def respond(response: JettyServerResponse, callback: Callback): Boolean =
     super.respond(response, callback)
     val responseHeaders = response.getHeaders
     responseHeaders.put(HttpHeader.CONTENT_TYPE, contentType)
@@ -160,7 +158,6 @@ trait BinaryResponse extends Response:
     true
 
 trait RedirectResponse extends TextResponse:
-
   def redirectTo: String
 
   def contentType: String = "text/css;charset=utf-8"
@@ -171,7 +168,7 @@ trait RedirectResponse extends TextResponse:
        |<body>=Moved=<p>This page has moved to <a href="$redirectTo">$redirectTo</a>.</p></body>
        |</html>""".stripMargin
 
-  override final def respond(response: JettyServerResponse, callback: Callback): Boolean =
+  final override def respond(response: JettyServerResponse, callback: Callback): Boolean =
     response.getHeaders.put(HttpHeader.LOCATION, redirectTo)
     super.respond(response, callback)
 
@@ -219,7 +216,6 @@ object Ok:
       override def status: HttpStatus = HttpStatuses.OK
 
 object Redirect:
-
   def apply(redirectTo: String, status: HttpStatus): RedirectResponse =
     val _redirectTo = redirectTo
     val _status: HttpStatus = status
@@ -244,12 +240,11 @@ object Redirect:
 
   def permanentRedirect(redirectTo: String) = Redirect(redirectTo, HttpStatuses.PermanentRedirect)
 
-
 object ClientError:
   def apply(httpStatus: HttpStatus, cause: String = null) = new Response:
     override def status: HttpStatus = httpStatus
 
-    override final def respond(response: JettyServerResponse, callback: Callback): Boolean =
+    final override def respond(response: JettyServerResponse, callback: Callback): Boolean =
       super.respond(response, callback)
       JettyServerResponse.writeError(response.getRequest(), response, callback, status.code, cause)
       true
@@ -324,7 +319,7 @@ object ServerError:
   def apply(httpStatus: HttpStatus, cause: String = null) = new Response:
     override def status: HttpStatus = httpStatus
 
-    override final def respond(response: JettyServerResponse, callback: Callback): Boolean =
+    final override def respond(response: JettyServerResponse, callback: Callback): Boolean =
       super.respond(response, callback)
       JettyServerResponse.writeError(response.getRequest(), response, callback, status.code, cause)
       true
@@ -374,7 +369,6 @@ class OkTextBased(text: String, val contentType: String) extends TextResponse:
   override def contents: String = text
 
 object RoutingHandlerHelper:
-
   trait Method
 
   object Method:
@@ -409,19 +403,22 @@ object RoutingHandlerHelper:
 
   abstract class UnapplyHelper1(methodName: String):
     def unapplySeq(req: Request): Option[Seq[String]] =
-      Some(req.getHttpURI.getPath.replaceAll("^/", "").split("/").toList.filter(_ != "")).filter(_ => req.getMethod == methodName)
+      Some(req.getHttpURI.getPath.replaceAll("^/", "").split("/").toList.filter(_ != "")).filter(
+        _ => req.getMethod == methodName
+      )
 
   object Req:
-
     def unapply(req: Request): Option[(Method, List[String], String, Boolean)] =
-      Method.fromString.unapply(req.getMethod).map(method => {
+      Method.fromString.unapply(req.getMethod).map { method =>
         val path = req.getHttpURI.getPath
         val ext = path.replaceAll(".*\\.(\\w+)$", "$1").toLowerCase
-        (method,
+        (
+          method,
           path.replaceAll("^/", "").replaceAll(s"\\.$ext$$", "").split("/").toList.filter(_ != ""),
           ext,
-          path.endsWith("/"))
-      })
+          path.endsWith("/"),
+        )
+      }
 
   object Get extends UnapplyHelper1("GET")
 
@@ -442,45 +439,64 @@ object RoutingHandlerHelper:
   object Patch extends UnapplyHelper1("PATCH")
 
   def onlyHandleHtmlRequests(handle: => Option[Response])(implicit req: Request): Option[Response] =
-    if Option(req.getHeaders.get(HttpHeader.ACCEPT)).getOrElse("").contains("text/html") then handle else None
+    if Option(req.getHeaders.get(HttpHeader.ACCEPT)).getOrElse("").contains("text/html") then handle
+    else None
 
 abstract class RoutingHandlerNoSessionHelper extends Handler.Abstract:
+  def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request)
+    : Option[Response]
 
-  def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request): Option[Response]
-
-  override def handle(request: Request, response: JettyServerResponse, callback: Callback): Boolean =
-    handlerNoSession(response, callback)(request).map(resp => {
-      resp.respond(response, callback)
-    }).getOrElse(false)
+  override def handle(request: Request, response: JettyServerResponse, callback: Callback)
+    : Boolean =
+    handlerNoSession(response, callback)(request)
+      .map { resp =>
+        resp.respond(response, callback)
+      }
+      .getOrElse(false)
 
 abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandlerNoSessionHelper:
-
-  def servePage[Env <: FSXmlEnv]
-        (renderable: RenderableWithFSContext[Env], debugLbl: Option[String] = None)
-        (implicit req: Request, session: FSSession): Response =
+  def servePage[Env <: FSXmlEnv](
+    renderable: RenderableWithFSContext[Env],
+    debugLbl: Option[String] = None,
+  )(implicit
+    req: Request,
+    session: FSSession,
+  ): Response =
     import renderable.given
-    session.createPage(implicit fsc => Ok.html(renderable.render())
-      .addHeaders(
-        "Cache-Control" -> "no-cache, max-age=0, no-store"
-        , "Pragma" -> "no-cache"
-        , "Expires" -> "-1"
-      ), debugLbl = debugLbl.orElse(Some(req.getHttpURI.getPath))
+    session.createPage(
+      implicit fsc =>
+        Ok.html(renderable.render())
+          .addHeaders(
+            "Cache-Control" -> "no-cache, max-age=0, no-store",
+            "Pragma" -> "no-cache",
+            "Expires" -> "-1",
+          ),
+      debugLbl = debugLbl.orElse(Some(req.getHttpURI.getPath)),
     )
 
-  def handlerInSession(response: JettyServerResponse, callback: Callback)(implicit req: Request, session: FSSession): Option[Response]
+  def handlerInSession(
+    response: JettyServerResponse,
+    callback: Callback,
+  )(implicit
+    req: Request,
+    session: FSSession,
+  ): Option[Response]
 
-
-  override def handle(request: Request, response: JettyServerResponse, callback: Callback): Boolean =
+  override def handle(request: Request, response: JettyServerResponse, callback: Callback)
+    : Boolean =
     handlerNoSession(response, callback)(request) match
       case Some(resp) =>
         resp.respond(response, callback)
       case None =>
-        fss.inSession{
-          implicit session => handlerInSession(response, callback)(request, session)
-        }(request).flatMap({
-          case (cookies, resp) =>
-            cookies.foreach(JettyServerResponse.addCookie(response, _))
-            resp.map(resp => {
-              resp.respond(response, callback)
-            })
-        }).getOrElse(false)
+        fss
+          .inSession { implicit session =>
+            handlerInSession(response, callback)(request, session)
+          }(request)
+          .flatMap {
+            case (cookies, resp) =>
+              cookies.foreach(JettyServerResponse.addCookie(response, _))
+              resp.map { resp =>
+                resp.respond(response, callback)
+              }
+          }
+          .getOrElse(false)

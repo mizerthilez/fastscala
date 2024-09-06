@@ -6,48 +6,83 @@ import com.fastscala.templates.form6.Form6
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
-import scala.xml.{Elem, NodeSeq}
-
+import scala.xml.{ Elem, NodeSeq }
 
 trait TextF6FieldRenderer:
-
   def defaultRequiredFieldLabel: String
 
-  def render[T](field: F6TextField[T])(label: Option[NodeSeq], inputElem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
+  def render[T](
+    field: F6TextField[T]
+  )(
+    label: Option[NodeSeq],
+    inputElem: Elem,
+    error: Option[NodeSeq],
+  )(implicit hints: Seq[RenderHint]
+  ): Elem
 
 trait TextareaF6FieldRenderer:
-
   def defaultRequiredFieldLabel: String
 
-  def render[T](field: F6TextareaField[T])(label: Option[NodeSeq], inputElem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
+  def render[T](
+    field: F6TextareaField[T]
+  )(
+    label: Option[NodeSeq],
+    inputElem: Elem,
+    error: Option[NodeSeq],
+  )(implicit hints: Seq[RenderHint]
+  ): Elem
 
 trait SelectF6FieldRenderer:
-
   def defaultRequiredFieldLabel: String
 
-  def render[T](field: F6SelectFieldBase[T])(label: Option[Elem], elem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
+  def render[T](
+    field: F6SelectFieldBase[T]
+  )(
+    label: Option[Elem],
+    elem: Elem,
+    error: Option[NodeSeq],
+  )(implicit hints: Seq[RenderHint]
+  ): Elem
 
-  def renderOption[T](field: F6SelectFieldBase[T])(
+  def renderOption[T](
+    field: F6SelectFieldBase[T]
+  )(
     selected: Boolean,
     value: String,
-    label: NodeSeq
-  )(implicit hints: Seq[RenderHint]): Elem
+    label: NodeSeq,
+  )(implicit hints: Seq[RenderHint]
+  ): Elem
 
 trait MultiSelectF6FieldRenderer:
-
   def defaultRequiredFieldLabel: String
 
-  def render[T](field: F6MultiSelectFieldBase[T])(label: Option[Elem], elem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
+  def render[T](
+    field: F6MultiSelectFieldBase[T]
+  )(
+    label: Option[Elem],
+    elem: Elem,
+    error: Option[NodeSeq],
+  )(implicit hints: Seq[RenderHint]
+  ): Elem
 
-  def renderOption[T](field: F6MultiSelectFieldBase[T])(
+  def renderOption[T](
+    field: F6MultiSelectFieldBase[T]
+  )(
     selected: Boolean,
     value: String,
-    label: NodeSeq
-  )(implicit hints: Seq[RenderHint]): Elem
+    label: NodeSeq,
+  )(implicit hints: Seq[RenderHint]
+  ): Elem
 
 trait CheckboxF6FieldRenderer:
-
-  def render(field: F6CheckboxField)(label: Option[Elem], elem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
+  def render(
+    field: F6CheckboxField
+  )(
+    label: Option[Elem],
+    elem: Elem,
+    error: Option[NodeSeq],
+  )(implicit hints: Seq[RenderHint]
+  ): Elem
 
 //object F6CodeField {
 //
@@ -195,50 +230,64 @@ trait CheckboxF6FieldRenderer:
 //}
 //
 trait ButtonF6FieldRenderer:
-  def render(field: F6SaveButtonField[_])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem
+  def render(field: F6SaveButtonField[?])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem
 
-class F6SaveButtonField[B](using Conversion[B, Elem])(
-        btn: FSContext => B
-        , val toInitialState: B => B = identity[B] _
-        , val toChangedState: B => B = identity[B] _
-        , val toErrorState: B => B = identity[B] _
-      )(implicit renderer: ButtonF6FieldRenderer)
-  extends StandardF6Field
-    with F6FieldWithReadOnly
-    with F6FieldWithDependencies
-    with F6FieldWithDisabled
-    with F6FieldWithEnabled:
+class F6SaveButtonField[B](
+  using Conversion[B, Elem]
+)(
+  btn: FSContext => B,
+  val toInitialState: B => B = identity[B] _,
+  val toChangedState: B => B = identity[B] _,
+  val toErrorState: B => B = identity[B] _,
+)(implicit renderer: ButtonF6FieldRenderer
+) extends StandardF6Field
+       with F6FieldWithReadOnly
+       with F6FieldWithDependencies
+       with F6FieldWithDisabled
+       with F6FieldWithEnabled:
+  override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] =
+    if predicate.applyOrElse[F6Field, Boolean](this, _ => false) then List(this) else Nil
 
-  override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] = if predicate.applyOrElse[F6Field, Boolean](this, _ => false) then List(this) else Nil
+  val btnRenderer = JS.rerenderableP[(B => B, Form6)](_ =>
+    implicit fsc => {
+      case (transformer, form) =>
+        (transformer(btn(fsc)): Elem)
+          .withId(elemId)
+          .addOnClick((Js.focus(elemId) & form.onSaveClientSide()).cmd)
+    }
+  )
 
-  val btnRenderer = JS.rerenderableP[(B => B, Form6)](_ => implicit fsc => {
-    case (transformer, form) => (transformer(btn(fsc)): Elem).withId(elemId).addOnClick((Js.focus(elemId) & form.onSaveClientSide()).cmd)
-  })
-
-  override def onEvent(event: FormEvent)(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js = super.onEvent(event) & (event match {
+  override def onEvent(
+    event: FormEvent
+  )(implicit
+    form: Form6,
+    fsc: FSContext,
+    hints: Seq[RenderHint],
+  ): Js = super.onEvent(event) & (event match
     case AfterSave =>
-      //btnRenderer.rerender((toInitialState, form)).printToConsoleBefore()
+      // btnRenderer.rerender((toInitialState, form)).printToConsoleBefore()
       Js.void
     case BeforeSave => Js.void
     case ErrorsOnSave =>
-      //btnRenderer.rerender((toErrorState, form)).printToConsoleBefore()
+      // btnRenderer.rerender((toErrorState, form)).printToConsoleBefore()
       Js.void
     case ChangedField(_) =>
-      //btnRenderer.rerender((toChangedState, form)).printToConsoleBefore()
+      // btnRenderer.rerender((toChangedState, form)).printToConsoleBefore()
       Js.void
     case PerformSave => Js.void
     case _ => Js.void
-  })
+  )
 
   override def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then <div style="display:none;" id={aroundId}></div>
     else
       withFieldRenderHints { implicit hints =>
-        renderer.render(this)({
+        renderer.render(this) {
           if hints.contains(FailedSaveStateHint) then btnRenderer.render((toErrorState, form))
           else btnRenderer.render((toInitialState, form))
-        })
+        }
       }
+
 //
 //trait FileUploadFieldRenderer {
 //

@@ -1,7 +1,6 @@
 package com.fastscala.templates.bootstrap5.tables
 
 trait Table5WithDataStorage:
-
   def getProp(name: String): Option[String]
 
   def setProp(name: String, value: Option[String]): Unit

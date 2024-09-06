@@ -19,7 +19,7 @@ class ServerSidePushPage extends SingleCodeExamplePage():
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     val id = IdGen.id
     val N = 30
 
@@ -30,7 +30,10 @@ class ServerSidePushPage extends SingleCodeExamplePage():
           _ <- IO.sleep(100.millis)
           _ <- IO(fsc.sendToPage(JS.prepend2(id, div.apply(s"factorial($n)").text_white_50)))
           rslt <- if n == 0 then IO.pure(BigInt(1)) else factorial(n - 1).map(_ * n)
-          _ <- if n < N then IO(fsc.sendToPage(JS.prepend2(id, div.apply(s"factorial($n) = $rslt").text_white_50))) else IO.unit
+          _ <-
+            if n < N then
+              IO(fsc.sendToPage(JS.prepend2(id, div.apply(s"factorial($n) = $rslt").text_white_50)))
+            else IO.unit
         yield rslt
 
         import cats.effect.unsafe.implicits.global

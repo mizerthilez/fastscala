@@ -1,6 +1,6 @@
 package com.fastscala.xml.scala_xml
 
-import com.fastscala.utils.{Renderable, RenderableWithFSContext}
+import com.fastscala.utils.{ Renderable, RenderableWithFSContext }
 
 trait ScalaXmlRenderable extends Renderable[FSScalaXmlEnv.type]
 

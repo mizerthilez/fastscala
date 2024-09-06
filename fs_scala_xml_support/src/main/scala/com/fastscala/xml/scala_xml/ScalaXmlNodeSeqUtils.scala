@@ -1,9 +1,8 @@
 package com.fastscala.xml.scala_xml
 
-import scala.xml.{Elem, NodeSeq, Unparsed}
+import scala.xml.{ Elem, NodeSeq, Unparsed }
 
 object ScalaXmlNodeSeqUtils:
-
   implicit class MkNSFromNodeSeq(elems: Iterable[NodeSeq]):
     def mkNS: NodeSeq =
       val sb = new StringBuilder()

@@ -3,10 +3,9 @@ package com.fastscala.templates.bootstrap5.icons
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 import org.eclipse.jetty.util.IO
 
-import scala.xml.{Elem, XML}
+import scala.xml.{ Elem, XML }
 
 class BSIcon(val name: String):
-
   def clas = "bi-" + name
 
   def icon: Elem = FSScalaXmlEnv.buildElem("i", "class" -> clas)()
@@ -15,10 +14,9 @@ class BSIcon(val name: String):
 
   lazy val svg: String = BSIcons.loadSVG(name)
 
-  lazy val svgNS: Elem = XML.loadString(svg).collectFirst({ case elem: Elem => elem }).get
+  lazy val svgNS: Elem = XML.loadString(svg).collectFirst { case elem: Elem => elem }.get
 
 object BSIcons:
-
   def icn(name: String): BSIcon = new BSIcon(name)
 
   def loadSVG(name: String): String =
@@ -1981,4 +1979,3 @@ object BSIcons:
   val youtube = icn("youtube")
   val zoom_in = icn("zoom-in")
   val zoom_out = icn("zoom-out")
-

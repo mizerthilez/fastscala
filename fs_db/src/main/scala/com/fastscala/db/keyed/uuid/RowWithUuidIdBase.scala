@@ -1,13 +1,12 @@
 package com.fastscala.db.keyed.uuid
 
 import com.fastscala.db.RowWithIdBase
-import scalikejdbc._
+import scalikejdbc.*
 
 import java.util.UUID
 
 trait RowWithUuidIdBase extends RowWithIdBase:
-
-  def table: TableWithUUIDBase[_]
+  def table: TableWithUUIDBase[?]
 
   var uuid: Option[UUID] = None
 

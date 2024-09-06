@@ -6,16 +6,17 @@ import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 
 import scala.util.chaining.scalaUtilChainingOps
-import scala.xml.{Elem, NodeSeq}
+import scala.xml.{ Elem, NodeSeq }
 
 abstract class Widget:
-
   lazy val widgetId = IdGen.id("widget-")
   lazy val widgetHeaderId = IdGen.id("widget-header")
   lazy val widgetContentsId = IdGen.id("widget-contents")
 
-  lazy val widgetHeaderRenderer = JS.rerenderable(rerenderer => implicit fsc => renderWidgetHeader(), Some(widgetHeaderId))
-  lazy val widgetContentsRenderer = JS.rerenderable(rerenderer => implicit fsc => renderWidgetContents(), Some(widgetContentsId))
+  lazy val widgetHeaderRenderer =
+    JS.rerenderable(rerenderer => implicit fsc => renderWidgetHeader(), Some(widgetHeaderId))
+  lazy val widgetContentsRenderer =
+    JS.rerenderable(rerenderer => implicit fsc => renderWidgetContents(), Some(widgetContentsId))
 
   def widgetTitle: String
 
@@ -38,19 +39,19 @@ abstract class Widget:
   def transformWidgetCard(elem: Elem): Elem = elem
 
   def renderWidgetHeader()(implicit fsc: FSContext): Elem =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     card_header.d_flex.justify_content_between.align_items_center.apply {
       widgetTitleNs ++ <div>{widgetTopRight()}</div>
     } pipe transformWidgetCardHeader
 
   def renderWidgetContents()(implicit fsc: FSContext): Elem =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     card_body.apply {
       widgetContents()
     } pipe transformWidgetCardBody
 
   def renderWidget()(implicit fsc: FSContext): Elem =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     card.withId(widgetId).apply {
       widgetHeaderRenderer.render() ++
         widgetContentsRenderer.render()

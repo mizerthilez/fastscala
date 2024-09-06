@@ -8,7 +8,6 @@ import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer
 
 trait Table5SelectableRowsWithActions extends Table5SelectableRows:
-
   def actionsForRows(rows: Set[R]): Seq[BSBtn] = Nil
 
   def actionsBtnToIncludeInDropdown: BSBtn = BSBtn().BtnPrimary.lbl("Actions")
@@ -16,9 +15,11 @@ trait Table5SelectableRowsWithActions extends Table5SelectableRows:
   override def onSelectedRowsChange()(implicit fsc: FSContext): Js = super.onSelectedRowsChange() &
     actionsDropdownBtnRenderer.rerender()
 
-
-  lazy val actionsDropdownBtnRenderer: ScalaXmlRerenderer = JS.rerenderable(rerenderer => implicit fsc => {
-    BSBtnDropdown(actionsBtnToIncludeInDropdown)(
-      actionsForRows(selectedVisibleRows): _*
-    )
-  }, debugLabel = Some("actions_dropdown_btn"))
+  lazy val actionsDropdownBtnRenderer: ScalaXmlRerenderer = JS.rerenderable(
+    rerenderer =>
+      implicit fsc =>
+        BSBtnDropdown(actionsBtnToIncludeInDropdown)(
+          actionsForRows(selectedVisibleRows)*
+        ),
+    debugLabel = Some("actions_dropdown_btn"),
+  )

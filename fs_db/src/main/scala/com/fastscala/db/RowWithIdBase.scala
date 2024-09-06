@@ -1,7 +1,6 @@
 package com.fastscala.db
 
 trait RowWithIdBase extends RowBase:
-
   def reload(): Any
 
   def save(): Any

@@ -1,6 +1,6 @@
 package com.fastscala.demo.docs.chartjs
 
-import com.fastscala.chartjs._
+import com.fastscala.chartjs.*
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.xml.scala_xml.JS
@@ -8,7 +8,6 @@ import com.fastscala.xml.scala_xml.JS
 import scala.xml.NodeSeq
 
 class SimpleChartjsPage extends SingleCodeExamplePage():
-
   override def pageTitle: String = "Simple chart.js Example"
 
   override def append2Body(): NodeSeq = super.append2Body() ++
@@ -16,19 +15,21 @@ class SimpleChartjsPage extends SingleCodeExamplePage():
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
-    import com.fastscala.chartjs.ChartJsNullable2Option._
-    <canvas id="chart"></canvas> ++ JS.inScriptTag(ChartJs(
-      `type` = BarChartType,
-      data = ChartData(
-        datasets = List(
-          BarChartDataset(
-            label = "dataset 1",
-            data = SimpleNumbersChartDatasetData(List(12, 19, 3, 5, 2, 3.0)),
-            borderColor = "#91C8E4",
-            backgroundColor = "#4682A9"
-          )
+    import com.fastscala.chartjs.ChartJsNullable2Option.*
+    <canvas id="chart"></canvas> ++ JS.inScriptTag(
+      ChartJs(
+        `type` = BarChartType,
+        data = ChartData(
+          datasets = List(
+            BarChartDataset(
+              label = "dataset 1",
+              data = SimpleNumbersChartDatasetData(List(12, 19, 3, 5, 2, 3.0)),
+              borderColor = "#91C8E4",
+              backgroundColor = "#4682A9",
+            )
+          ),
+          labels = List("Test", "Test", "Test", "Test"),
         ),
-        labels = List("Test", "Test", "Test", "Test")
-      )
-    ).installInCanvas("chart").onDOMContentLoaded)
+      ).installInCanvas("chart").onDOMContentLoaded
+    )
     // === code snippet ===

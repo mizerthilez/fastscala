@@ -3,17 +3,15 @@ package com.fastscala.demo.docs.tables
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.demo.docs.components.Widget
-import com.fastscala.demo.docs.data.{CountriesData, Country}
-import com.fastscala.templates.bootstrap5.tables._
+import com.fastscala.demo.docs.data.{ CountriesData, Country }
+import com.fastscala.templates.bootstrap5.tables.*
 
-import scala.xml.{Elem, NodeSeq}
-
+import scala.xml.{ Elem, NodeSeq }
 
 class SelectableRowsTableExamplePage extends SingleCodeExamplePage():
-
   override def pageTitle: String = "Selectable rows table example"
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
+  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
@@ -29,22 +27,24 @@ class SelectableRowsTableExamplePage extends SingleCodeExamplePage():
       val ColArea = ColStr("Area", _.area.toString)
 
       override def columns(): List[C] = List(
-        ColName
-        , ColCapital
-        , ColRegion
-        , ColArea
-        , ColSelectRow
+        ColName,
+        ColCapital,
+        ColRegion,
+        ColArea,
+        ColSelectRow,
       )
 
       override def rows(hints: Seq[RowsHint]): Seq[Country] = CountriesData.data
     // === code snippet ===
 
-    new Widget {
+    new Widget:
       override def widgetTitle: String = "Selectable rows"
 
-      override def transformWidgetCardBody(elem: Elem): Elem = super.transformWidgetCardBody(elem).p_0
+      override def transformWidgetCardBody(elem: Elem): Elem =
+        super.transformWidgetCardBody(elem).p_0
 
-      override def widgetTopRight()(implicit fsc: FSContext): NodeSeq = table.clearRowSelectionBtn.btn ++ table.selectAllVisibleRowsBtn.btn.ms_2
+      override def widgetTopRight()(implicit fsc: FSContext): NodeSeq =
+        table.clearRowSelectionBtn.btn ++ table.selectAllVisibleRowsBtn.btn.ms_2
 
       override def widgetContents()(implicit fsc: FSContext): NodeSeq = table.render()
-    }.renderWidget()
+    .renderWidget()
