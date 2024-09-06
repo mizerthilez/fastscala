@@ -18,20 +18,17 @@ import scala.util.chaining.scalaUtilChainingOps
 import scala.util.{Failure, Success, Try}
 import scala.xml.{Elem, NodeSeq}
 
-trait F6FieldMixin extends F6Field {
+trait F6FieldMixin extends F6Field:
 
-  def mutate(code: => Unit): this.type = {
+  def mutate(code: => Unit): this.type =
     code
     this
-  }
-}
 
-trait F6FieldInputFieldMixin extends F6FieldWithValidations with F6FieldMixin {
+trait F6FieldInputFieldMixin extends F6FieldWithValidations with F6FieldMixin:
 
   def processInputElem(input: Elem): Elem = input
-}
 
-trait F6FieldWithValue[T] extends F6FieldMixin {
+trait F6FieldWithValue[T] extends F6FieldMixin:
 
   def defaultValue: T
 
@@ -56,9 +53,8 @@ trait F6FieldWithValue[T] extends F6FieldMixin {
 
   def setter = _setter
 
-  def setInternalValue(value: T): this.type = mutate {
+  def setInternalValue(value: T): this.type = mutate:
     internalValue() = value
-  }
 
   def set(value: T): Js = setter(value)
 
@@ -70,374 +66,308 @@ trait F6FieldWithValue[T] extends F6FieldMixin {
     _getter = getter
   })
 
-  def rw(get: => T, set: T => Unit): this.type = mutate {
+  def rw(get: => T, set: T => Unit): this.type = mutate:
     _getter = () => get
     _setter = v => {
       set(v)
       Js.void
     }
-  }
-}
 
-trait F6FieldWithDisabled extends F6FieldInputFieldMixin {
+trait F6FieldWithDisabled extends F6FieldInputFieldMixin:
   var _disabled: () => Boolean = () => false
 
   def disabled: Boolean = _disabled()
 
   def isDisabled: this.type = disabled(true)
 
-  def disabled(v: Boolean): this.type = mutate {
+  def disabled(v: Boolean): this.type = mutate:
     _disabled = () => v
-  }
 
   def disabled(f: () => Boolean): this.type = mutate({
     _disabled = f
   })
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
-    if (_disabled()) input.withAttr("disabled", "disabled") else input
+    if _disabled() then input.withAttr("disabled", "disabled") else input
   }
-}
 
-trait F6FieldWithRequired extends F6FieldInputFieldMixin {
+trait F6FieldWithRequired extends F6FieldInputFieldMixin:
   var _required: () => Boolean = () => false
 
   def required: Boolean = _required()
 
   def isRequired: this.type = required(true)
 
-  def required(v: Boolean): this.type = mutate {
+  def required(v: Boolean): this.type = mutate:
     _required = () => v
-  }
 
-  def required(f: () => Boolean): this.type = mutate {
+  def required(f: () => Boolean): this.type = mutate:
     _required = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
-    if (_required()) input.withAttr("required", "true") else input
+    if _required() then input.withAttr("required", "true") else input
   }
-}
 
-trait F6FieldWithReadOnly extends F6FieldInputFieldMixin {
+trait F6FieldWithReadOnly extends F6FieldInputFieldMixin:
   var _readOnly: () => Boolean = () => false
 
   def readOnly: Boolean = _readOnly()
 
   def isReadOnly: this.type = readOnly(true)
 
-  def readOnly(v: Boolean): this.type = mutate {
+  def readOnly(v: Boolean): this.type = mutate:
     _readOnly = () => v
-  }
 
-  def readOnly(f: () => Boolean): this.type = mutate {
+  def readOnly(f: () => Boolean): this.type = mutate:
     _readOnly = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
-    if (_readOnly()) input.withAttr("readonly", "true") else input
+    if _readOnly() then input.withAttr("readonly", "true") else input
   }
-}
 
-trait F6FieldWithEnabled extends F6FieldInputFieldMixin {
+trait F6FieldWithEnabled extends F6FieldInputFieldMixin:
   var _enabled: () => Boolean = () => true
 
   def enabled: Boolean = _enabled()
 
   def isEnabled: this.type = enabled(true)
 
-  def enabled(v: Boolean): this.type = mutate {
+  def enabled(v: Boolean): this.type = mutate:
     _enabled = () => v
-  }
 
-  def enabled(f: () => Boolean): this.type = mutate {
+  def enabled(f: () => Boolean): this.type = mutate:
     _enabled = f
-  }
-}
 
-trait F6FieldWithTabIndex extends F6FieldInputFieldMixin {
+trait F6FieldWithTabIndex extends F6FieldInputFieldMixin:
   var _tabIndex: () => Option[Int] = () => None
 
   def tabIndex: Option[Int] = _tabIndex()
 
-  def tabIndex(v: Option[Int]): this.type = mutate {
+  def tabIndex(v: Option[Int]): this.type = mutate:
     _tabIndex = () => v
-  }
 
-  def tabIndex(v: Int): this.type = mutate {
+  def tabIndex(v: Int): this.type = mutate:
     _tabIndex = () => Some(v)
-  }
 
-  def tabIndex(f: () => Option[Int]): this.type = mutate {
+  def tabIndex(f: () => Option[Int]): this.type = mutate:
     _tabIndex = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     _tabIndex().map(tabIndex => input.withAttr("tabindex", tabIndex.toString)).getOrElse(input)
   }
-}
 
-trait F6FieldWithName extends F6FieldInputFieldMixin {
+trait F6FieldWithName extends F6FieldInputFieldMixin:
   var _name: () => Option[String] = () => None
 
   def name: Option[String] = _name()
 
-  def name(v: String): this.type = mutate {
+  def name(v: String): this.type = mutate:
     _name = () => Some(v)
-  }
 
-  def name(v: Option[String]): this.type = mutate {
+  def name(v: Option[String]): this.type = mutate:
     _name = () => v
-  }
 
-  def name(f: () => Option[String]): this.type = mutate {
+  def name(f: () => Option[String]): this.type = mutate:
     _name = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     _name().map(name => input.withAttr("name", name)).getOrElse(input)
   }
-}
 
-trait F6FieldWithSize extends F6FieldInputFieldMixin {
+trait F6FieldWithSize extends F6FieldInputFieldMixin:
   var _size: () => Option[Int] = () => None
 
   def size: Option[Int] = _size()
 
-  def size(v: Int): this.type = mutate {
+  def size(v: Int): this.type = mutate:
     _size = () => Some(v)
-  }
 
-  def size(v: Option[Int]): this.type = mutate {
+  def size(v: Option[Int]): this.type = mutate:
     _size = () => v
-  }
 
-  def size(f: () => Option[Int]): this.type = mutate {
+  def size(f: () => Option[Int]): this.type = mutate:
     _size = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     _size().map(size => input.withAttr("size", size.toString)).getOrElse(input)
   }
-}
 
-trait F6FieldWithPlaceholder extends F6FieldInputFieldMixin {
+trait F6FieldWithPlaceholder extends F6FieldInputFieldMixin:
   var _placeholder: () => Option[String] = () => None
 
   def placeholder: Option[String] = _placeholder()
 
-  def placeholder(v: Option[String]): this.type = mutate {
+  def placeholder(v: Option[String]): this.type = mutate:
     _placeholder = () => v
-  }
 
-  def placeholder(v: String): this.type = mutate {
+  def placeholder(v: String): this.type = mutate:
     _placeholder = () => Some(v)
-  }
 
-  def placeholder(f: () => Option[String]): this.type = mutate {
+  def placeholder(f: () => Option[String]): this.type = mutate:
     _placeholder = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     _placeholder().map(placeholder => input.withAttr("placeholder", placeholder)).getOrElse(input)
   }
-}
 
-trait F6FieldWithLabel extends F6FieldInputFieldMixin {
+trait F6FieldWithLabel extends F6FieldInputFieldMixin:
   var _label: () => Option[NodeSeq] = () => None
 
   def label: Option[NodeSeq] = _label()
 
-  def label(v: Option[NodeSeq]): this.type = mutate {
+  def label(v: Option[NodeSeq]): this.type = mutate:
     _label = () => v
-  }
 
-  def label(v: NodeSeq): this.type = mutate {
+  def label(v: NodeSeq): this.type = mutate:
     _label = () => Some(v)
-  }
 
-  def label(v: String): this.type = mutate {
+  def label(v: String): this.type = mutate:
     _label = () => Some(buildText(v))
-  }
 
-  def label(f: () => Option[NodeSeq]): this.type = mutate {
+  def label(f: () => Option[NodeSeq]): this.type = mutate:
     _label = f
-  }
 
-  def withLabel(label: String): this.type = mutate {
+  def withLabel(label: String): this.type = mutate:
     _label = () => Some(<span>{label}</span>)
-  }
-}
 
-trait F6FieldWithMaxlength extends F6FieldInputFieldMixin {
+trait F6FieldWithMaxlength extends F6FieldInputFieldMixin:
   var _maxlength: () => Option[Int] = () => None
 
   def maxlength: Option[Int] = _maxlength()
 
-  def maxlength(v: Option[Int]): this.type = mutate {
+  def maxlength(v: Option[Int]): this.type = mutate:
     _maxlength = () => v
-  }
 
-  def maxlength(v: Int): this.type = mutate {
+  def maxlength(v: Int): this.type = mutate:
     _maxlength = () => Some(v)
-  }
 
-  def maxlength(f: () => Option[Int]): this.type = mutate {
+  def maxlength(f: () => Option[Int]): this.type = mutate:
     _maxlength = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     _maxlength().map(maxlength => input.withAttr("maxlength", maxlength.toString)).getOrElse(input)
   }
-}
 
-trait F6FieldWithInputType extends F6FieldInputFieldMixin {
+trait F6FieldWithInputType extends F6FieldInputFieldMixin:
   def _inputTypeDefault: String = "text"
 
   var _inputType: () => String = () => _inputTypeDefault
 
   def inputType: String = _inputType()
 
-  def inputType(v: String): this.type = mutate {
+  def inputType(v: String): this.type = mutate:
     _inputType = () => v
-  }
 
-  def inputType(f: () => String): this.type = mutate {
+  def inputType(f: () => String): this.type = mutate:
     _inputType = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     input.withAttr("type", _inputType())
   }
-}
 
-trait F6FieldWithAdditionalAttrs extends F6FieldInputFieldMixin {
+trait F6FieldWithAdditionalAttrs extends F6FieldInputFieldMixin:
   var _additionalAttrs: () => Seq[(String, String)] = () => Nil
 
   def additionalAttrs: Seq[(String, String)] = _additionalAttrs()
 
-  def additionalAttrs(v: Seq[(String, String)]): this.type = mutate {
+  def additionalAttrs(v: Seq[(String, String)]): this.type = mutate:
     _additionalAttrs = () => v
-  }
 
-  def additionalAttrs(f: () => Seq[(String, String)]): this.type = mutate {
+  def additionalAttrs(f: () => Seq[(String, String)]): this.type = mutate:
     _additionalAttrs = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     input.withAttrs(_additionalAttrs(): _*)
   }
-}
 
-trait F6FieldWithDependencies extends F6FieldInputFieldMixin {
+trait F6FieldWithDependencies extends F6FieldInputFieldMixin:
   var _deps: () => Set[F6Field] = () => Set()
 
   def deps: Set[F6Field] = _deps()
 
-  def deps(v: Set[F6Field]): this.type = mutate {
+  def deps(v: Set[F6Field]): this.type = mutate:
     _deps = () => v
-  }
 
-  def deps(f: () => Set[F6Field]): this.type = mutate {
+  def deps(f: () => Set[F6Field]): this.type = mutate:
     _deps = f
-  }
-}
 
-trait F6FieldWithPrefix extends F6FieldMixin {
+trait F6FieldWithPrefix extends F6FieldMixin:
 
   var _prefix: () => String = () => ""
 
   def prefix: String = _prefix()
 
-  def prefix(v: String): this.type = mutate {
+  def prefix(v: String): this.type = mutate:
     _prefix = () => v
-  }
 
-  def prefix(f: () => String): this.type = mutate {
+  def prefix(f: () => String): this.type = mutate:
     _prefix = f
-  }
-}
 
-trait F6FieldWithSuffix extends F6FieldMixin {
+trait F6FieldWithSuffix extends F6FieldMixin:
 
   var _suffix: () => String = () => ""
 
   def suffix: String = _suffix()
 
-  def suffix(v: String): this.type = mutate {
+  def suffix(v: String): this.type = mutate:
     _suffix = () => v
-  }
 
-  def suffix(f: () => String): this.type = mutate {
+  def suffix(f: () => String): this.type = mutate:
     _suffix = f
-  }
-}
 
-trait F6FieldWithMin extends F6FieldInputFieldMixin {
+trait F6FieldWithMin extends F6FieldInputFieldMixin:
   var _min: () => Option[String] = () => None
 
   def min: Option[String] = _min()
 
-  def min(v: Option[String]): this.type = mutate {
+  def min(v: Option[String]): this.type = mutate:
     _min = () => v
-  }
 
-  def min(v: String): this.type = mutate {
+  def min(v: String): this.type = mutate:
     _min = () => Some(v)
-  }
 
-  def min(f: () => Option[String]): this.type = mutate {
+  def min(f: () => Option[String]): this.type = mutate:
     _min = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     _min().map(min => input.withAttr("min", min)).getOrElse(input)
   }
-}
 
-trait F6FieldWithStep extends F6FieldInputFieldMixin {
+trait F6FieldWithStep extends F6FieldInputFieldMixin:
   var _step: () => Option[Int] = () => None
 
   def step: Option[Int] = _step()
 
-  def step(v: Option[Int]): this.type = mutate {
+  def step(v: Option[Int]): this.type = mutate:
     _step = () => v
-  }
 
-  def step(v: Int): this.type = mutate {
+  def step(v: Int): this.type = mutate:
     _step = () => Some(v)
-  }
 
-  def step(f: () => Option[Int]): this.type = mutate {
+  def step(f: () => Option[Int]): this.type = mutate:
     _step = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     _step().map(step => input.withAttr("step", step.toString)).getOrElse(input)
   }
-}
 
-trait F6FieldWithMax extends F6FieldInputFieldMixin {
+trait F6FieldWithMax extends F6FieldInputFieldMixin:
   var _max: () => Option[String] = () => None
 
   def max: Option[String] = _max()
 
-  def max(v: Option[String]): this.type = mutate {
+  def max(v: Option[String]): this.type = mutate:
     _max = () => v
-  }
 
-  def max(v: String): this.type = mutate {
+  def max(v: String): this.type = mutate:
     _max = () => Some(v)
-  }
 
-  def max(f: () => Option[String]): this.type = mutate {
+  def max(f: () => Option[String]): this.type = mutate:
     _max = f
-  }
 
   override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
     _max().map(max => input.withAttr("max", max)).getOrElse(input)
   }
-}
 
 abstract class F6TextField[T]()(implicit renderer: TextF6FieldRenderer) extends StandardF6Field
   with ValidatableF6Field
@@ -455,22 +385,20 @@ abstract class F6TextField[T]()(implicit renderer: TextF6FieldRenderer) extends 
   with F6FieldWithInputType
   with F6FieldWithAdditionalAttrs
   with F6FieldWithDependencies
-  with F6FieldWithValue[T] {
+  with F6FieldWithValue[T]:
 
   def toString(value: T): String
 
   def fromString(str: String): Either[String, T]
 
-  override def loadFromString(str: String): Seq[(ValidatableF6Field, NodeSeq)] = {
-    fromString(str) match {
+  override def loadFromString(str: String): Seq[(ValidatableF6Field, NodeSeq)] =
+    fromString(str) match
       case Right(value) =>
         currentValue = value
         _setter(currentValue)
         Nil
       case Left(error) =>
         List((this, buildText(s"Could not parse value '$str': $error")))
-    }
-  }
 
   override def saveToString(): Option[String] = Some(toString(currentValue)).filter(_ != "")
 
@@ -483,9 +411,9 @@ abstract class F6TextField[T]()(implicit renderer: TextF6FieldRenderer) extends 
 
   def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
 
-  def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem = {
-    if (!enabled) <div style="display:none;" id={aroundId}></div>
-    else {
+  def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem =
+    if !enabled then <div style="display:none;" id={aroundId}></div>
+    else
       withFieldRenderHints { implicit hints =>
         renderer.render(this)(
           _label().map(lbl => <label for={elemId}>{lbl}</label>),
@@ -502,13 +430,10 @@ abstract class F6TextField[T]()(implicit renderer: TextF6FieldRenderer) extends 
           errors().headOption.map(_._2)
         )
       }
-    }
-  }
 
-  override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] = if (predicate.applyOrElse[F6Field, Boolean](this, _ => false)) List(this) else Nil
-}
+  override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] = if predicate.applyOrElse[F6Field, Boolean](this, _ => false) then List(this) else Nil
 
-class F6StringField()(implicit renderer: TextF6FieldRenderer) extends F6TextField[String] {
+class F6StringField()(implicit renderer: TextF6FieldRenderer) extends F6TextField[String]:
 
   override def defaultValue: String = ""
 
@@ -517,11 +442,10 @@ class F6StringField()(implicit renderer: TextF6FieldRenderer) extends F6TextFiel
   def fromString(str: String): Either[String, String] = Right(str)
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (_required() && currentValue.trim == "") Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
-}
+    (if _required() && currentValue.trim == "" then Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 
 
-class F6StringOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextField[Option[String]] {
+class F6StringOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextField[Option[String]]:
 
   override def defaultValue: Option[String] = None
 
@@ -530,10 +454,9 @@ class F6StringOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextF
   def fromString(str: String): Either[String, Option[String]] = Right(Some(str).filter(_ != ""))
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
-}
+    (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 
-object F6DateOptField {
+object F6DateOptField:
   def apply(
              get: => Option[String]
              , set: Option[String] => Unit
@@ -542,9 +465,8 @@ object F6DateOptField {
     get.map(date => java.time.LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern))),
     dateOpt => set(dateOpt.map(_.format(DateTimeFormatter.ofPattern(pattern))))
   )
-}
 
-class F6DateOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextField[Option[java.time.LocalDate]] {
+class F6DateOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextField[Option[java.time.LocalDate]]:
   override def _inputTypeDefault: String = "date"
 
   override def defaultValue: Option[time.LocalDate] = None
@@ -554,10 +476,9 @@ class F6DateOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextFie
   def fromString(str: String): Either[String, Option[java.time.LocalDate]] = Right(Some(str).filter(_.trim != "").map(str => java.time.LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd"))))
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
-}
+    (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 
-class F6DateField(dflt: time.LocalDate = time.LocalDate.now())(implicit renderer: TextF6FieldRenderer) extends F6TextField[java.time.LocalDate] {
+class F6DateField(dflt: time.LocalDate = time.LocalDate.now())(implicit renderer: TextF6FieldRenderer) extends F6TextField[java.time.LocalDate]:
   override def _inputTypeDefault: String = "date"
 
   override def defaultValue: time.LocalDate = dflt
@@ -565,9 +486,8 @@ class F6DateField(dflt: time.LocalDate = time.LocalDate.now())(implicit renderer
   def toString(value: java.time.LocalDate): String = value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 
   def fromString(str: String): Either[String, java.time.LocalDate] = scala.util.Try(java.time.LocalDate.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd"))).toEither.left.map(_ => "Invalid input")
-}
 
-class F6DateTimeOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextField[Option[java.time.LocalDateTime]] {
+class F6DateTimeOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextField[Option[java.time.LocalDateTime]]:
   override def _inputTypeDefault: String = "datetime-local"
 
   override def defaultValue: Option[LocalDateTime] = None
@@ -577,8 +497,7 @@ class F6DateTimeOptField()(implicit renderer: TextF6FieldRenderer) extends F6Tex
   def fromString(str: String): Either[String, Option[java.time.LocalDateTime]] = Right(Some(str).filter(_.trim != "").map(str => java.time.LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))))
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
-}
+    (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 
 class F6DoubleOptField()(implicit renderer: TextF6FieldRenderer)
   extends F6TextField[Option[Double]]
@@ -586,32 +505,28 @@ class F6DoubleOptField()(implicit renderer: TextF6FieldRenderer)
     with F6FieldWithSuffix
     with F6FieldWithMin
     with F6FieldWithStep
-    with F6FieldWithMax {
+    with F6FieldWithMax:
   override def _inputTypeDefault: String = "number"
 
   override def defaultValue: Option[Double] = None
 
   def toString(value: Option[Double]): String = value.map(value => prefix + " " + new DecimalFormat("0.#").format(value) + " " + suffix).map(_.trim).getOrElse("")
 
-  def fromString(str: String): Either[String, Option[Double]] = {
-    if (str.trim == "") {
+  def fromString(str: String): Either[String, Option[Double]] =
+    if str.trim == "" then
       Right(None)
-    } else {
+    else
       str
         .toLowerCase
         .trim
         .replaceAll("^" + Pattern.quote(prefix.toLowerCase) + " *", "")
         .replaceAll(" *" + Pattern.quote(suffix.toLowerCase) + "$", "")
-        .toDoubleOption match {
+        .toDoubleOption match
         case Some(value) => Right(Some(value))
         case None => Left(s"Not a double?: $str")
-      }
-    }
-  }
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
-}
+    (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 
 class F6IntOptField()(implicit renderer: TextF6FieldRenderer)
   extends F6TextField[Option[Int]]
@@ -619,31 +534,27 @@ class F6IntOptField()(implicit renderer: TextF6FieldRenderer)
     with F6FieldWithSuffix
     with F6FieldWithMin
     with F6FieldWithStep
-    with F6FieldWithMax {
+    with F6FieldWithMax:
 
   override def defaultValue: Option[Int] = None
 
   def toString(value: Option[Int]): String = value.map(value => prefix + " " + new DecimalFormat("0.#").format(value) + " " + suffix).map(_.trim).getOrElse("")
 
-  def fromString(str: String): Either[String, Option[Int]] = {
-    if (str.trim == "") {
+  def fromString(str: String): Either[String, Option[Int]] =
+    if str.trim == "" then
       Right(None)
-    } else {
+    else
       str
         .toLowerCase
         .trim
         .replaceAll("^" + Pattern.quote(prefix.toLowerCase) + " *", "")
         .replaceAll(" *" + Pattern.quote(suffix.toLowerCase) + "$", "")
-        .toIntOption match {
+        .toIntOption match
         case Some(value) => Right(Some(value))
         case None => Left(s"Not an int?: $str")
-      }
-    }
-  }
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
-}
+    (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 
 class F6TimeOfDayField()(implicit renderer: TextF6FieldRenderer)
   extends F6TextField[Option[Int]]
@@ -651,20 +562,20 @@ class F6TimeOfDayField()(implicit renderer: TextF6FieldRenderer)
     with F6FieldWithSuffix
     with F6FieldWithMin
     with F6FieldWithStep
-    with F6FieldWithMax {
+    with F6FieldWithMax:
 
   override def defaultValue: Option[Int] = None
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if (required && currentValue.isEmpty) Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
+    (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel))) else Seq())
 
 
   def toString(value: Option[Int]): String = value.map(value => DateTimeFormat.forPattern("HH:mm").print(new DateTime().withTime(value / 60, value % 60, 0, 0))).map(_.trim).getOrElse("")
 
-  def fromString(str: String): Either[String, Option[Int]] = {
-    if (str.trim == "") {
+  def fromString(str: String): Either[String, Option[Int]] =
+    if str.trim == "" then
       Right(None)
-    } else {
+    else
       str
         .toLowerCase
         .trim
@@ -676,9 +587,6 @@ class F6TimeOfDayField()(implicit renderer: TextF6FieldRenderer)
             case Success(parsed) => Right(Some(parsed.getHourOfDay * 60 + parsed.getMinuteOfHour))
           }
         })
-    }
-  }
-}
 
 class F6DoubleField()(implicit renderer: TextF6FieldRenderer)
   extends F6TextField[Double]
@@ -686,21 +594,18 @@ class F6DoubleField()(implicit renderer: TextF6FieldRenderer)
     with F6FieldWithSuffix
     with F6FieldWithMin
     with F6FieldWithStep
-    with F6FieldWithMax {
+    with F6FieldWithMax:
 
   override def defaultValue: Double = 0
 
   def toString(value: Double): String = (prefix + " " + value.formatted("%.2f") + " " + suffix).trim
 
-  def fromString(str: String): Either[String, Double] = {
+  def fromString(str: String): Either[String, Double] =
     str
       .toLowerCase
       .trim
       .replaceAll("^" + Pattern.quote(prefix.toLowerCase) + " *", "")
       .replaceAll(" *" + Pattern.quote(suffix.toLowerCase) + "$", "")
-      .toDoubleOption match {
+      .toDoubleOption match
       case Some(value) => Right(value)
       case None => Left(s"Not a double?: $str")
-    }
-  }
-}

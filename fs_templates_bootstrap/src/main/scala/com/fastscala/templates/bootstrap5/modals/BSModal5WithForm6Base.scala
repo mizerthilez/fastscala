@@ -10,7 +10,7 @@ import com.fastscala.xml.scala_xml.given
 
 abstract class BSModal5WithForm6Base(
                                       val modalHeaderTitle: String
-                                    )(implicit val formRenderer: F6FormRenderer) extends BSModal5Base with Form6 {
+                                    )(implicit val formRenderer: F6FormRenderer) extends BSModal5Base with Form6:
 
   def saveBtnLbl = "Save"
 
@@ -18,7 +18,5 @@ abstract class BSModal5WithForm6Base(
 
   override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = form.render()
 
-  override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some {
+  override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some:
     BSBtn().BtnPrimary.lbl(saveBtnLbl).onclick(form.onSaveClientSide()).btn
-  }
-}

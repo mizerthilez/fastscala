@@ -1,6 +1,6 @@
 package com.fastscala.utils
 
-class Lazy[T](compute: => T) {
+class Lazy[T](compute: => T):
 
   var computed = Option.empty[T]
 
@@ -12,8 +12,6 @@ class Lazy[T](compute: => T) {
   def update(value: T): Unit = computed = Some(value)
 
   def reset(): Unit = computed = None
-}
 
-object Lazy {
+object Lazy:
   def apply[T](compute: => T): Lazy[T] = new Lazy[T](compute)
-}

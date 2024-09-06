@@ -10,7 +10,7 @@ import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 
 import scala.xml.Elem
 
-trait Table5SelectableCols extends Table5Base with Table5ColsLabeled {
+trait Table5SelectableCols extends Table5Base with Table5ColsLabeled:
 
   lazy val currentSelectedCols: Lazy[collection.mutable.Set[C]] = Lazy(collection.mutable.Set(allColumns().filter(columnStartsVisible): _*))
 
@@ -45,4 +45,3 @@ trait Table5SelectableCols extends Table5Base with Table5ColsLabeled {
       )
     }).mkNS
   })
-}

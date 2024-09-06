@@ -7,7 +7,7 @@ import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 
 import scala.xml.{Elem, NodeSeq}
 
-trait Table5Paginated extends Table5SeqDataSource {
+trait Table5Paginated extends Table5SeqDataSource:
 
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
@@ -35,13 +35,13 @@ trait Table5Paginated extends Table5SeqDataSource {
       .toList
       .filter(_ >= 0)
 
-  def renderPagesButtons()(implicit fsc: FSContext): Elem = div.d_grid.d_flex.mb_3.mx_3.gap_1.apply {
+  def renderPagesButtons()(implicit fsc: FSContext): Elem = div.d_grid.d_flex.mb_3.mx_3.gap_1.apply:
     BSBtn().BtnLight.lbl("«").ajax(implicit fsc => {
       currentPage() = math.max(0, currentPage() - 1)
       rerenderTableAround()
     }).btn ++
       visiblePages().map(page => {
-        (if (currentPage() == page) BSBtn().BtnPrimary else BSBtn().BtnLight)
+        (if currentPage() == page then BSBtn().BtnPrimary else BSBtn().BtnLight)
           .lbl((page + 1).toString)
           .ajax(implicit fsc => {
             currentPage() = page
@@ -53,9 +53,8 @@ trait Table5Paginated extends Table5SeqDataSource {
         currentPage() = math.min(maxPages, currentPage() + 1)
         rerenderTableAround()
       }).btn
-  }
 
-  def renderPageSizeDropdown()(implicit fsc: FSContext): Elem = {
+  def renderPageSizeDropdown()(implicit fsc: FSContext): Elem =
     ImmediateInputFields.select[Int](
       () => visiblePageSizes,
       () => currentPageSize(),
@@ -66,17 +65,12 @@ trait Table5Paginated extends Table5SeqDataSource {
       },
       style = "max-width: 200px; float: right;"
     ).mb_3.mx_3
-  }
 
-  def renderPaginationBottomControls()(implicit fsc: FSContext): Elem = {
-    row.apply {
+  def renderPaginationBottomControls()(implicit fsc: FSContext): Elem =
+    row.apply:
       col.apply(renderPagesButtons()) ++
         col.apply(renderPageSizeDropdown())
-    }
-  }
 
-  override def renderAroundContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderAroundContents()(implicit fsc: FSContext): NodeSeq =
     super.renderAroundContents() ++
       renderPaginationBottomControls()
-  }
-}

@@ -11,11 +11,11 @@ import java.util.Date
 import scala.xml.NodeSeq
 
 
-class BasicTableExamplePage() extends SingleCodeExamplePage() {
+class BasicTableExamplePage() extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Table example"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     new Table5Base
       with Table5BaseBootrapSupport
@@ -55,7 +55,7 @@ class BasicTableExamplePage() extends SingleCodeExamplePage() {
       val ColFlag = ColStr("Flag", _.flag)
 
 
-      override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] = {
+      override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
         case ColName => _.sortBy(_.name.common)
         case ColCCA2 => _.sortBy(_.cca2)
         case ColCCN3 => _.sortBy(_.ccn3)
@@ -73,7 +73,6 @@ class BasicTableExamplePage() extends SingleCodeExamplePage() {
         case ColArea => _.sortBy(_.area.toString)
         case ColCallingCodes => _.sortBy(_.callingCodes.mkString(", "))
         case ColFlag => _.sortBy(_.flag)
-      }
 
       override def columns(): List[C] = List(
         ColName
@@ -100,5 +99,3 @@ class BasicTableExamplePage() extends SingleCodeExamplePage() {
 
     }.render()
     // === code snippet ===
-  }
-}

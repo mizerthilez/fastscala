@@ -7,11 +7,11 @@ import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
 
 import scala.xml.NodeSeq
 
-class AnonymousPage() extends SingleCodeExamplePage() {
+class AnonymousPage() extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Anonymous Page"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     JS.rerenderable(rerenderer => implicit fsc => {
@@ -26,5 +26,3 @@ class AnonymousPage() extends SingleCodeExamplePage() {
       }
     }).render()
     // === code snippet ===
-  }
-}

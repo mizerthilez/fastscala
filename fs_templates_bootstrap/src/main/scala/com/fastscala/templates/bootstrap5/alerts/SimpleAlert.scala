@@ -5,7 +5,7 @@ import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
 
 import scala.xml.{Elem, NodeSeq}
 
-object SimpleAlert {
+object SimpleAlert:
 
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
@@ -17,4 +17,3 @@ object SimpleAlert {
       contents ++ closeBtn.addClass("btn-close").withType("button").withAttr("data-bs-dismiss" -> "alert")
     }
   })
-}

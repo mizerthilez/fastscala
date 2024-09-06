@@ -2,7 +2,7 @@ package com.fastscala.templates.bootstrap5.tables
 
 import scala.util.chaining.scalaUtilChainingOps
 
-trait Table5SeqDataSource extends Table5Base {
+trait Table5SeqDataSource extends Table5Base:
 
   def seqRowsSource: Seq[R]
 
@@ -11,4 +11,3 @@ trait Table5SeqDataSource extends Table5Base {
       case PagingRowsHint(offset, limit) => rows.drop(offset.toInt).take(limit.toInt)
     }).getOrElse(rows)
   })
-}

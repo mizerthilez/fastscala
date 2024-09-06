@@ -9,7 +9,7 @@ import com.fastscala.xml.scala_xml.JS
 import scala.xml.{Elem, NodeSeq}
 
 
-trait F6Field {
+trait F6Field:
 
   def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem
 
@@ -27,20 +27,17 @@ trait F6Field {
   def deps: Set[F6Field]
 
   def enabled: Boolean
-}
 
-trait FocusableF6Field extends F6Field {
+trait FocusableF6Field extends F6Field:
 
   def focusJs: Js
-}
 
-abstract class StandardF6Field() extends F6Field with ElemWithRandomId {
+abstract class StandardF6Field() extends F6Field with ElemWithRandomId:
 
   val aroundId: String = randomElemId
 
-  def reRender()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js = {
+  def reRender()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js =
     JS.replace(aroundId, render())
-  }
 
   def visible: () => Boolean = () => enabled
 
@@ -53,27 +50,22 @@ abstract class StandardF6Field() extends F6Field with ElemWithRandomId {
 
   def readOnly: Boolean
 
-  def withFieldRenderHints[T](f: Seq[RenderHint] => T)(implicit renderHints: Seq[RenderHint]): T = f {
+  def withFieldRenderHints[T](f: Seq[RenderHint] => T)(implicit renderHints: Seq[RenderHint]): T = f:
     List(DisableFieldsHint).filter(_ => disabled) ++
       List(ReadOnlyFieldsHint).filter(_ => readOnly) ++
       renderHints
-  }
-}
 
-trait ValidatableF6Field extends StandardF6Field {
+trait ValidatableF6Field extends StandardF6Field:
   def hasErrors_?() = errors().nonEmpty
 
   def errors(): Seq[(ValidatableF6Field, NodeSeq)] = Nil
-}
 
-trait StringSerializableF6Field extends StandardF6Field {
+trait StringSerializableF6Field extends StandardF6Field:
 
   def loadFromString(str: String): Seq[(ValidatableF6Field, NodeSeq)]
 
   def saveToString(): Option[String]
-}
 
-trait QuerySerializableStringF6Field extends StringSerializableF6Field {
+trait QuerySerializableStringF6Field extends StringSerializableF6Field:
 
   def queryStringParamName: String
-}

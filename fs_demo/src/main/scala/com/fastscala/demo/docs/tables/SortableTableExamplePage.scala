@@ -8,12 +8,12 @@ import com.fastscala.templates.bootstrap5.tables._
 import scala.xml.NodeSeq
 
 
-class SortableTableExamplePage extends SingleCodeExamplePage() {
+class SortableTableExamplePage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Sortable Table Example"
 
   // === code snippet ===
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     new Table5Base
       with Table5BaseBootrapSupport
       with Table5StandardColumns
@@ -35,15 +35,12 @@ class SortableTableExamplePage extends SingleCodeExamplePage() {
         , ColArea
       )
 
-      override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] = {
+      override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
         case ColName => _.sortBy(_.name.common)
         case ColCapital => _.sortBy(_.capital.mkString(", "))
         case ColRegion => _.sortBy(_.region)
         case ColArea => _.sortBy(_.area)
-      }
 
       override def seqRowsSource: Seq[Country] = CountriesData.data
     }.render()
-  }
   // === code snippet ===
-}

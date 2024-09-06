@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 class FSStats(
                logger: Logger = LoggerFactory.getLogger("com.fastscala.stats.FSStats")
-             ) {
+             ):
 
   import StatEvent._
 
@@ -20,10 +20,9 @@ class FSStats(
     evt -> Counter.builder().name(PrometheusNaming.sanitizeLabelName(evt.name)).help(evt.name).register()
   ).toMap
 
-  def eventLevel(event: StatEvent): Level = event match {
+  def eventLevel(event: StatEvent): Level = event match
     case CREATE_CALLBACK | USE_CALLBACK | GC_CALLBACK => Level.TRACE
     case _ => Level.DEBUG
-  }
 
   def event(
              event: StatEvent,
@@ -34,10 +33,9 @@ class FSStats(
              , fsSessionOpt: Option[FSSession] = None
              , fsPageOpt: Option[FSPage] = None
              , fsContextOpt: Option[FSContext] = None
-           ): Unit = {
-    data(event).synchronized {
+           ): Unit =
+    data(event).synchronized:
       data(event).inc(n)
-    }
     logger.atLevel(eventLevel(event))
       .addMarker(LabelMarker.of("app", () => fsSystem.appName))
       .log(List(
@@ -49,5 +47,3 @@ class FSStats(
         , fsContextOpt.toList.map("context_lbl" -> _.fullPath)
         , additionalFields
       ).flatten.toMap.asJson.noSpaces)
-  }
-}

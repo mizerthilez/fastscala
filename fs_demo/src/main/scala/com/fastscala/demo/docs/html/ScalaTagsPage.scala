@@ -8,11 +8,11 @@ import scalatags.Text.TypedTag
 
 import scala.xml.NodeSeq
 
-class ScalaTagsPage extends MultipleCodeExamples2Page() {
+class ScalaTagsPage extends MultipleCodeExamples2Page():
 
   override def pageTitle: String = "ScalaTags interoperability"
 
-  override def renderExplanation()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExplanation()(implicit fsc: FSContext): NodeSeq =
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     <p>
       Fastscala is not tied to {span.badge.text_bg_secondary.apply("scala-xml")}, but the libraries that are on top of do use it.
@@ -21,10 +21,9 @@ class ScalaTagsPage extends MultipleCodeExamples2Page() {
       If you want to use ScalaTags, you can use for example an implicit conversion to {span.badge.text_bg_secondary.apply("scala-xml")}:
       <b><pre>implicit def scalaTags2ScalaXml(frag: TypedTag[String]): NodeSeq = scala.xml.Unparsed(frag.render)</pre></b>
     </p>
-  }
 
-  override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit = {
-    renderSnippet("Integrating ScalaTags using an implicit conversion") {
+  override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
+    renderSnippet("Integrating ScalaTags using an implicit conversion"):
       // You can use an implicit conversion from ScalaTags to scala-xml:
       implicit def scalaTags2ScalaXml(frag: TypedTag[String]): NodeSeq =
         scala.xml.Unparsed(frag.render)
@@ -39,7 +38,4 @@ class ScalaTagsPage extends MultipleCodeExamples2Page() {
             )
         })
       ).btn
-    }
     closeSnippet()
-  }
-}

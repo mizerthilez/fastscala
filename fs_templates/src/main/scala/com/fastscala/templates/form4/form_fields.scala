@@ -8,41 +8,35 @@ import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
 
 import scala.xml.NodeSeq
 
-trait FormField {
+trait FormField:
 
   def render()(implicit form: Form, fsc: FSContext): NodeSeq
 
   def reRender()(implicit form: Form, fsc: FSContext): Js
 
   def fields: List[FormField]
-}
 
-trait StandardFormField extends FormField with ElemWithRandomId {
+trait StandardFormField extends FormField with ElemWithRandomId:
 
   def reRender()(implicit form: Form, fsc: FSContext): Js = JS.replace(elemId, render())
 
   def enabled: () => Boolean = () => true
-}
 
-class RawHtmlField(gen: => NodeSeq) extends StandardFormField {
+class RawHtmlField(gen: => NodeSeq) extends StandardFormField:
   override def render()(implicit form: Form, fsc: FSContext): NodeSeq = gen
 
   override def fields: List[FormField] = List(this)
-}
 
-class SurroundWithHtmlField[T <: FormField](gen: T => NodeSeq)(field: T) extends StandardFormField {
+class SurroundWithHtmlField[T <: FormField](gen: T => NodeSeq)(field: T) extends StandardFormField:
   override def render()(implicit form: Form, fsc: FSContext): NodeSeq = gen(field)
 
   override def fields: List[FormField] = this :: field.fields
-}
 
-class VerticalField(children: FormField*) extends StandardFormField {
-  override def render()(implicit form: Form, fsc: FSContext): NodeSeq = {
+class VerticalField(children: FormField*) extends StandardFormField:
+  override def render()(implicit form: Form, fsc: FSContext): NodeSeq =
     children.map(_.render()).mkNS
-  }
 
   override def fields: List[FormField] = this :: children.toList.flatMap(_.fields)
-}
 
 class TextField(
                                 get: () => String,
@@ -53,9 +47,9 @@ class TextField(
                                 tabindex: Option[Int] = None,
                                 maxlength: Option[Int] = None,
                                 required: Boolean = false
-                              ) extends StandardFormField {
+                              ) extends StandardFormField:
 
-  override def render()(implicit form: Form, fsc: FSContext): NodeSeq = {
+  override def render()(implicit form: Form, fsc: FSContext): NodeSeq =
     <div class="col-sm-12 kl-fancy-form">
       <input type="text"
              name={name.getOrElse(null)}
@@ -69,13 +63,11 @@ class TextField(
              value={get()}
              tabindex={tabindex.map(_ + "").getOrElse(null)}
              maxlength={maxlength.map(_ + "").getOrElse(null)}
-             required={if (required) "true" else null}/>
+             required={if required then "true" else null}/>
       {label.map(label => <label class="control-label">{label}</label>).getOrElse(NodeSeq.Empty)}
     </div>
-  }
 
   override def fields: List[FormField] = List(this)
-}
 
 class TextAreaField(
                                     get: () => String,
@@ -87,9 +79,9 @@ class TextAreaField(
                                     maxlength: Option[Int] = None,
                                     nRows: Int = 3,
                                     required: Boolean = false
-                                  ) extends StandardFormField {
+                                  ) extends StandardFormField:
 
-  override def render()(implicit form: Form, fsc: FSContext): NodeSeq = {
+  override def render()(implicit form: Form, fsc: FSContext): NodeSeq =
     <div class="col-sm-12 kl-fancy-form">
       <textarea type="text"
                 name={name.getOrElse(null)}
@@ -103,13 +95,11 @@ class TextAreaField(
                 rows={nRows.toString}
                 tabindex={tabindex.map(_ + "").getOrElse(null)}
                 maxlength={maxlength.map(_ + "").getOrElse(null)}
-                required={if (required) "true" else null}>{get()}</textarea>
+                required={if required then "true" else null}>{get()}</textarea>
       {label.map(label => <label class="control-label">{label}</label>).getOrElse(NodeSeq.Empty)}
     </div>
-  }
 
   override def fields: List[FormField] = List(this)
-}
 
 class ButtonField(btn: Button) extends StandardFormField {
 

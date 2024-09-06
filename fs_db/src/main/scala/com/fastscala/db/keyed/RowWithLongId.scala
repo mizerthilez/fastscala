@@ -3,7 +3,7 @@ package com.fastscala.db.keyed
 import com.fastscala.db.{Row, RowWithId, RowWithIdBase}
 import scalikejdbc._
 
-trait RowWithLongId[R <: RowWithLongId[R]] extends Row[R] with RowWithIdBase with RowWithId[java.lang.Long, R] {
+trait RowWithLongId[R <: RowWithLongId[R]] extends Row[R] with RowWithIdBase with RowWithId[java.lang.Long, R]:
   self: R =>
 
   def table: PgTableWithLongId[R]
@@ -18,60 +18,50 @@ trait RowWithLongId[R <: RowWithLongId[R]] extends Row[R] with RowWithIdBase wit
 
   def reload(): R = reloadOpt().get
 
-  def save(): R = {
-    if (isPersisted_?) {
+  def save(): R =
+    if isPersisted_? then
       update()
-    } else {
+    else
       DB.localTx({ implicit session =>
         id = table.insertSQL(this).updateAndReturnGeneratedKey("id").apply()
       })
-    }
     this
-  }
 
-  def duplicate(): R = {
+  def duplicate(): R =
     DB.localTx({ implicit session =>
       id = null
       id = table.insertSQL(this).updateAndReturnGeneratedKey("id").apply()
     })
     this
-  }
 
-  def update(): Unit = {
+  def update(): Unit =
     DB.localTx({ implicit session =>
       table.updateSQL(this, sqls" where id = $id").execute()
     })
-  }
 
-  def update(upd: R => Unit): R = {
+  def update(upd: R => Unit): R =
     table.getForIdOpt(id).map(row => {
       upd(row)
       row.save()
       upd(this)
     })
     this
-  }
 
-  def delete(): Unit = {
+  def delete(): Unit =
     DB.localTx({ implicit session =>
       table.deleteSQL(this, sqls"where id = $id").execute()
     })
-  }
 
-  override def insert(): Unit = {
-    if (isPersisted_?) throw new Exception(s"Row already inserted with id $id")
+  override def insert(): Unit =
+    if isPersisted_? then throw new Exception(s"Row already inserted with id $id")
     super.insert()
-  }
 
   override def hashCode(): Int = id.hashCode() * 41
 
-  override def equals(obj: Any): Boolean = {
-    if (obj.isInstanceOf[R]) {
+  override def equals(obj: Any): Boolean =
+    if obj.isInstanceOf[R] then
       val obj2 = obj.asInstanceOf[R]
       (obj2.id != null && id != null && obj2.id == id) ||
         (obj2.id == null && id == null && super.equals(obj2))
-    } else {
+    else
       false
-    }
-  }
-}

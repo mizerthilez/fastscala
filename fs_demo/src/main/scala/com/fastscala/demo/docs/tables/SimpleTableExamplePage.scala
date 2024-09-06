@@ -8,12 +8,12 @@ import com.fastscala.templates.bootstrap5.tables._
 import scala.xml.NodeSeq
 
 
-class SimpleTableExamplePage extends SingleCodeExamplePage() {
+class SimpleTableExamplePage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Table example"
 
   // === code snippet ===
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     new Table5Base
       with Table5BaseBootrapSupport
       with Table5StandardColumns {
@@ -36,7 +36,5 @@ class SimpleTableExamplePage extends SingleCodeExamplePage() {
 
       override def rows(hints: Seq[RowsHint]): Seq[Country] = CountriesData.data
     }.render()
-  }
 
   // === code snippet ===
-}

@@ -9,7 +9,7 @@ import com.fastscala.xml.scala_xml.JS
 
 import scala.xml.NodeSeq
 
-trait LoggerUI {
+trait LoggerUI:
 
   def title: String
 
@@ -28,9 +28,8 @@ trait LoggerUI {
   def continue_?(): Boolean
 
   def finished(): Unit
-}
 
-class LoggerUISysoutOnly(val title: String) extends LoggerUI {
+class LoggerUISysoutOnly(val title: String) extends LoggerUI:
 
   override def log(mesg: String): Unit = println(mesg)
 
@@ -47,9 +46,8 @@ class LoggerUISysoutOnly(val title: String) extends LoggerUI {
   def continue_?(): Boolean = true
 
   def finished(): Unit = JS.void
-}
 
-class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI {
+class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI:
 
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
@@ -71,47 +69,38 @@ class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI 
 
   override def continue_?(): Boolean = continue
 
-  private val modal = new BSModal5Base {
+  private val modal = new BSModal5Base:
     override def modalHeaderTitle: String = title
 
     override def modalSize: BSModal5Size.Value = BSModal5Size.LG
 
-    override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = {
-      div.withId(loggerOutputId).withStyle("min-height: 400px; background: #f5f5f5; max-height: 800px; overflow: auto;").apply {
+    override def modalBodyContents()(implicit fsc: FSContext): NodeSeq =
+      div.withId(loggerOutputId).withStyle("min-height: 400px; background: #f5f5f5; max-height: 800px; overflow: auto;").apply:
         ""
-      }
-    }
 
-    override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some {
-      if (hasFinished) {
+    override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some:
+      if hasFinished then
         BSBtn().BtnSecondary.lbl("Close").onclick(hideAndRemove()).btn
-      } else {
+      else
         val btn: BSBtn = BSBtn().BtnDark.lbl("Stop").withRandomId
         btn.ajax(implicit fsc => {
           continue = false
           btn.disable()
         }).btn
-      }
-    }
-  }
 
   def openProgressModal(): Js = fsc.initWebSocket() & modal.installAndShow()
 
-  override def finished(): Unit = {
+  override def finished(): Unit =
     hasFinished = true
     fsc.sendToPage(modal.rerenderModalFooterContent())
-  }
-}
 
-object LoggerUI {
+object LoggerUI:
 
   given LoggerUISysoutOnly = new LoggerUISysoutOnly("Default")
 
-  def runInSeparateThreadAndOpenProgressModal(title: String)(code: LoggerUI => Unit)(implicit fsc: FSContext): Js = {
+  def runInSeparateThreadAndOpenProgressModal(title: String)(code: LoggerUI => Unit)(implicit fsc: FSContext): Js =
     val loggerUI = new LoggerUIImpl(title)
     new Thread() {
       override def run(): Unit = code(loggerUI)
     }.start()
     loggerUI.openProgressModal()
-  }
-}

@@ -1,6 +1,6 @@
 package com.fastscala.db
 
-trait RowWithId[K, R <: RowWithId[K, R]] extends RowWithIdBase with Row[R] {
+trait RowWithId[K, R <: RowWithId[K, R]] extends RowWithIdBase with Row[R]:
   self: R =>
 
   def key: K
@@ -8,4 +8,3 @@ trait RowWithId[K, R <: RowWithId[K, R]] extends RowWithIdBase with Row[R] {
   def reload(): R
 
   def save(): R
-}

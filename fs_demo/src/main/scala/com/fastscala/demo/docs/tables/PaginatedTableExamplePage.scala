@@ -8,12 +8,12 @@ import com.fastscala.templates.bootstrap5.tables._
 import scala.xml.NodeSeq
 
 
-class PaginatedTableExamplePage extends SingleCodeExamplePage() {
+class PaginatedTableExamplePage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Paginated Table Example"
 
   // === code snippet ===
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     new Table5Base
       with Table5BaseBootrapSupport
       with Table5StandardColumns
@@ -39,12 +39,9 @@ class PaginatedTableExamplePage extends SingleCodeExamplePage() {
       )
 
 
-      override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] = {
+      override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
         case ColName => _.sortBy(_.name.common)
-      }
 
       override def seqRowsSource: Seq[Country] = CountriesData.data
     }.render()
-  }
   // === code snippet ===
-}

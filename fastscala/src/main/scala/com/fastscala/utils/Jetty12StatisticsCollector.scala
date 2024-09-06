@@ -4,9 +4,9 @@ import io.prometheus.metrics.model.registry.{MultiCollector, PrometheusRegistry}
 import io.prometheus.metrics.model.snapshots._
 import org.eclipse.jetty.server.handler.StatisticsHandler
 
-class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) extends MultiCollector {
+class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) extends MultiCollector:
 
-  override def collect: MetricSnapshots = {
+  override def collect: MetricSnapshots =
     val result = MetricSnapshots.builder()
 
     Seq(
@@ -36,7 +36,6 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
     ).foreach(result.metricSnapshot(_))
 
     result.build()
-  }
 
   def buildGauge(name: String, help: String, value: Double): MetricSnapshot =
     GaugeSnapshot.builder()
@@ -52,7 +51,7 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
       .dataPoint(new CounterSnapshot.CounterDataPointSnapshot(value, Labels.EMPTY, null, 0L))
       .build()
 
-  def buildStatusCounter(): MetricSnapshot = {
+  def buildStatusCounter(): MetricSnapshot =
     val name = "jetty_responses_total"
     val counter = CounterSnapshot.builder()
       .name(PrometheusNaming.sanitizeMetricName(name))
@@ -67,10 +66,8 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
     ).foreach(counter.dataPoint(_))
 
     counter.build()
-  }
 
   def buildStatusSample(status: String, value: Double): CounterSnapshot.CounterDataPointSnapshot =
     new CounterSnapshot.CounterDataPointSnapshot(value, Labels.of("code", status), null, 0L)
 
   def register() = PrometheusRegistry.defaultRegistry.register(this)
-}

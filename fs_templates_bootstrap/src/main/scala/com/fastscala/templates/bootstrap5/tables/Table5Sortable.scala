@@ -7,7 +7,7 @@ import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
 import scala.xml.Elem
 
-trait Table5Sortable extends Table5Base with Table5StandardColumns {
+trait Table5Sortable extends Table5Base with Table5StandardColumns:
 
   def defaultSortCol: Option[C] = None
 
@@ -32,9 +32,9 @@ trait Table5Sortable extends Table5Base with Table5StandardColumns {
     col: Table5StandardColumn[R],
     tableColIdx: TableColIdx,
     fsc: FSContext
-  ): Js = {
+  ): Js =
     fsc.callback(() => {
-      if (currentSortCol() == Some(col)) {
+      if currentSortCol() == Some(col) then {
         currentSortAsc() = !currentSortAsc()
       } else {
         currentSortCol() = Some(col)
@@ -42,7 +42,6 @@ trait Table5Sortable extends Table5Base with Table5StandardColumns {
       }
       tableRenderer.rerenderer.rerender()
     })
-  }
 
   override def renderTableHeadTRTH()(
     implicit tableHeadRerenderer: TableHeadRerenderer,
@@ -54,12 +53,12 @@ trait Table5Sortable extends Table5Base with Table5StandardColumns {
     col: Table5StandardColumn[R],
     tableColIdx: TableColIdx,
     fsc: FSContext
-  ): Elem = {
+  ): Elem =
     val elem = super.renderTableHeadTRTH()
     ({
-      if (isSortable(col)) {
+      if isSortable(col) then {
         val chevron =
-          if (currentSortCol() == Some(col)) (if (currentSortAsc()) "bi-chevron-double-down" else "bi-chevron-double-up")
+          if currentSortCol() == Some(col) then (if currentSortAsc() then "bi-chevron-double-down" else "bi-chevron-double-up")
           else "bi-chevron-expand"
         elem.withAppendedToContents(<i class={s"bi $chevron"} style="float: right;padding: 0;"></i>)
       } else {
@@ -68,5 +67,3 @@ trait Table5Sortable extends Table5Base with Table5StandardColumns {
     }).withAttr("onclick")(old => {
       clickedClientSide().cmd
     })
-  }
-}

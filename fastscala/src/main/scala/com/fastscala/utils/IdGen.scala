@@ -4,7 +4,7 @@ import java.security.SecureRandom
 import java.util.Base64
 import scala.util.Random
 
-object IdGen {
+object IdGen:
 
   private val rand = new Random()
   private val randGen = new SecureRandom()
@@ -13,9 +13,7 @@ object IdGen {
 
   def id = "id" + math.abs(rand.nextLong()).toHexString
 
-  def secureId(nBytes: Int = 32): String = {
+  def secureId(nBytes: Int = 32): String =
     val bytes = Array.fill[Byte](32)(0)
     randGen.nextBytes(bytes)
     Base64.getEncoder.encodeToString(bytes).replace("/", "_").replace("+", "-")
-  }
-}

@@ -4,7 +4,7 @@ import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, ScalaXmlElemUtils}
 
 import scala.xml.Elem
 
-object BSHelpers extends BSClassesHelper[Elem] with BasicElemsHelper {
+object BSHelpers extends BSClassesHelper[Elem] with BasicElemsHelper:
 
   override protected def withClass(clas: String): Elem =
     FSScalaXmlEnv.buildElem("div")().addClass(clas)
@@ -17,4 +17,3 @@ object BSHelpers extends BSClassesHelper[Elem] with BasicElemsHelper {
     classes => new BSClassesHelper[String]:
       override protected def withClass(clas: String): String = classes.trim + " " + clas.trim
 
-}

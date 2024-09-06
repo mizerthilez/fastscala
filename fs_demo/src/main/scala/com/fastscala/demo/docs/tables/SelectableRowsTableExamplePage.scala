@@ -9,18 +9,18 @@ import com.fastscala.templates.bootstrap5.tables._
 import scala.xml.{Elem, NodeSeq}
 
 
-class SelectableRowsTableExamplePage extends SingleCodeExamplePage() {
+class SelectableRowsTableExamplePage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Selectable rows table example"
 
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     val table = new Table5Base
       with Table5BaseBootrapSupport
       with Table5SelectableRows
-      with Table5StandardColumns {
+      with Table5StandardColumns:
       override type R = Country
 
       val ColName = ColStr("Name", _.name.common)
@@ -37,7 +37,6 @@ class SelectableRowsTableExamplePage extends SingleCodeExamplePage() {
       )
 
       override def rows(hints: Seq[RowsHint]): Seq[Country] = CountriesData.data
-    }
     // === code snippet ===
 
     new Widget {
@@ -49,5 +48,3 @@ class SelectableRowsTableExamplePage extends SingleCodeExamplePage() {
 
       override def widgetContents()(implicit fsc: FSContext): NodeSeq = table.render()
     }.renderWidget()
-  }
-}

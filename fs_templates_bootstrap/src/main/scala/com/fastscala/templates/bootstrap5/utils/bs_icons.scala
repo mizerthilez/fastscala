@@ -4,12 +4,11 @@ import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 import scala.xml.Elem
 
-object BsIcn {
+object BsIcn:
   type BsIcn = String
 
-  implicit class RichIcn(i: BsIcn) {
+  implicit class RichIcn(i: BsIcn):
     def icn: Elem = FSScalaXmlEnv.buildElem("i", "class" -> s"bi $i")()
-  }
 
   val bi123: BsIcn = "bi-123"
   val biAlarmFill: BsIcn = "bi-alarm-fill"
@@ -2063,4 +2062,3 @@ object BsIcn {
   val biVignette: BsIcn = "bi-vignette"
 
 
-}

@@ -11,7 +11,7 @@ import java.util.zip.ZipInputStream
 import scala.util.chaining.scalaUtilChainingOps
 import scala.xml.{Elem, NodeSeq}
 
-object FileUpload {
+object FileUpload:
 
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
@@ -23,7 +23,7 @@ object FileUpload {
              multiple: Boolean = false,
              clipboardUpload: Boolean = false,
              acceptTypes: Option[String] = None
-           )(implicit fsc: FSContext): NodeSeq = {
+           )(implicit fsc: FSContext): NodeSeq =
     val actionUrl = fsc.fileUploadActionUrl({
       case uploadedFile => processUpload(uploadedFile)
     })
@@ -78,7 +78,6 @@ object FileUpload {
         transformSubmit(button.withId(buttonId).withStyle("display:none").withTypeSubmit()).pipe(btn => buttonLbl.map(lbl => btn.apply(lbl)).getOrElse(btn))
         }
       </form>)
-  }
 
   def withZipSupport(
                       callback: List[(String, Array[Byte])] => Js,
@@ -89,7 +88,7 @@ object FileUpload {
                     )(implicit fsc: FSContext): NodeSeq = apply(uploadedFiles =>
 
     callback(uploadedFiles.flatMap(uploadedFile => {
-      if (uploadedFile.name.trim.toLowerCase.endsWith(".zip")) {
+      if uploadedFile.name.trim.toLowerCase.endsWith(".zip") then {
         val zipFile = new ZipInputStream(new ByteArrayInputStream(uploadedFile.content))
 
         Iterator.continually(zipFile.getNextEntry).takeWhile(_ != null).map(entry => {
@@ -104,4 +103,3 @@ object FileUpload {
     , buttonLbl = buttonLbl
     , multiple = multiple
   )
-}

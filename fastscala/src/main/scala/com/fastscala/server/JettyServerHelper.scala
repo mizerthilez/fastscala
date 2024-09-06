@@ -13,7 +13,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool
 
 import org.eclipse.jetty.util.VirtualThreads
 
-abstract class JettyServerHelper() {
+abstract class JettyServerHelper():
 
   val config = ConfigFactory.load()
 
@@ -48,7 +48,7 @@ abstract class JettyServerHelper() {
 
   def appendToHandlerList: List[Handler] = Nil
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit =
 
     preStart()
 
@@ -72,9 +72,8 @@ abstract class JettyServerHelper() {
     }: _*))
 
     val wsHandler = FSWebsocketJettyContextHandler(server, "/" + fss.FSPrefix)
-    val gzipHandler = new GzipHandler() {
+    val gzipHandler = new GzipHandler():
       override def isMimeTypeDeflatable(mimetype: String): Boolean = true
-    }
     gzipHandler.setInflateBufferSize(4096)
     gzipHandler.addIncludedMethods("GET", "POST", "PUT")
 
@@ -102,7 +101,7 @@ abstract class JettyServerHelper() {
     println(s"Binded to port $Port")
     postStart()
 
-    if (isLocal) {
+    if isLocal then
       println("Local setup")
       Console.in.readLine()
       println("Stopping...")
@@ -110,8 +109,5 @@ abstract class JettyServerHelper() {
       println("Stopped the server")
       postStop()
       println("Post stop finished running")
-    } else {
-      while (true) Thread.sleep(10000)
-    }
-  }
-}
+    else
+      while true do Thread.sleep(10000)

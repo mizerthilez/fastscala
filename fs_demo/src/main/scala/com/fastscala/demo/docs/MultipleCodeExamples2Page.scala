@@ -9,18 +9,17 @@ import java.nio.file.Path
 
 import scala.xml.NodeSeq
 
-abstract class MultipleCodeExamples2Page() extends LoggedInPage() {
+abstract class MultipleCodeExamples2Page() extends LoggedInPage():
 
   def file = getClass.getName.split("\\.").mkString("/", "/", ".scala")
 
   override def append2Head(): NodeSeq = super.append2Head() ++
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css" integrity="sha512-o5v54Kh5PH0dgnf9ei0L+vMRsbm5fvIvnR/XkrZZjN4mqdaeH7PW66tumBoQVIaKNVrLCZiBEfHzRY4JJSMK/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  override def append2Body(): NodeSeq = super.append2Body() ++ {
+  override def append2Body(): NodeSeq = super.append2Body() `++` :
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/scala.min.js"></script>
     <script>hljs.highlightAll();</script>
-  }
 
   def pageTitle: String
 
@@ -28,65 +27,53 @@ abstract class MultipleCodeExamples2Page() extends LoggedInPage() {
 
   def renderContentsWithSnippets()(implicit fsc: FSContext): Unit
 
-  override def renderPageContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderPageContents()(implicit fsc: FSContext): NodeSeq =
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
-    div.withStyle("background('#f8fafd'); border-style: solid; border-color: #b3c7de;").border_1.shadow_sm.py_2.px_3.apply {
+    div.withStyle("background('#f8fafd'); border-style: solid; border-color: #b3c7de;").border_1.shadow_sm.py_2.px_3.apply:
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-3 mb-3">
         <h1 class="h3" style="color: #1b4d88;">{pageTitle}</h1>
       </div> ++
         renderStandardPageContents()
-    }
-  }
 
-  def renderStandardPageContents()(implicit fsc: FSContext): NodeSeq = {
+  def renderStandardPageContents()(implicit fsc: FSContext): NodeSeq =
     renderContentsWithSnippets()
     renderExplanation() ++
       sections.reverse.mkNS
-  }
 
-  def renderCodeSnippet(title: String, rendered: NodeSeq, contents: NodeSeq): NodeSeq = {
+  def renderCodeSnippet(title: String, rendered: NodeSeq, contents: NodeSeq): NodeSeq =
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     h4.pb_1.border_bottom.border_secondary_subtle.apply(title) ++
-      div.row.apply {
+      div.row.apply:
         div.col_md_6.mb_2.apply {
-          div.border.border_secondary_subtle.bg_white.apply {
-            div.apply {
+          div.border.border_secondary_subtle.bg_white.apply:
+            div.apply:
               rendered
-            }
-          }
-        } ++ div.col_md_6.mb_2.apply {
-          div.border.border_secondary_subtle.bg_white.apply {
-            div.p_3.apply {
+        } ++ div.col_md_6.mb_2.apply:
+          div.border.border_secondary_subtle.bg_white.apply:
+            div.p_3.apply:
               contents
-            }
-          }
-        }
-      }
-  }
 
   var lastSection: Option[(Int, String, NodeSeq)] = None
   var sections: List[NodeSeq] = Nil
 
   val lines = IO.toString(Path.of(getClass.getResource(file).toURI()), StandardCharsets.UTF_8).split("\\n")
-  val stackTracePos = if (VirtualThreads.areSupported) 2 else 3
+  val stackTracePos = if VirtualThreads.areSupported then 2 else 3
 
   def renderSnippet(
                      title: String,
                      thisSectionStartsAt: Int = Thread.currentThread.getStackTrace.apply(stackTracePos).getLineNumber
-                   )(contents: => NodeSeq): Unit = {
+                   )(contents: => NodeSeq): Unit =
     collectSection(thisSectionStartsAt)
     lastSection = Some((thisSectionStartsAt, title, contents))
-  }
 
   def renderHtml(
                   thisSectionStartsAt: Int = Thread.currentThread.getStackTrace.apply(stackTracePos).getLineNumber
-                )(contents: => NodeSeq): Unit = {
+                )(contents: => NodeSeq): Unit =
     collectSection(thisSectionStartsAt)
     lastSection = None
     sections ::= contents
-  }
 
-  def collectSection(thisSectionStartsAt: Int): Unit = {
+  def collectSection(thisSectionStartsAt: Int): Unit =
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     lastSection.foreach({
       case (lastSectionStartedAt, title, contents) =>
@@ -99,7 +86,5 @@ abstract class MultipleCodeExamples2Page() extends LoggedInPage() {
         }
         sections ::= renderCodeSnippet(title, rendered, contents)
     })
-  }
 
   def closeSnippet(): Unit = renderSnippet("", Thread.currentThread.getStackTrace.apply(stackTracePos).getLineNumber)(NodeSeq.Empty)
-}

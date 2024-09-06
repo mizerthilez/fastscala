@@ -10,7 +10,7 @@ import java.util.UUID
 import scala.util.chaining.scalaUtilChainingOps
 import scala.xml.{Elem, NodeSeq}
 
-abstract class Table5Base() extends Table5ColsRenderable {
+abstract class Table5Base() extends Table5ColsRenderable:
 
   type R
   type C
@@ -102,7 +102,7 @@ abstract class Table5Base() extends Table5ColsRenderable {
 
   def rerenderTable()(implicit fsc: FSContext): Js = tableRenderer.rerenderer.rerender()
 
-  def renderTable()(implicit fsc: FSContext): Elem = {
+  def renderTable()(implicit fsc: FSContext): Elem =
 
     implicit val rowsWithIds: Seq[(String, R)] = rows().zipWithIndex.map({
       case (row, rowIdx) => (idForRow(row, rowIdx), row)
@@ -115,24 +115,22 @@ abstract class Table5Base() extends Table5ColsRenderable {
     val tableContents = renderTableContents()
 
     <table class={classes} style={style} id={tableId.id}>{tableContents}</table>.pipe(transformTableElem)
-  }
 
   def renderTableContents()(
     implicit
     columns: Seq[(String, C)]
     , rows: Seq[(String, R)]
     , fsc: FSContext
-  ): NodeSeq = {
+  ): NodeSeq =
     renderTableHead().pipe(transformTableHeadElem) ++
       renderTableBody().pipe(transformTableBodyElem)
-  }
 
   // ### Table body: ###
   def tableBodyClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
 
   def tableBodyStyle()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
 
-  def renderTableBody()(implicit columnsWithIds: Seq[(String, C)], rowsWithIds: Seq[(String, R)], fsc: FSContext): Elem = {
+  def renderTableBody()(implicit columnsWithIds: Seq[(String, C)], rowsWithIds: Seq[(String, R)], fsc: FSContext): Elem =
     val classes = tableBodyClasses()
     val style = tableBodyStyle()
 
@@ -141,7 +139,6 @@ abstract class Table5Base() extends Table5ColsRenderable {
       val contents = renderTableBodyContents()
       <tbody class={classes} style={style} id={rerenderer.aroundId}>{contents}</tbody>
     }, debugLabel = Some("table_body")).render()
-  }
 
   def renderTableBodyContents()(
     implicit
@@ -149,7 +146,7 @@ abstract class Table5Base() extends Table5ColsRenderable {
     , rowsWithIds: Seq[(String, R)]
     , columns: Seq[(String, C)]
     , fsc: FSContext
-  ): NodeSeq = {
+  ): NodeSeq =
     rowsWithIds.zipWithIndex.map({
       case ((rowId, value), rowIdx) =>
         implicit val _rowId = rowId
@@ -165,7 +162,6 @@ abstract class Table5Base() extends Table5ColsRenderable {
           debugLabel = Some(s"table_row_${rowIdx}")
         ).render()
     }).mkNS
-  }
 
   def trClasses()(implicit value: R, rowIdx: TableRowIdx, columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
 
@@ -180,14 +176,13 @@ abstract class Table5Base() extends Table5ColsRenderable {
     columns: Seq[(String, C)],
     rows: Seq[(String, R)],
     fsc: FSContext
-  ): Elem = {
+  ): Elem =
 
     val classes = trClasses()
     val style = trStyle()
 
     val trContents = renderTRContents()
     <tr class={classes} style={style}>{trContents}</tr>
-  }
 
   def renderTRContents()(
     implicit
@@ -198,7 +193,7 @@ abstract class Table5Base() extends Table5ColsRenderable {
     columns: Seq[(String, C)],
     rows: Seq[(String, R)],
     fsc: FSContext
-  ): NodeSeq = {
+  ): NodeSeq =
 
     columns.zipWithIndex.map({
       case ((colThId, col), colIdx) =>
@@ -214,14 +209,13 @@ abstract class Table5Base() extends Table5ColsRenderable {
           debugLabel = Some(s"table_row_${rowIdx.idx}_col_${colIdx}")
         ).render()
     }).mkNS
-  }
 
   // ### Table head: ###
   def tableHeadClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
 
   def tableHeadStyle()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
 
-  def renderTableHead()(implicit columnsWithIds: Seq[(String, C)], rowsWithIds: Seq[(String, R)], fsc: FSContext): Elem = {
+  def renderTableHead()(implicit columnsWithIds: Seq[(String, C)], rowsWithIds: Seq[(String, R)], fsc: FSContext): Elem =
     val classes = tableHeadClasses()
     val style = tableHeadStyle()
 
@@ -232,7 +226,6 @@ abstract class Table5Base() extends Table5ColsRenderable {
     },
       debugLabel = Some(s"table_head")
     ).render()
-  }
 
   def renderTableHeadContents()(
     implicit
@@ -240,7 +233,7 @@ abstract class Table5Base() extends Table5ColsRenderable {
     , rowsWithIds: Seq[(String, R)]
     , columns: Seq[(String, C)]
     , fsc: FSContext
-  ): NodeSeq = {
+  ): NodeSeq =
     JS.rerenderable(implicit rerenderer =>
       implicit fsc => {
         implicit val trRerenderer: TRRerenderer = TRRerenderer(rerenderer)
@@ -248,7 +241,6 @@ abstract class Table5Base() extends Table5ColsRenderable {
       },
       debugLabel = Some(s"table_head_row")
     ).render()
-  }
 
   def theadTRClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
 
@@ -261,14 +253,13 @@ abstract class Table5Base() extends Table5ColsRenderable {
     columns: Seq[(String, C)],
     rows: Seq[(String, R)],
     fsc: FSContext
-  ): Elem = {
+  ): Elem =
 
     val classes = theadTRClasses()
     val style = theadTRStyle()
 
     val trContents = renderTableHeadTRContents()
     <tr class={classes} style={style}>{trContents}</tr>
-  }
 
   def renderTableHeadTRContents()(
     implicit
@@ -277,7 +268,7 @@ abstract class Table5Base() extends Table5ColsRenderable {
     columns: Seq[(String, C)],
     rows: Seq[(String, R)],
     fsc: FSContext
-  ): NodeSeq = {
+  ): NodeSeq =
 
     columns.zipWithIndex.map({
       case ((colThId, col), colIdx) =>
@@ -293,5 +284,3 @@ abstract class Table5Base() extends Table5ColsRenderable {
           debugLabel = Some(s"table_head_row_col_${colIdx}")
         ).render()
     }).mkNS
-  }
-}

@@ -10,14 +10,13 @@ import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
 import scala.xml.{Elem, NodeSeq}
 
-trait F6FormRenderer {
+trait F6FormRenderer:
 
   def render(form: Elem): NodeSeq
-}
 
 abstract class DefaultForm6()(implicit val formRenderer: F6FormRenderer) extends Form6
 
-trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRandomId {
+trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRandomId:
 
   given form: Form6 = this
 
@@ -27,13 +26,11 @@ trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRan
 
   def formRenderHits(): Seq[RenderHint] = Nil
 
-  def onEvent(event: FormEvent)(implicit form: Form6, fsc: FSContext): Js = {
+  def onEvent(event: FormEvent)(implicit form: Form6, fsc: FSContext): Js =
     implicit val renderHints = formRenderHits()
-    event match {
+    event match
       case RequestedSubmit(_) => savePipeline()
       case event => rootField.onEvent(event)
-    }
-  }
 
   def formRenderer: F6FormRenderer
 
@@ -45,47 +42,39 @@ trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRan
 
   def afterRendering()(implicit fsc: FSContext): Js = Js.void
 
-  def reRender()(implicit fsc: FSContext): Js = {
+  def reRender()(implicit fsc: FSContext): Js =
     implicit val renderHints = formRenderHits()
     rootField.reRender() & afterRendering()
-  }
 
-  override def render()(implicit fsc: FSContext): Elem = {
+  override def render()(implicit fsc: FSContext): Elem =
     implicit val renderHints = formRenderHits()
     val rendered = rootField.render()
-    if (afterRendering() != Js.void) {
+    if afterRendering() != Js.void then
       rendered.withAppendedToContents(JS.inScriptTag(afterRendering().onDOMContentLoaded))
-    } else {
+    else
       rendered
-    }
-  }
 
   def preSave()(implicit fsc: FSContext): Js = Js.void
 
   def postSave()(implicit fsc: FSContext): Js = Js.void
 
-  def onSaveServerSide()(implicit fsc: FSContext): Js = {
-    if (fsc != fsc.page.rootFSContext) onSaveServerSide()(fsc.page.rootFSContext)
-    else {
+  def onSaveServerSide()(implicit fsc: FSContext): Js =
+    if fsc != fsc.page.rootFSContext then onSaveServerSide()(fsc.page.rootFSContext)
+    else
       val hasErrors = rootField.enabledFields.exists({ case field: ValidatableF6Field => field.hasErrors_?() case _ => false })
       implicit val renderHints: Seq[RenderHint] = formRenderHits() :+ OnSaveRerender
-      if (hasErrors) {
+      if hasErrors then
         rootField.onEvent(ErrorsOnSave) &
           rootField.reRender()(this, fsc, renderHints :+ ShowValidationsHint :+ FailedSaveStateHint)
-      } else {
+      else
         savePipeline()
-      }
-    }
-  }
 
-  private def savePipeline()(implicit renderHints: Seq[RenderHint], fsc: FSContext): Js = {
+  private def savePipeline()(implicit renderHints: Seq[RenderHint], fsc: FSContext): Js =
     preSave() &
       rootField.onEvent(BeforeSave) &
       rootField.onEvent(PerformSave) &
       rootField.onEvent(AfterSave) &
       postSave() &
       rootField.reRender()
-  }
 
   def onSaveClientSide()(implicit fsc: FSContext): Js = fsc.page.rootFSContext.callback(() => onSaveServerSide())
-}

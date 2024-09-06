@@ -6,13 +6,13 @@ import com.fastscala.templates.bootstrap5.utils.BSBtn
 
 import scala.xml.NodeSeq
 
-class AuthorPage extends LoggedInPage() {
+class AuthorPage extends LoggedInPage():
 
   override def pageTitle: String = "FastScala Web Framework Author | David Antunes"
 
-  override def renderPageContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderPageContents()(implicit fsc: FSContext): NodeSeq =
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
-    div.withStyle("background('#f8fafd'); border-style: solid; border-color: #b3c7de;").border_1.shadow_sm.py_2.px_3.apply {
+    div.withStyle("background('#f8fafd'); border-style: solid; border-color: #b3c7de;").border_1.shadow_sm.py_2.px_3.apply:
       <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-3 mb-3">
         <h1 class="h3" style="color: #1b4d88;">FastScala Author</h1>
       </div> ++
@@ -21,7 +21,7 @@ class AuthorPage extends LoggedInPage() {
             BSBtn().BtnPrimary.lbl("Register for Free Training!").href("https://training.fastscala.com/").btnLink.ms_3
         } ++
         h2.apply("FastScala Author") ++
-        row.apply {
+        row.apply:
           col_md_6.apply {
             <p>
               FastScala is developed by me, David Antunes. I started programming with Scala on 2012 and have been working both on startups as well as
@@ -31,10 +31,5 @@ class AuthorPage extends LoggedInPage() {
               If you'd like to get in contact you can drop me an email to: {<pre>david at fastscala.com</pre>.d_inline}.
             </p>
           } ++
-            col_md_6.text_center.apply {
+            col_md_6.text_center.apply:
               <img src="/static/images/david_antunes.png" class="bd-placeholder-img img-thumbnail" width="200px" height="200px"></img>
-            }
-        }
-    }
-  }
-}

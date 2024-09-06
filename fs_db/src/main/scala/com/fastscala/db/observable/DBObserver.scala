@@ -2,7 +2,7 @@ package com.fastscala.db.observable
 
 import com.fastscala.db.{RowBase, TableBase}
 
-trait DBObserver {
+trait DBObserver:
   def observingTables: Seq[TableBase]
 
   def beforeSaved(table: TableBase, row: RowBase): Unit
@@ -12,10 +12,9 @@ trait DBObserver {
   def beforeDelete(table: TableBase, row: RowBase): Unit
 
   def deleted(table: TableBase, row: RowBase): Unit
-}
 
-object DBObserver {
-  given DBObserver = new DBObserver {
+object DBObserver:
+  given DBObserver = new DBObserver:
     override def observingTables: Seq[TableBase] = Seq()
 
     override def beforeSaved(table: TableBase, row: RowBase): Unit = ()
@@ -25,5 +24,3 @@ object DBObserver {
     override def beforeDelete(table: TableBase, row: RowBase): Unit = ()
 
     override def deleted(table: TableBase, row: RowBase): Unit = ()
-  }
-}

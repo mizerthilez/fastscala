@@ -20,14 +20,13 @@ class User(
             var passwordHashed: String = "",
             var loginToken: String = IdGen.id,
             var photo: Option[(String, Array[Byte])] = None,
-          ) {
+          ):
 
   def fullName = firstName + " " + lastName
 
-  def setPassword(password: String): this.type = {
+  def setPassword(password: String): this.type =
     passwordHashed = BCrypt.withDefaults().hashToString(12, password.toCharArray())
     this
-  }
 
   def checkPassword(password: String): Boolean = BCrypt.verifyer().verify(password.toCharArray(), passwordHashed).verified
 
@@ -37,7 +36,7 @@ class User(
     JS.deleteCookie("user_token", "/") & JS.redirectTo("/login")
   })
 
-  def miniHeadshotOrPlaceholderRendered: Elem = {
+  def miniHeadshotOrPlaceholderRendered: Elem =
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     photo.map({
       case (photoFileName, photoBytes) =>
@@ -49,6 +48,4 @@ class User(
     }).getOrElse({
       <img src="/static/images/user-159-white.svg" class="card-img-top" style={s"background-color: #dddddd;"}/>
     })
-  }
 
-}

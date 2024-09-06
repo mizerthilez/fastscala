@@ -12,11 +12,11 @@ import scala.xml.NodeSeq
 object UploadedImage extends FSSessionVarOpt[FSUploadedFile]()
 // === code snippet ===
 
-class FileUploadPage extends SingleCodeExamplePage() {
+class FileUploadPage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "File Upload Example"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     JS.rerenderable(rerenderer => implicit fsc => {
@@ -36,5 +36,3 @@ class FileUploadPage extends SingleCodeExamplePage() {
       }
     }).render()
     // === code snippet ===
-  }
-}

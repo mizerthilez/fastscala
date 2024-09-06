@@ -5,15 +5,15 @@ import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
 
 import scala.xml._
 
-trait ScalaXmlElemUtils {
+trait ScalaXmlElemUtils:
   def elem: Elem
 
-  def attributeTransform(attrName: String, transform: Option[String] => String): Elem = {
+  def attributeTransform(attrName: String, transform: Option[String] => String): Elem =
 
     def updateMetaData(
                         metaData: MetaData = Option(elem.attributes).getOrElse(Null),
                         found: Boolean = false
-                      ): MetaData = metaData match {
+                      ): MetaData = metaData match
       case Null if !found => new UnprefixedAttribute(attrName, transform(None), Null)
       case Null if found => Null
       case PrefixedAttribute((pre, key, value, next)) if key == attrName =>
@@ -30,10 +30,8 @@ trait ScalaXmlElemUtils {
         }, updateMetaData(next, found = true))
       case PrefixedAttribute((pre, key, value, next)) => new PrefixedAttribute(pre, key, value, updateMetaData(next, found))
       case UnprefixedAttribute((key, value, next)) => new UnprefixedAttribute(key, value, updateMetaData(next, found))
-    }
 
     new Elem(elem.prefix, elem.label, updateMetaData(), elem.scope, elem.minimizeEmpty, elem.child: _*)
-  }
 
   def addClass(`class`: String): Elem = attributeTransform("class", _.getOrElse("") + " " + `class`)
 
@@ -43,9 +41,9 @@ trait ScalaXmlElemUtils {
 
   def addOnClick(js: Js): Elem = addOnClick(js.cmd)
 
-  def withClassIf(bool: Boolean, `class`: String): Elem = if (bool) addClass(`class`) else elem
+  def withClassIf(bool: Boolean, `class`: String): Elem = if bool then addClass(`class`) else elem
 
-  def withAttrIf(bool: Boolean, kv: (String, String)): Elem = if (bool) withAttr(kv) else elem
+  def withAttrIf(bool: Boolean, kv: (String, String)): Elem = if bool then withAttr(kv) else elem
 
   def withStyle(style: String): Elem = attributeTransform("style", _.map(_ + ";").getOrElse("") + style)
 
@@ -93,7 +91,7 @@ trait ScalaXmlElemUtils {
 
   def apply(text: String): Elem = apply(scala.xml.Text(text))
 
-  def showIf(bool: Boolean): NodeSeq = if (bool) elem else NodeSeq.Empty
+  def showIf(bool: Boolean): NodeSeq = if bool then elem else NodeSeq.Empty
 
   def getAttrs: List[(String, String)] = elem.attributes.toList.map(a => a.key -> a.value.map(_.toString()).mkString(" "))
 
@@ -102,11 +100,9 @@ trait ScalaXmlElemUtils {
   def getStyleAttr: String = elem.attributes.get("style").map(_.map(_.toString()).mkString(" ")).getOrElse("")
 
   def getId: Option[String] = elem.attributes.get("id").map(_.map(_.toString()).mkString(" "))
-}
 
-object ScalaXmlElemUtils {
+object ScalaXmlElemUtils:
 
   implicit class RichElem(val elem: Elem) extends ScalaXmlElemUtils
 
-  def showIf(b: Boolean)(ns: => NodeSeq): NodeSeq = if (b) ns else NodeSeq.Empty
-}
+  def showIf(b: Boolean)(ns: => NodeSeq): NodeSeq = if b then ns else NodeSeq.Empty

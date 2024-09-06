@@ -2,7 +2,7 @@ package com.fastscala.templates.utils
 
 import scala.xml.NodeSeq
 
-case class DivBuilder(classes: String = "") {
+case class DivBuilder(classes: String = ""):
 
   def containerfluid = copy(classes = classes + " container-fluid")
 
@@ -59,6 +59,5 @@ case class DivBuilder(classes: String = "") {
   def apply(ns: => NodeSeq) = <div class={classes}>{ns}</div>
 
   def apply(classes: String) = copy(classes = this.classes + classes)
-}
 
 object Div extends DivBuilder()

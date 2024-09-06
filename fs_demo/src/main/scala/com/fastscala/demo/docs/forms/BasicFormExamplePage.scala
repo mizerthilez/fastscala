@@ -29,21 +29,20 @@ case class Province(no: Int, name: String)
 
 case class City(no: Int, name: String)
 
-object CitiesData {
+object CitiesData:
   lazy val data = Map(
     Province(1, "P1") -> List(City(11, "C11"), City(12, "C12"), City(13, "C13"), City(14, "C14"), City(15, "C15"), City(16, "C16")),
     Province(2, "P2") -> List(City(21, "C21"), City(22, "C22"), City(23, "C23"), City(24, "C24"), City(25, "C25"), City(26, "C26"), City(27, "C27")),
     Province(3, "P3") -> List(City(31, "C31"), City(32, "C32"), City(33, "C33"), City(34, "C34"), City(35, "C35"), City(36, "C36"), City(37, "C37")),
     Province(4, "P4") -> List(City(41, "C41"), City(42, "C42"), City(43, "C43"), City(34, "C44"), City(35, "C45"))
   )
-}
 
 
-class BasicFormExamplePage extends SingleCodeExamplePage() {
+class BasicFormExamplePage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Simple Form Example"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     var editing = new User1(
@@ -57,13 +56,12 @@ class BasicFormExamplePage extends SingleCodeExamplePage() {
       province = CitiesData.data.head._1,
       city = CitiesData.data.head._2.head
     )
-    val BSFormRenderer = new BSForm6Renderer {
+    val BSFormRenderer = new BSForm6Renderer:
       override def defaultRequiredFieldLabel: String = "Required Field"
-    }
     import BSFormRenderer._
-    div.border.p_2.rounded.apply {
+    div.border.p_2.rounded.apply:
       new Form6 {
-        override def postSave()(implicit fsc: FSContext): Js = {
+        override def postSave()(implicit fsc: FSContext): Js =
           BSModal5.verySimple(
             "Created User",
             "Done"
@@ -78,7 +76,6 @@ class BasicFormExamplePage extends SingleCodeExamplePage() {
               <span><b>Province:</b> {s"${editing.province.name}(${editing.province.no})"}</span><br/>++
               <span><b>City:</b> {s"${editing.city.name}(${editing.city.no})"}</span>
           })
-        }
 
         lazy val _provField: F6SelectField[Province] = new F6SelectField[Province](CitiesData.data.keys.toList.sortBy(_.no)).label("Province").rw(editing.province, editing.province = _).option2String(_.name)
 
@@ -99,7 +96,4 @@ class BasicFormExamplePage extends SingleCodeExamplePage() {
 
         override def formRenderer: F6FormRenderer = BSFormRenderer.formRenderer
       }.render()
-    }
     // === code snippet ===
-  }
-}

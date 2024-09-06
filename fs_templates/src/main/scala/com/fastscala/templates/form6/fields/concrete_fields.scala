@@ -9,21 +9,19 @@ import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 import scala.xml.{Elem, NodeSeq}
 
 
-trait TextF6FieldRenderer {
+trait TextF6FieldRenderer:
 
   def defaultRequiredFieldLabel: String
 
   def render[T](field: F6TextField[T])(label: Option[NodeSeq], inputElem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait TextareaF6FieldRenderer {
+trait TextareaF6FieldRenderer:
 
   def defaultRequiredFieldLabel: String
 
   def render[T](field: F6TextareaField[T])(label: Option[NodeSeq], inputElem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait SelectF6FieldRenderer {
+trait SelectF6FieldRenderer:
 
   def defaultRequiredFieldLabel: String
 
@@ -34,9 +32,8 @@ trait SelectF6FieldRenderer {
     value: String,
     label: NodeSeq
   )(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait MultiSelectF6FieldRenderer {
+trait MultiSelectF6FieldRenderer:
 
   def defaultRequiredFieldLabel: String
 
@@ -47,12 +44,10 @@ trait MultiSelectF6FieldRenderer {
     value: String,
     label: NodeSeq
   )(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait CheckboxF6FieldRenderer {
+trait CheckboxF6FieldRenderer:
 
   def render(field: F6CheckboxField)(label: Option[Elem], elem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
-}
 
 //object F6CodeField {
 //
@@ -199,9 +194,8 @@ trait CheckboxF6FieldRenderer {
 //  override def fieldsMatching(predicate: PartialFunction[FormField, Boolean]): List[FormField] = if (predicate.applyOrElse[FormField, Boolean](this, _ => false)) List(this) else Nil
 //}
 //
-trait ButtonF6FieldRenderer {
+trait ButtonF6FieldRenderer:
   def render(field: F6SaveButtonField[_])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem
-}
 
 class F6SaveButtonField[B](using Conversion[B, Elem])(
         btn: FSContext => B
@@ -213,9 +207,9 @@ class F6SaveButtonField[B](using Conversion[B, Elem])(
     with F6FieldWithReadOnly
     with F6FieldWithDependencies
     with F6FieldWithDisabled
-    with F6FieldWithEnabled {
+    with F6FieldWithEnabled:
 
-  override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] = if (predicate.applyOrElse[F6Field, Boolean](this, _ => false)) List(this) else Nil
+  override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] = if predicate.applyOrElse[F6Field, Boolean](this, _ => false) then List(this) else Nil
 
   val btnRenderer = JS.rerenderableP[(B => B, Form6)](_ => implicit fsc => {
     case (transformer, form) => (transformer(btn(fsc)): Elem).withId(elemId).addOnClick((Js.focus(elemId) & form.onSaveClientSide()).cmd)
@@ -237,16 +231,14 @@ class F6SaveButtonField[B](using Conversion[B, Elem])(
   })
 
   override def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem =
-    if (!enabled) <div style="display:none;" id={aroundId}></div>
-    else {
+    if !enabled then <div style="display:none;" id={aroundId}></div>
+    else
       withFieldRenderHints { implicit hints =>
         renderer.render(this)({
-          if (hints.contains(FailedSaveStateHint)) btnRenderer.render((toErrorState, form))
+          if hints.contains(FailedSaveStateHint) then btnRenderer.render((toErrorState, form))
           else btnRenderer.render((toInitialState, form))
         })
       }
-    }
-}
 //
 //trait FileUploadFieldRenderer {
 //

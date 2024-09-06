@@ -7,37 +7,28 @@ import com.fastscala.xml.scala_xml.JS
 
 import java.util.UUID
 
-class JsUtilsPage extends MultipleCodeExamples2Page() {
+class JsUtilsPage extends MultipleCodeExamples2Page():
 
   override def pageTitle: String = "Js utils"
 
-  override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit = {
+  override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
 
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
-    renderSnippet("Create Js") {
+    renderSnippet("Create Js"):
       button.btn.btn_success.apply("click me").addOnClick(Js("alert('clicked')"))
-    }
-    renderSnippet("Escape string") {
+    renderSnippet("Escape string"):
       val string = """string with 'single' and "double" quotes"""
       button.btn.btn_success.apply("click me").addOnClick(Js(s"""alert("${JS.escapeStr(string)}")""")) ++
         button.ms_2.btn.btn_primary.apply("click me").addOnClick(Js(s"""alert('${JS.escapeStr(string)}')"""))
-    }
-    renderSnippet("Element by id") {
-      d_flex.justify_content_between.apply {
+    renderSnippet("Element by id"):
+      d_flex.justify_content_between.apply:
         input.withType("text").withId("id1").withValue("Lorem ipsum dolor sit amet").form_control ++
           button.ms_2.btn.btn_primary.apply("Get input elem").addOnClick(Js(s"""alert('Elem: '+${JS.elementById("id1")})""")).text_nowrap
-      }
-    }
-    renderSnippet("Element value by id") {
-      d_flex.justify_content_between.apply {
+    renderSnippet("Element value by id"):
+      d_flex.justify_content_between.apply:
         input.withType("text").withId("id2").withValue("All work and no play makes Jack a dull boy").form_control ++
           button.ms_2.btn.btn_primary.apply("Get input elem value").addOnClick(Js(s"""alert('Elem: '+${JS.elementValueById("id2")})""")).text_nowrap
-      }
-    }
-    renderSnippet("Copy to clipboard") {
+    renderSnippet("Copy to clipboard"):
       button.btn.btn_success.apply("Copy UUID").addOnClick(JS.toClipboard(UUID.randomUUID().toString))
-    }
     closeSnippet()
-  }
-}

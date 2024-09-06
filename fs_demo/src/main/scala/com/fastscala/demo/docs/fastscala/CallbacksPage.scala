@@ -8,12 +8,12 @@ import io.circe.generic.semiauto
 
 import java.util.Date
 
-class CallbacksPage extends MultipleCodeExamples2Page() {
+class CallbacksPage extends MultipleCodeExamples2Page():
 
   override def pageTitle: String = "FastScala Callbacks"
 
-  override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit = {
-    renderSnippet("Basic callback") {
+  override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
+    renderSnippet("Basic callback"):
       <button
         class="btn btn-primary d-block mx-auto"
         onclick={
@@ -21,8 +21,7 @@ class CallbacksPage extends MultipleCodeExamples2Page() {
             Js.alert(s"Current date/time on server: ${new Date().toString}")
           }).cmd}
       >Check time on server</button>
-    }
-    renderSnippet("Callback with args") {
+    renderSnippet("Callback with args"):
       <button
         class="btn btn-primary d-block mx-auto"
         onclick={
@@ -30,8 +29,7 @@ class CallbacksPage extends MultipleCodeExamples2Page() {
             Js.alert(s"User's browser is: $userAgent")
           }).cmd}
       >Send browser details to server side</button>
-    }
-    renderSnippet("Callback with JSON arg with languages data") {
+    renderSnippet("Callback with JSON arg with languages data"):
       <button
         class="btn btn-primary d-block mx-auto"
         onclick={
@@ -41,8 +39,7 @@ class CallbacksPage extends MultipleCodeExamples2Page() {
             Js.alert(s"Supported languages on user's browser are: ${languages.mkString(", ")}")
           }).cmd}
       >Send browser details to server side as JSON object</button>
-    }
-    renderSnippet("Callback with JSON arg with languages data") {
+    renderSnippet("Callback with JSON arg with languages data"):
       final case class NavigatorData(
                                       language: String,
                                       languages: List[String],
@@ -60,7 +57,4 @@ class CallbacksPage extends MultipleCodeExamples2Page() {
             Js.alert(s"NavigatorData: ${navigatorData.toString}")
           }).cmd}
       >Send browser details to server side as a case class</button>
-    }
     closeSnippet()
-  }
-}

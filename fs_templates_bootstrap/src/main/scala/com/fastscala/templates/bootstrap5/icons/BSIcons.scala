@@ -5,7 +5,7 @@ import org.eclipse.jetty.util.IO
 
 import scala.xml.{Elem, XML}
 
-class BSIcon(val name: String) {
+class BSIcon(val name: String):
 
   def clas = "bi-" + name
 
@@ -16,20 +16,17 @@ class BSIcon(val name: String) {
   lazy val svg: String = BSIcons.loadSVG(name)
 
   lazy val svgNS: Elem = XML.loadString(svg).collectFirst({ case elem: Elem => elem }).get
-}
 
-object BSIcons {
+object BSIcons:
 
   def icn(name: String): BSIcon = new BSIcon(name)
 
-  def loadSVG(name: String): String = {
+  def loadSVG(name: String): String =
     val is = getClass.getResource(s"/web/static/bootstrap-icons/$name.svg").openStream()
-    try {
+    try
       IO.toString(is, "UTF-8")
-    } finally {
+    finally
       is.close()
-    }
-  }
 
   val circle_0 = icn("0-circle")
   val circle_fill_0 = icn("0-circle-fill")
@@ -1985,4 +1982,3 @@ object BSIcons {
   val zoom_in = icn("zoom-in")
   val zoom_out = icn("zoom-out")
 
-}

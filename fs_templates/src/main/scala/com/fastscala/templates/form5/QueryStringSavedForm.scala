@@ -9,9 +9,9 @@ import org.eclipse.jetty.server.Request
 import java.net.URLEncoder
 import scala.jdk.CollectionConverters.MapHasAsScala
 
-trait QueryStringSavedForm extends Form5 {
+trait QueryStringSavedForm extends Form5:
 
-  override def initForm()(implicit fsc: FSContext): Unit = {
+  override def initForm()(implicit fsc: FSContext): Unit =
     super.initForm()
     rootField.fieldsMatching(_ => true).foreach({
       case f: QuerySerializableStringField => Option(Request.getParameters(fsc.page.req).getValue(f.queryStringParamName)).foreach(str => {
@@ -19,10 +19,9 @@ trait QueryStringSavedForm extends Form5 {
       })
       case _ =>
     })
-  }
 
-  override def afterSave()(implicit fsc: FSContext): Js = {
-    super.afterSave() & {
+  override def afterSave()(implicit fsc: FSContext): Js =
+    super.afterSave() `&` :
       val newParams: Map[String, Array[String]] = rootField.fieldsMatching(_ => true).collect({
         case f: QuerySerializableStringField => f.queryStringParamName -> f.saveToString().toArray
       }).toMap
@@ -30,6 +29,3 @@ trait QueryStringSavedForm extends Form5 {
       JS.redirectTo(fsc.page.req.getHttpURI.getPath + "?" + (existingParams ++ newParams).flatMap({
         case (key, values) => values.map(v => URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(v, "UTF-8")).toList
       }).mkString("&"))
-    }
-  }
-}

@@ -8,7 +8,7 @@ import com.fastscala.xml.scala_xml.JS
 
 import scala.xml.Elem
 
-object ImmediateInputFields {
+object ImmediateInputFields:
 
   def checkbox(
                 get: () => Boolean,
@@ -18,7 +18,7 @@ object ImmediateInputFields {
                 name: String = "",
                 tabindex: Option[Int] = None,
                 onSubmitClientSide: Js => Js = _ => JS.void
-              )(implicit fsc: FSContext): Elem = {
+              )(implicit fsc: FSContext): Elem =
     val inputId = "input" + fsc.session.nextID()
     val submit = JS.withVarStmt("value", JS.checkboxIsChecked(inputId))(value => {
       onSubmitClientSide(value) & fsc.callback(value, v => set(v.toBoolean))
@@ -26,7 +26,7 @@ object ImmediateInputFields {
     <div class="form-check form-check-custom form-check-solid">
       <input class={"form-check-input " + classes}
              type="checkbox"
-             checked={if (get()) "checked" else null}
+             checked={if get() then "checked" else null}
              id={inputId}
              name={name}
              tabindex={tabindex.map(_ + "").getOrElse(null)}
@@ -34,7 +34,6 @@ object ImmediateInputFields {
       />
       <label class="form-check-label" for={inputId}>{label}</label>
     </div>
-  }
 
   def text(
             get: () => String,
@@ -50,26 +49,26 @@ object ImmediateInputFields {
             id: Option[String] = None,
             onSubmitClientSide: Js => Js = _ => JS.void,
             ignoreUnchangedValue: Boolean = true
-          )(implicit fsc: FSContext): Elem = {
+          )(implicit fsc: FSContext): Elem =
     val inputId = id.getOrElse("input" + fsc.session.nextID())
 
     val initialValue = get()
 
     val submit = JS.withVarStmt("value", JS.elementValueById(inputId))(value => {
       JS._if(
-        if (ignoreUnchangedValue) value `_!=` JS.varOrElseUpdate(Js(s"window.currentValue$inputId"), JS.asJsStr(initialValue))
+        if ignoreUnchangedValue then value `_!=` JS.varOrElseUpdate(Js(s"window.currentValue$inputId"), JS.asJsStr(initialValue))
         else JS._true,
         _then =
           JS.consoleLog(value) &
             onSubmitClientSide(value) & fsc.callback(value, str => set(str.trim))
       )
     }).cmd
-    val onkeypress = if (changeOnEnter) s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13) {${JS.blur(inputId).cmd}}" else null
-    val onblur = if (btn.isEmpty) submit else null
+    val onkeypress = if changeOnEnter then s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13) {${JS.blur(inputId).cmd}}" else null
+    val onblur = if btn.isEmpty then submit else null
 
     val inputNS = <input id={inputId} type={`type`} value={initialValue} onblur={onblur} onkeypress={onkeypress} class={classes} style={style} autocomplete="autocomplete"
-       placeholder={if (placeholder == "") null else placeholder}
-       name={if (name == "") null else name}
+       placeholder={if placeholder == "" then null else placeholder}
+       name={if name == "" then null else name}
       />
 
     btn.map(btn => {
@@ -78,7 +77,6 @@ object ImmediateInputFields {
         {btn.withClass("input-group-text").onclick(Js(submit)).btn}
       </div>
     }).getOrElse(inputNS)
-  }
 
   def range(
              get: () => Int,
@@ -93,7 +91,7 @@ object ImmediateInputFields {
              onSubmitClientSide: Js => Js = _ => JS.void,
              ignoreUnchangedValue: Boolean = true,
              timeBeforeChangeMs: Long = 600
-           )(implicit fsc: FSContext): Elem = {
+           )(implicit fsc: FSContext): Elem =
     val inputId = id.getOrElse("input" + fsc.session.nextID())
 
     val initialValue = get()
@@ -104,7 +102,7 @@ object ImmediateInputFields {
            |  window.clearTimeout(window.timeout$inputId);
            |} catch(err) { }
            |window.timeout$inputId = window.setTimeout(function () { """.stripMargin + JS._if(
-          if (ignoreUnchangedValue) value `_!=` JS.varOrElseUpdate(Js(s"window.currentValue$inputId"), JS.asJsStr(initialValue.toString))
+          if ignoreUnchangedValue then value `_!=` JS.varOrElseUpdate(Js(s"window.currentValue$inputId"), JS.asJsStr(initialValue.toString))
           else JS._true,
           _then = onSubmitClientSide(value) & fsc.callback(value, str => set(str.toInt))
         ).cmd + s"}, $timeBeforeChangeMs);"
@@ -112,11 +110,10 @@ object ImmediateInputFields {
     }).cmd
 
     val inputNS = <input min={min.toString} max={max.toString} id={inputId} type={`type`} value={initialValue.toString} class={classes} style={style}
-       name={if (name == "") null else name}
+       name={if name == "" then null else name}
         onchange={submit}
       />
     inputNS
-  }
 
   def select[T](
                  all: () => Seq[T],
@@ -127,7 +124,7 @@ object ImmediateInputFields {
                  toString: T => String = (_: T).toString,
                  elemId: String = IdGen.id,
                  onSubmitClientSide: Js => Js = _ => JS.void
-               )(implicit fsc: FSContext): Elem = {
+               )(implicit fsc: FSContext): Elem =
     val values = all()
 
     val submit = JS.withVarStmt("value", JS.elementValueById(elemId))(value => {
@@ -142,7 +139,6 @@ object ImmediateInputFields {
       })
       }
     </select>
-  }
 
   def textarea(
                 get: () => String,
@@ -153,7 +149,7 @@ object ImmediateInputFields {
                 placeholder: String = "",
                 rows: Int = 8,
                 onSubmitClientSide: Js => Js = _ => JS.void
-              )(implicit fsc: FSContext): Elem = {
+              )(implicit fsc: FSContext): Elem =
     val inputId = "input" + fsc.session.nextID()
 
     val submit = JS.withVarStmt("value", JS.elementValueById(inputId))(value => {
@@ -162,13 +158,12 @@ object ImmediateInputFields {
 
     val inputNS = <textarea
       id={inputId} onblur={submit} class={classes} style={style}
-        placeholder={if (placeholder == "") null else placeholder}
-        name={if (name == "") null else name}
+        placeholder={if placeholder == "" then null else placeholder}
+        name={if name == "" then null else name}
         rows={rows + ""}
       >{get()}</textarea>
 
     inputNS
-  }
 
   def password(
                 get: () => String,
@@ -191,4 +186,3 @@ object ImmediateInputFields {
     onSubmitClientSide = onSubmitClientSide
   )
 
-}

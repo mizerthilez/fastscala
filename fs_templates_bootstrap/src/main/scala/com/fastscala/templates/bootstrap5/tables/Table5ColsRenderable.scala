@@ -4,7 +4,7 @@ import com.fastscala.core.FSContext
 
 import scala.xml.Elem
 
-trait Table5ColsRenderable {
+trait Table5ColsRenderable:
 
   type R
   type C
@@ -34,4 +34,3 @@ trait Table5ColsRenderable {
     tableColIdx: TableColIdx,
     fsc: FSContext
   ): Elem
-}

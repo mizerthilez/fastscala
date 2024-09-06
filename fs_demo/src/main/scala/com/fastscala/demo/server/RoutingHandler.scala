@@ -20,13 +20,13 @@ import org.eclipse.jetty.util.Callback
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper {
+class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
 
   val logger = LoggerFactory.getLogger(getClass.getName)
 
   import com.fastscala.server.RoutingHandlerHelper._
 
-  override def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request): Option[Response] = Some(req).collect {
+  override def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request): Option[Response] = Some(req).collect:
     case Get("loaderio-4370139ed4f90c60359531343155344a") =>
       Ok.plain("loaderio-4370139ed4f90c60359531343155344a")
     case Get(".well-known", "acme-challenge", code) =>
@@ -35,11 +35,10 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper {
       val contents = new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8)
       logger.debug(s"Returning contents $contents")
       Ok.plain(contents)
-  }
 
-  override def handlerInSession(response: JettyServerResponse, callback: Callback)(implicit req: Request, session: FSSession): Option[Response] = {
-    onlyHandleHtmlRequests {
-      if (CurrentUser().isEmpty) {
+  override def handlerInSession(response: JettyServerResponse, callback: Callback)(implicit req: Request, session: FSSession): Option[Response] =
+    onlyHandleHtmlRequests:
+      if CurrentUser().isEmpty then
         val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
         cookies.find(_.getName == "user_token").map(_.getValue).filter(_.trim != "").orElse(
           Option(Request.getParameters(req).getValues("user_token")).getOrElse(Collections.emptyList).asScala.headOption.filter(_.trim != "")
@@ -48,7 +47,6 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper {
             CurrentUser() = user
           })
         })
-      }
 
       FSDemoMainMenu.serve().map(servePage[FSScalaXmlEnv.type](_)).orElse({
         Some(req).collect {
@@ -66,6 +64,3 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper {
       }).orElse(
         Some(Redirect.temporaryRedirect("/demo/"))
       )
-    }
-  }
-}

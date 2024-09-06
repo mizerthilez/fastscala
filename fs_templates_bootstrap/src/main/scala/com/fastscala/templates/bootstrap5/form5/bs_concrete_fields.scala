@@ -3,7 +3,7 @@ package com.fastscala.templates.bootstrap5.form5
 import com.fastscala.templates.form5.fields._
 
 
-object BSHorizontalField {
+object BSHorizontalField:
 
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
@@ -12,4 +12,3 @@ object BSHorizontalField {
              , deps: Set[FormField] = Set()
            )(children: FormField*) =
     new F5HorizontalField(enabled, deps)(children.map[(String, FormField)](f => col.getClassAttr -> f): _*)
-}

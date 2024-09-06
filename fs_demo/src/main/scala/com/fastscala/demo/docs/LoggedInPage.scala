@@ -9,7 +9,7 @@ import scala.xml.NodeSeq
 
 import com.fastscala.xml.scala_xml.given
 
-abstract class LoggedInPage() extends BasePage {
+abstract class LoggedInPage() extends BasePage:
 
   implicit val atTime: LocalDate = LocalDate.now()
 
@@ -24,14 +24,13 @@ abstract class LoggedInPage() extends BasePage {
   //        user.logOut()
   //      }).btn.ms_2
 
-  def renderSideMenu()(implicit fsc: FSContext): NodeSeq = {
+  def renderSideMenu()(implicit fsc: FSContext): NodeSeq =
     FSDemoMainMenu.render() // ++
     //      hr ++
     //      p_3.d_flex.align_items_center.apply {
     //        a.apply(user.miniHeadshotOrPlaceholderRendered.withStyle("width: 55px;border-radius: 55px;")) ++
     //          a.text_decoration_none.fw_bold.text_warning.ms_2.apply(user.fullName)
     //      }
-  }
 
   lazy val pageRenderer = JS.rerenderableContents(rerenderer => implicit fsc => {
     renderPageContents()
@@ -40,4 +39,3 @@ abstract class LoggedInPage() extends BasePage {
   def rerenderPageContents(): Js = pageRenderer.rerender()
 
   def renderPageContents()(implicit fsc: FSContext): NodeSeq
-}

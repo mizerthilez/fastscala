@@ -7,14 +7,14 @@ import com.fastscala.xml.scala_xml.JS
 
 import scala.xml.NodeSeq
 
-class SimpleChartjsPage extends SingleCodeExamplePage() {
+class SimpleChartjsPage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Simple chart.js Example"
 
   override def append2Body(): NodeSeq = super.append2Body() ++
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     import com.fastscala.chartjs.ChartJsNullable2Option._
     <canvas id="chart"></canvas> ++ JS.inScriptTag(ChartJs(
@@ -32,5 +32,3 @@ class SimpleChartjsPage extends SingleCodeExamplePage() {
       )
     ).installInCanvas("chart").onDOMContentLoaded)
     // === code snippet ===
-  }
-}

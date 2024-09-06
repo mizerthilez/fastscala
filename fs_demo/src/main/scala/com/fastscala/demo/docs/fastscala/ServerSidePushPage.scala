@@ -11,14 +11,13 @@ import scala.xml.NodeSeq
 import org.eclipse.jetty.util.VirtualThreads
 import java.util.concurrent.Executors
 
-object ServerSidePushPage {
+object ServerSidePushPage:
   lazy val singleThreadExecutor = Executors.newSingleThreadExecutor
-}
 
-class ServerSidePushPage extends SingleCodeExamplePage() {
+class ServerSidePushPage extends SingleCodeExamplePage():
   override def pageTitle: String = "Server-Side push using Websockets"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     val id = IdGen.id
@@ -27,12 +26,12 @@ class ServerSidePushPage extends SingleCodeExamplePage() {
     Option(VirtualThreads.getDefaultVirtualThreadsExecutor())
       .getOrElse(ServerSidePushPage.singleThreadExecutor)
       .execute { () =>
-        def factorial(n: BigInt): IO[BigInt] = for {
+        def factorial(n: BigInt): IO[BigInt] = for
           _ <- IO.sleep(100.millis)
           _ <- IO(fsc.sendToPage(JS.prepend2(id, div.apply(s"factorial($n)").text_white_50)))
-          rslt <- if (n == 0) IO.pure(BigInt(1)) else factorial(n - 1).map(_ * n)
-          _ <- if (n < N) IO(fsc.sendToPage(JS.prepend2(id, div.apply(s"factorial($n) = $rslt").text_white_50))) else IO.unit
-        } yield rslt
+          rslt <- if n == 0 then IO.pure(BigInt(1)) else factorial(n - 1).map(_ * n)
+          _ <- if n < N then IO(fsc.sendToPage(JS.prepend2(id, div.apply(s"factorial($n) = $rslt").text_white_50))) else IO.unit
+        yield rslt
 
         import cats.effect.unsafe.implicits.global
         val rslt = factorial(N).unsafeRunSync()
@@ -44,5 +43,3 @@ class ServerSidePushPage extends SingleCodeExamplePage() {
         .withStyle("font-family: courier; min-height: 100px;") ++
       JS.inScriptTag(fsc.initWebSocket())
     // === code snippet ===
-  }
-}

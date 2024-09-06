@@ -4,7 +4,7 @@ import com.fastscala.core.FSContext
 
 import scala.xml.{Elem, NodeSeq}
 
-trait Table5StandardColumns extends Table5ColsRenderable with Table5ColsLabeled with Table5StdColsHelper {
+trait Table5StandardColumns extends Table5ColsRenderable with Table5ColsLabeled with Table5StdColsHelper:
 
   type C = Table5StandardColumn[R]
 
@@ -35,9 +35,8 @@ trait Table5StandardColumns extends Table5ColsRenderable with Table5ColsLabeled 
   ): Elem = col.renderTH()
 
   override def colLabel(col: C): String = col.label
-}
 
-trait Table5StandardColumn[R] {
+trait Table5StandardColumn[R]:
 
   def label: String
 
@@ -62,13 +61,12 @@ trait Table5StandardColumn[R] {
     rows: Seq[(String, R)],
     fsc: FSContext
   ): Elem
-}
 
-trait Table5StdColsHelper {
+trait Table5StdColsHelper:
 
   type R
 
-  def ColStr(title: String, render: R => String) = new Table5StandardColumn[R] {
+  def ColStr(title: String, render: R => String) = new Table5StandardColumn[R]:
 
     override def label: String = title
 
@@ -77,9 +75,8 @@ trait Table5StdColsHelper {
 
     override def renderTD()(implicit tableBodyRerenderer: TableBodyRerenderer, trRerenderer: TRRerenderer, tdRerenderer: TDRerenderer, value: R, rowIdx: TableRowIdx, colIdx: TableColIdx, rows: Seq[(String, R)], fsc: FSContext): Elem =
       <td>{render(value)}</td>
-  }
 
-  def ColNs(title: String, render: FSContext => R => NodeSeq) = new Table5StandardColumn[R] {
+  def ColNs(title: String, render: FSContext => R => NodeSeq) = new Table5StandardColumn[R]:
 
     override def label: String = title
 
@@ -88,12 +85,11 @@ trait Table5StdColsHelper {
 
     override def renderTD()(implicit tableBodyRerenderer: TableBodyRerenderer, trRerenderer: TRRerenderer, tdRerenderer: TDRerenderer, value: R, rowIdx: TableRowIdx, colIdx: TableColIdx, rows: Seq[(String, R)], fsc: FSContext): Elem =
       <td>{render(fsc)(value)}</td>
-  }
 
   def ColNsFull(
                  title: String,
                  render: FSContext => (TableBodyRerenderer, TRRerenderer, TDRerenderer, R, TableRowIdx, TableColIdx, Seq[(String, R)]) => NodeSeq
-               ) = new Table5StandardColumn[R] {
+               ) = new Table5StandardColumn[R]:
 
     override def label: String = title
 
@@ -102,12 +98,11 @@ trait Table5StdColsHelper {
 
     override def renderTD()(implicit tableBodyRerenderer: TableBodyRerenderer, trRerenderer: TRRerenderer, tdRerenderer: TDRerenderer, value: R, rowIdx: TableRowIdx, colIdx: TableColIdx, rows: Seq[(String, R)], fsc: FSContext): Elem =
       <td>{render(fsc)(tableBodyRerenderer, trRerenderer, tdRerenderer, value, rowIdx, colIdx, rows)}</td>
-  }
 
   def ColNsFullTd(
                    title: String,
                    render: FSContext => (TableBodyRerenderer, TRRerenderer, TDRerenderer, R, TableRowIdx, TableColIdx, Seq[(String, R)]) => Elem
-                 ) = new Table5StandardColumn[R] {
+                 ) = new Table5StandardColumn[R]:
 
     override def label: String = title
 
@@ -116,5 +111,3 @@ trait Table5StdColsHelper {
 
     override def renderTD()(implicit tableBodyRerenderer: TableBodyRerenderer, trRerenderer: TRRerenderer, tdRerenderer: TDRerenderer, value: R, rowIdx: TableRowIdx, colIdx: TableColIdx, rows: Seq[(String, R)], fsc: FSContext): Elem =
       render(fsc)(tableBodyRerenderer, trRerenderer, tdRerenderer, value, rowIdx, colIdx, rows)
-  }
-}

@@ -1,6 +1,5 @@
 package com.fastscala.templates.utils
 
-trait ElemWithId {
+trait ElemWithId:
 
   def elemId: String
-}

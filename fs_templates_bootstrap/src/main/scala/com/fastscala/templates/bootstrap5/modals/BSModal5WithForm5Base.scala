@@ -8,13 +8,11 @@ import scala.xml.NodeSeq
 
 abstract class BSModal5WithForm5Base(
                                       val modalHeaderTitle: String
-                                    )(implicit val formRenderer: FormRenderer) extends BSModal5Base with Form5 {
+                                    )(implicit val formRenderer: FormRenderer) extends BSModal5Base with Form5:
 
   def saveBtnLbl = "Save"
 
   override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = form.render()
 
-  override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some {
+  override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some:
     BSBtn().BtnPrimary.lbl(saveBtnLbl).onclick(form.onSaveClientSide()).btn
-  }
-}

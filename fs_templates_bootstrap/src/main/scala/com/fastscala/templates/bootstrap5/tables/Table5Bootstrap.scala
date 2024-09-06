@@ -4,7 +4,7 @@ import com.fastscala.core.FSContext
 
 import scala.xml.Elem
 
-object Table5BootrapStyles extends Enumeration {
+object Table5BootrapStyles extends Enumeration:
   val Primary = Value("table-primary")
   val Secondary = Value("table-secondary")
   val Success = Value("table-success")
@@ -13,9 +13,8 @@ object Table5BootrapStyles extends Enumeration {
   val Danger = Value("table-danger")
   val Light = Value("table-light")
   val Dark = Value("table-dark")
-}
 
-object Table5BootrapBorderStyles extends Enumeration {
+object Table5BootrapBorderStyles extends Enumeration:
   val Primary = Value("table-primary")
   val Secondary = Value("table-secondary")
   val Success = Value("table-success")
@@ -24,18 +23,16 @@ object Table5BootrapBorderStyles extends Enumeration {
   val Danger = Value("table-danger")
   val Light = Value("table-light")
   val Dark = Value("table-dark")
-}
 
-object Table5BootrapResponsiveSizes extends Enumeration {
+object Table5BootrapResponsiveSizes extends Enumeration:
   val ALL = Value("table-responsive")
   val SM = Value("table-responsive-sm")
   val MD = Value("table-responsive-md")
   val LG = Value("table-responsive-lg")
   val XL = Value("table-responsive-xl")
   val XXL = Value("table-responsive-xxl")
-}
 
-trait Table5BaseBootrapSupport extends Table5Base {
+trait Table5BaseBootrapSupport extends Table5Base:
 
   def tableResponsive: Option[Table5BootrapResponsiveSizes.Value] = None
 
@@ -59,12 +56,12 @@ trait Table5BaseBootrapSupport extends Table5Base {
 
   override def tableClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String =
     super.tableClasses() + " table " +
-      (if (tableStriped) " table-striped " else "") +
-      (if (tableStripedColumns) " table-striped-columns " else "") +
-      (if (tableHoverable) " table-hover " else "") +
-      (if (tableBordered) " table-bordered " else "") +
-      (if (tableBorderless) " table-borderless " else "") +
-      (if (tableSmall) " table-sm " else "") +
+      (if tableStriped then " table-striped " else "") +
+      (if tableStripedColumns then " table-striped-columns " else "") +
+      (if tableHoverable then " table-hover " else "") +
+      (if tableBordered then " table-bordered " else "") +
+      (if tableBorderless then " table-borderless " else "") +
+      (if tableSmall then " table-sm " else "") +
       tableStyle.map(" " + _ + " ").getOrElse("") +
       tableBorderStyle.map(" " + _ + " ").getOrElse("")
 
@@ -75,4 +72,3 @@ trait Table5BaseBootrapSupport extends Table5Base {
   override def renderTable()(implicit fsc: FSContext): Elem = tableResponsive.map(size => {
     <div class={size.toString}>{super.renderTable()}</div>
   }).getOrElse(super.renderTable())
-}

@@ -16,7 +16,6 @@ object OnSaveRerender extends RenderHint
 
 object SaveOnEnterHint extends RenderHint
 
-trait Form5WithSaveOnEnterHint extends Form5 {
+trait Form5WithSaveOnEnterHint extends Form5:
   override def formRenderHits(): Seq[RenderHint] = super.formRenderHits() :+ SaveOnEnterHint
-}
 

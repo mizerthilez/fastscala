@@ -19,7 +19,7 @@ class One2ManyOptCache[
    val filterOneOnMany: K => SQLSyntax,
    val one2Many: collection.mutable.Map[O, ListBuffer[M]] = collection.mutable.Map[O, ListBuffer[M]](),
    val many2One: collection.mutable.Map[M, O] = collection.mutable.Map[M, O]()
- ) extends DBObserver {
+ ) extends DBObserver:
 
   override def observingTables: Seq[Table[_]] = Seq[Table[_]](cacheOne.table, cacheMany.table)
 
@@ -31,7 +31,7 @@ class One2ManyOptCache[
 
   override def beforeSaved(table: TableBase, row: RowBase): Unit = ()
 
-  override def saved(table: TableBase, row: RowBase): Unit = (table, row) match {
+  override def saved(table: TableBase, row: RowBase): Unit = (table, row) match
     case (`cacheOne`, row: O) =>
     case (`cacheMany`, many: M) =>
       getOne(many).flatMap(cacheOne.getForIdOptX(_)).foreach(one => {
@@ -39,9 +39,8 @@ class One2ManyOptCache[
         many2One(many) = one
       })
     case _ =>
-  }
 
-  override def beforeDelete(table: TableBase, row: RowBase): Unit = (table, row) match {
+  override def beforeDelete(table: TableBase, row: RowBase): Unit = (table, row) match
     case (`cacheOne`, row: O) =>
     case (`cacheMany`, row: M) =>
       many2One.get(row).foreach(one => {
@@ -51,7 +50,5 @@ class One2ManyOptCache[
         many2One -= row
       })
     case _ =>
-  }
 
   override def deleted(table: TableBase, row: RowBase): Unit = ()
-}

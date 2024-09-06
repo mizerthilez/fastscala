@@ -10,10 +10,9 @@ import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.xml.{Elem, NodeSeq}
 
-object BSBtn {
+object BSBtn:
 
   def apply(): BSBtn = new BSBtn("", FSScalaXmlEnv.Empty)
-}
 
 case class BSBtn(
                   cls: String,
@@ -25,7 +24,7 @@ case class BSBtn(
                   idOpt: Option[String] = None,
                   titleOpt: Option[String] = None,
                   additionalAttrs: Seq[(String, String)] = Nil
-                ) {
+                ):
 
   override def toString: String = cls
 
@@ -63,13 +62,12 @@ case class BSBtn(
 
   def ajax(jsCmd: FSContext => Js): BSBtn = copy(onclickOpt = Some(fsc => onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc) & fsc.callback(() => jsCmd(fsc))))
 
-  def ajaxOnce(jsCmd: FSContext => Js, moreThanOnceRslt: Option[Js] = None): BSBtn = {
+  def ajaxOnce(jsCmd: FSContext => Js, moreThanOnceRslt: Option[Js] = None): BSBtn =
     val used = new AtomicBoolean(false)
     ajax(fsc => {
-      if (!used.getAndSet(true)) jsCmd(fsc)
+      if !used.getAndSet(true) then jsCmd(fsc)
       else moreThanOnceRslt.getOrElse(JS.void)
     })
-  }
 
   def ajaxConfirm(question: String, jsCmd: FSContext => Js): BSBtn =
     copy(onclickOpt = Some(fsc => JS.confirm(question, onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc) & fsc.callback(() => jsCmd(fsc)))))
@@ -95,11 +93,11 @@ case class BSBtn(
               set: Boolean => Js,
               selected: BSBtn => BSBtn = identity[BSBtn],
               unselected: BSBtn => BSBtn = identity[BSBtn]
-            )(implicit fsc: FSContext): Elem = {
-    val finalBtn = if (idOpt.isDefined) this else this.id(IdGen.id)
+            )(implicit fsc: FSContext): Elem =
+    val finalBtn = if idOpt.isDefined then this else this.id(IdGen.id)
 
     def generate: Elem =
-      if (get) selected(finalBtn).ajax(implicit fsc => {
+      if get then selected(finalBtn).ajax(implicit fsc => {
         set(false) & JS.replace(finalBtn.idOpt.get, generate)
       }).btn
       else unselected(finalBtn).ajax(implicit fsc => {
@@ -107,7 +105,6 @@ case class BSBtn(
       }).btn
 
     generate
-  }
 
   def disableAfterOneClick(): BSBtn = copy(onclickOpt = Some(fsc => disable() & onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc)))
 
@@ -235,5 +232,4 @@ case class BSBtn(
   def btnLink(implicit fsc: FSContext): Elem = <a class={cls} id={id} style={styleOpt.orNull} title={titleOpt.orNull} href={hrefOpt.getOrElse("javascript:void(0)")} onclick={onclickOpt.map(_(fsc).cmd).orNull}>{content}</a>.withAttrs(additionalAttrs: _*)
 
   def btnLinkRerender(implicit fsc: FSContext): Js = JS.replace(id, btnLink)
-}
 

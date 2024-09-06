@@ -12,18 +12,18 @@ import com.fastscala.xml.scala_xml.FSScalaXmlEnv.given
 import java.awt.Color
 import java.time.format.DateTimeFormatter
 
-class FormInputTypesPage extends MultipleCodeExamples2Page() {
+class FormInputTypesPage extends MultipleCodeExamples2Page():
 
   override def pageTitle: String = "Form 6 Input Types"
 
   import DefaultBSForm6Renderer._
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
-  override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit = {
-    renderSnippet("String input") {
+  override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
+    renderSnippet("String input"):
       val inputField = new F6StringField().label("Name")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc => fs_4.apply(s"Your name is ${inputField.currentValue}"))
@@ -33,12 +33,10 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("(Optional) String input") {
+    renderSnippet("(Optional) String input"):
       val inputField = new F6StringOptField().label("Name")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc => fs_4.apply(s"Your name is ${inputField.currentValue.getOrElse("[None provided]")}"))
@@ -49,12 +47,10 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("(Optional) Double input") {
+    renderSnippet("(Optional) Double input"):
       val inputField = new F6DoubleOptField().label("Your height")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc => fs_4.apply(s"Your input is: ${inputField.currentValue.getOrElse("[None provided]")}"))
@@ -65,12 +61,10 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("Double input") {
+    renderSnippet("Double input"):
       val inputField = new F6DoubleField().label("Your height")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc => fs_4.apply(s"Your input is: ${inputField.currentValue}"))
@@ -81,12 +75,10 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("(Optional) Int input") {
+    renderSnippet("(Optional) Int input"):
       val inputField = new F6IntOptField().label("Your age")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc => fs_4.apply(s"Your input is: ${inputField.currentValue.getOrElse("[None provided]")}"))
@@ -97,12 +89,10 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("java.time.LocalDate input") {
+    renderSnippet("java.time.LocalDate input"):
       val inputField = new F6DateOptField().label("Date")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc =>
@@ -113,12 +103,10 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("java.time.LocalDateTime input") {
+    renderSnippet("java.time.LocalDateTime input"):
       val inputField = new F6DateTimeOptField().label("Date/time")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc =>
@@ -129,12 +117,10 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("Textarea") {
+    renderSnippet("Textarea"):
       val inputField = new F6StringOptTextareaField().rows(6).label("Your message")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc =>
@@ -147,9 +133,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("Select (Optional)") {
+    renderSnippet("Select (Optional)"):
       val colors: List[Color] = List(
         java.awt.Color.WHITE
         , java.awt.Color.LIGHT_GRAY
@@ -167,7 +151,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
       )
       val inputField = new F6SelectOptField[Color]().optionsNonEmpty(colors).label("Color")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc =>
@@ -180,9 +164,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("Select (one always must be selected)") {
+    renderSnippet("Select (one always must be selected)"):
       val colors: List[Color] = List(
         java.awt.Color.WHITE
         , java.awt.Color.LIGHT_GRAY
@@ -200,7 +182,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
       )
       val inputField = new F6SelectField[Color](colors).label("Color")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc =>
@@ -213,9 +195,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("Multi Select") {
+    renderSnippet("Multi Select"):
       val continents: List[String] = List(
         "Asia"
         , "Africa"
@@ -227,7 +207,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
       )
       val inputField = new F6MultiSelectField().options(continents).label("Continents").size(10)
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc =>
@@ -240,13 +220,11 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("Checkbox") {
+    renderSnippet("Checkbox"):
 
       val inputField = new F6CheckboxField().label("Has driving license")
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc =>
@@ -259,17 +237,14 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
-    renderSnippet("Enum-based") {
+    renderSnippet("Enum-based"):
 
-      object OutputState extends Enumeration {
+      object OutputState extends Enumeration:
         val High, Low, HighZ = Value
-      }
 
       val inputField = EnumField.Nullable(OutputState).label("Output State").option2String(_.map(_.toString).getOrElse("--"))
 
-      div.border.p_2.rounded.apply {
+      div.border.p_2.rounded.apply:
         new DefaultForm6() {
           override def postSave()(implicit fsc: FSContext): Js =
             BSModal5.verySimple("Your input", "Done")(modal => implicit fsc =>
@@ -282,8 +257,4 @@ class FormInputTypesPage extends MultipleCodeExamples2Page() {
             , new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block)
           )
         }.render()
-      }
-    }
     closeSnippet()
-  }
-}

@@ -7,13 +7,13 @@ import javax.imageio.stream.MemoryCacheImageOutputStream
 import javax.imageio.{IIOImage, ImageIO, ImageWriteParam}
 import scala.annotation.tailrec
 
-object RouterUtils {
+object RouterUtils:
 
 
-  private def rescale(scale: Double, bi: BufferedImage): BufferedImage = {
+  private def rescale(scale: Double, bi: BufferedImage): BufferedImage =
     val originalWidth = bi.getWidth
     val originalHeight = bi.getHeight
-    val imgType = if (bi.getType == 0) BufferedImage.TYPE_INT_ARGB else bi.getType
+    val imgType = if bi.getType == 0 then BufferedImage.TYPE_INT_ARGB else bi.getType
 
     val resizedImage = new BufferedImage((originalWidth * scale).toInt, (originalHeight * scale).toInt, imgType)
     //    val g = resizedImage.createGraphics
@@ -27,15 +27,14 @@ object RouterUtils {
     val scaleTransform = AffineTransform.getScaleInstance(scale, scale)
     val bilinearScaleOp = new AffineTransformOp(scaleTransform, AffineTransformOp.TYPE_BILINEAR)
     bilinearScaleOp.filter(bi, resizedImage)
-  }
 
   @tailrec private def resizeMaxWidth(maxWidth: Int, bi: BufferedImage): BufferedImage =
-    if (maxWidth < bi.getWidth / 2) resizeMaxWidth(maxWidth, rescale(0.5, bi)) else bi
+    if maxWidth < bi.getWidth / 2 then resizeMaxWidth(maxWidth, rescale(0.5, bi)) else bi
 
   @tailrec private def resizeMaxHeight(maxHeight: Int, bi: BufferedImage): BufferedImage =
-    if (maxHeight < bi.getHeight / 2) resizeMaxHeight(maxHeight, rescale(0.5, bi)) else bi
+    if maxHeight < bi.getHeight / 2 then resizeMaxHeight(maxHeight, rescale(0.5, bi)) else bi
 
-  private def write(compression: Int, bi: BufferedImage): Array[Byte] = {
+  private def write(compression: Int, bi: BufferedImage): Array[Byte] =
     val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next
 
     val param = jpegWriter.getDefaultWriteParam
@@ -51,9 +50,8 @@ object RouterUtils {
     memoryCacheImageOutputStream.close()
 
     out.toByteArray
-  }
 
-  private def write(bi: BufferedImage): Array[Byte] = {
+  private def write(bi: BufferedImage): Array[Byte] =
     val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next
 
     val param = jpegWriter.getDefaultWriteParam
@@ -67,7 +65,5 @@ object RouterUtils {
     memoryCacheImageOutputStream.close()
 
     out.toByteArray
-  }
 
   var version = System.currentTimeMillis()
-}

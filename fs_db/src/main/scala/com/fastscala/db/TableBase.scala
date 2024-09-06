@@ -13,7 +13,7 @@ import scalikejdbc._
 
 import java.util.UUID
 
-trait TableBase {
+trait TableBase:
 
   def createSampleRow(): Any
 
@@ -40,7 +40,7 @@ trait TableBase {
                           clas: Class[_],
                           value: => Any,
                           columnConstrains: Set[String] = Set("not null")
-                        ): String = clas.getName match {
+                        ): String = clas.getName match
     case "java.lang.Byte" => "integer" + columnConstrains.mkString(" ", " ", "")
     case "byte" => "integer" + columnConstrains.mkString(" ", " ", "")
 
@@ -71,9 +71,8 @@ trait TableBase {
 
     case "scala.Option" =>
       val cast = value.asInstanceOf[Option[Any]]
-      if (cast.isEmpty) {
+      if cast.isEmpty then
         throw new Exception(s"Missing value for field '${fieldName(field)}' in sample row for table '$tableName'")
-      }
       fieldTypeToSQLType(field, cast.get.getClass, ???, columnConstrains - "not null")
     case "scala.Enumeration$Value" => "integer" + columnConstrains.mkString(" ", " ", "")
 
@@ -85,10 +84,9 @@ trait TableBase {
     case "java.time.OffsetDateTime" => "timestamp with time zone" + columnConstrains.mkString(" ", " ", "")
 
     case _ => throw new Exception(s"Unexpected field class ${clas.getSimpleName} for field ${field.getName}")
-  }
 
-  def setValue(rs: WrappedResultSet, idx: Int, field: java.lang.reflect.Field, valueType: Class[_], instance: Any, nullable: Boolean = false): Unit = try {
-    valueType.getName match {
+  def setValue(rs: WrappedResultSet, idx: Int, field: java.lang.reflect.Field, valueType: Class[_], instance: Any, nullable: Boolean = false): Unit = try
+    valueType.getName match
 
       case "java.lang.String" | "string" if nullable => field.set(instance, rs.stringOpt(idx))
       case "java.lang.String" | "string" => field.set(instance, rs.string(idx))
@@ -134,46 +132,40 @@ trait TableBase {
       case "java.time.OffsetDateTime" => field.set(instance, rs.offsetDateTime(idx))
 
       case "scala.Option" =>
-        if (field.get(instance).isInstanceOf[None.type]) throw new Exception(s"Missing sample value for optional column ${fieldName(field)}")
+        if field.get(instance).isInstanceOf[None.type] then throw new Exception(s"Missing sample value for optional column ${fieldName(field)}")
         setValue(rs, idx, field, field.get(instance).asInstanceOf[Some[Any]].get.getClass, instance, true)
 
       case unknown => throw new Exception(s"Unknown value type $unknown of field ${fieldName(field)}")
-    }
-  } catch {
+  catch
     case ex: Exception =>
       throw new Exception(s"Exception setting value of field ${fieldName(field)} of type ${valueType.getName}", ex)
-  }
 
-  def __createTableSQL: List[SQL[Nothing, NoExtractor]] = {
+  def __createTableSQL: List[SQL[Nothing, NoExtractor]] =
     val columns: String = fieldsList.map(field => {
       field.setAccessible(true)
       s""""${fieldName(field)}" ${fieldTypeToSQLType(field, field.getType, field.get(sampleRow))}"""
     }).mkString("(", ",", ")")
 
     List(SQL(s"""CREATE TABLE IF NOT EXISTS ${s"\"$tableName\""} $columns"""))
-  }
 
-  def __dropColumnWithName(colName: String): List[SQL[Nothing, NoExtractor]] = {
-    List {
+  def __dropColumnWithName(colName: String): List[SQL[Nothing, NoExtractor]] =
+    List:
       val statement = sql"""ALTER TABLE ${SQLSyntax.createUnsafely(s"\"$tableName\"")} DROP COLUMN "${SQLSyntax.createUnsafely(colName)}";""".stripMargin
       statement
-    }
-  }
 
 
   def __addMissingColumnsIfNotExists: List[SQL[Nothing, NoExtractor]] = __addMissingColumnsIfNotExistsWithDefaults(PartialFunction.empty[Field, Any])
 
-  def __addMissingColumnsIfNotExistsWithDefaults(default: PartialFunction[Field, Any]): List[SQL[Nothing, NoExtractor]] = {
+  def __addMissingColumnsIfNotExistsWithDefaults(default: PartialFunction[Field, Any]): List[SQL[Nothing, NoExtractor]] =
     fieldsList.map(field => {
       field.setAccessible(true)
-      val dfltValue = if (default.isDefinedAt(field)) Some(default(field)) else None
+      val dfltValue = if default.isDefinedAt(field) then Some(default(field)) else None
       val defaultSQL: SQLSyntax = dfltValue.map(v => sqls"default " + valueToLiteral(v)).getOrElse(SQLSyntax.empty)
       val statement = sql"""ALTER TABLE ${SQLSyntax.createUnsafely(s"\"$tableName\"")} ADD COLUMN IF NOT EXISTS "${SQLSyntax.createUnsafely(fieldName(field))}" ${SQLSyntax.createUnsafely(fieldTypeToSQLType(field, field.getType, field.get(sampleRow)))} ${defaultSQL}""".stripMargin
       statement
     })
-  }
 
-  def __addMissingColumnsIfNotExistsWithDefaultsFromSampleRow(): List[SQL[Nothing, NoExtractor]] = {
+  def __addMissingColumnsIfNotExistsWithDefaultsFromSampleRow(): List[SQL[Nothing, NoExtractor]] =
     fieldsList.map(field => {
       field.setAccessible(true)
       val dfltValue = field.get(sampleRow)
@@ -181,7 +173,6 @@ trait TableBase {
       val statement = sql"""ALTER TABLE ${SQLSyntax.createUnsafely(s"\"$tableName\"")} ADD COLUMN IF NOT EXISTS "${SQLSyntax.createUnsafely(fieldName(field))}" ${SQLSyntax.createUnsafely(fieldTypeToSQLType(field, field.getType, field.get(sampleRow)))} ${defaultSQL}""".stripMargin
       statement
     })
-  }
 
   def __dropTableSQL: SQL[Nothing, NoExtractor] = SQL(s"""drop table ${s"\"$tableName\""}""")
 
@@ -191,7 +182,7 @@ trait TableBase {
 
   def __truncateTableSQL: SQL[Nothing, NoExtractor] = SQL(s"""drop table ${s"\"$tableName\""};""")
 
-  def valueToFragment(field: Field, value: Any): SQLSyntax = value match {
+  def valueToFragment(field: Field, value: Any): SQLSyntax = value match
     case null => sqls"null"
     case None => sqls"null"
     case Some(value) => valueToFragment(field, value)
@@ -210,9 +201,8 @@ trait TableBase {
     case v: java.time.LocalTime => sqls"$v"
     case v: java.time.LocalDateTime => sqls"$v"
     case v: java.time.OffsetDateTime => sqls"$v"
-  }
 
-  def valueToLiteral(value: Any): SQLSyntax = value match {
+  def valueToLiteral(value: Any): SQLSyntax = value match
     case null => SQLSyntax.createUnsafely("null")
     case None => SQLSyntax.createUnsafely("null")
     case Some(value) => valueToLiteral(value)
@@ -231,16 +221,14 @@ trait TableBase {
     case v: java.time.LocalTime => SQLSyntax.createUnsafely(v.format(DateTimeFormatter.ISO_LOCAL_TIME))
     case v: java.time.LocalDateTime => SQLSyntax.createUnsafely(v.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
     case v: java.time.OffsetDateTime => ???
-  }
 
-  protected def enumSampleToValue(sample: AnyRef, id: Int): AnyRef = sample match {
+  protected def enumSampleToValue(sample: AnyRef, id: Int): AnyRef = sample match
     case sample: scala.Enumeration#Value =>
       val sampleClass = sample.getClass
       val field = sampleClass.getField("$outer")
       field.setAccessible(true)
       val `enum` = field.get(sample)
       `enum`.asInstanceOf[scala.Enumeration](id)
-  }
 
   def insertFields: List[Field]
 
@@ -256,7 +244,7 @@ trait TableBase {
 
   def deleteFrom: SQLSyntax = sqls"""delete from "$tableNameSQLSyntax""""
 
-  def fromWrappedResultSet(rs: WrappedResultSet): Any = {
+  def fromWrappedResultSet(rs: WrappedResultSet): Any =
     val instance = createEmptyRowInternal()
     fieldsList.zipWithIndex.foreach({
       case (field, idx) =>
@@ -264,5 +252,3 @@ trait TableBase {
         setValue(rs, idx + 1, field, field.getType, instance)
     })
     instance
-  }
-}

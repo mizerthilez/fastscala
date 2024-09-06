@@ -12,11 +12,11 @@ import scala.xml.NodeSeq
 object FileDownloadPageUploadedImage extends FSSessionVarOpt[FSUploadedFile]()
 // === code snippet ===
 
-class FileDownloadPage extends SingleCodeExamplePage() {
+class FileDownloadPage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "File Download"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
     FileDownloadPageUploadedImage.clear()
@@ -41,5 +41,3 @@ class FileDownloadPage extends SingleCodeExamplePage() {
       }
     }).render()
     // === code snippet ===
-  }
-}

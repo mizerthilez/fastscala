@@ -4,7 +4,7 @@ import com.fastscala.xml.scala_xml.FSScalaXmlEnv.{Empty as EnvEmpty, *}
 
 import scala.xml.{Elem, NodeSeq}
 
-trait BasicElemsHelper {
+trait BasicElemsHelper:
 
   def Empty: NodeSeq = EnvEmpty
 
@@ -75,4 +75,3 @@ trait BasicElemsHelper {
   def hr: Elem = buildElem("hr")()
 
   def br: Elem = buildElem("br")()
-}

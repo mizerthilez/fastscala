@@ -1,16 +1,14 @@
 package com.fastscala.stats
 
-object StatEventType extends Enumeration {
+object StatEventType extends Enumeration:
 
   val CREATE = Value
   val USE = Value
   val GC = Value
   val NOT_FOUND = Value
-}
 
-sealed abstract class StatEvent(val name: String, val eventType: StatEventType.Value) {
+sealed abstract class StatEvent(val name: String, val eventType: StatEventType.Value):
   override def toString: String = name
-}
 
 object StatEvent {
   object CREATE_SESSION extends StatEvent("CREATE_SESSION", StatEventType.CREATE)

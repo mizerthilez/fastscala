@@ -4,12 +4,11 @@ import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 import scala.xml.Elem
 
-object IcnFA {
+object IcnFA:
   type FaIcn = String
 
-  implicit class RichIcn(i: FaIcn) {
+  implicit class RichIcn(i: FaIcn):
     def icn: Elem = FSScalaXmlEnv.buildElem("i", "class" -> i)()
-  }
 
   val adjust: FaIcn = " fa fa-adjust "
   val adn: FaIcn = " fa fa-adn "
@@ -562,9 +561,8 @@ object IcnFA {
   val youtube: FaIcn = " fa fa-youtube "
 
 
-}
 
-object IcnSLI {
+object IcnSLI:
 
   type SliIcn = String
 
@@ -731,9 +729,8 @@ object IcnSLI {
   val icnWallet: SliIcn = " icon-wallet "
   val icnWrench: SliIcn = " icon-wrench "
 
-}
 
-object AIcn {
+object AIcn:
 
   type Icn = String
 
@@ -959,4 +956,3 @@ object AIcn {
   val yelp: Icn = "icon-yelp"
   val youtube: Icn = "icon-youtube"
   val youtube_play: Icn = "icon-youtube-play"
-}

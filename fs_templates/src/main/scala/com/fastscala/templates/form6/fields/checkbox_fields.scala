@@ -20,18 +20,17 @@ class F6CheckboxField()(implicit renderer: CheckboxF6FieldRenderer) extends Stan
   with F6FieldWithLabel
   with F6FieldWithAdditionalAttrs
   with F6FieldWithDependencies
-  with F6FieldWithValue[Boolean] {
+  with F6FieldWithValue[Boolean]:
 
   override def defaultValue: Boolean = false
 
-  override def loadFromString(str: String): Seq[(ValidatableF6Field, NodeSeq)] = str.toBooleanOption match {
+  override def loadFromString(str: String): Seq[(ValidatableF6Field, NodeSeq)] = str.toBooleanOption match
     case Some(value) =>
       currentValue = value
       _setter(currentValue)
       Nil
     case None =>
       List((this, buildText(s"Could not parse value '$str' as boolean")))
-  }
 
 
   override def saveToString(): Option[String] = Some(currentValue.toString).filter(_ != "")
@@ -45,9 +44,9 @@ class F6CheckboxField()(implicit renderer: CheckboxF6FieldRenderer) extends Stan
 
   def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
 
-  def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem = {
-    if (!enabled) <div style="display:none;" id={aroundId}></div>
-    else {
+  def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem =
+    if !enabled then <div style="display:none;" id={aroundId}></div>
+    else
       withFieldRenderHints { implicit hints =>
         renderer.render(this)(
           _label().map(lbl => <label for={elemId}>{lbl}</label>),
@@ -61,13 +60,10 @@ class F6CheckboxField()(implicit renderer: CheckboxF6FieldRenderer) extends Stan
                           Js.evalIf(hints.contains(ShowValidationsHint))(reRender()) // TODO: is this wrong? (running on the client side, but should be server?)
                       }).cmd
                       }
-                      checked={if (currentValue) "true" else null}
+                      checked={if currentValue then "true" else null}
           ></input>).withAttrs(finalAdditionalAttrs: _*),
           errors().headOption.map(_._2)
         )
       }
-    }
-  }
 
-  override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] = if (predicate.applyOrElse[F6Field, Boolean](this, _ => false)) List(this) else Nil
-}
+  override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] = if predicate.applyOrElse[F6Field, Boolean](this, _ => false) then List(this) else Nil

@@ -7,7 +7,7 @@ import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer
 
-trait Table5SelectableRowsWithActions extends Table5SelectableRows {
+trait Table5SelectableRowsWithActions extends Table5SelectableRows:
 
   def actionsForRows(rows: Set[R]): Seq[BSBtn] = Nil
 
@@ -22,4 +22,3 @@ trait Table5SelectableRowsWithActions extends Table5SelectableRows {
       actionsForRows(selectedVisibleRows): _*
     )
   }, debugLabel = Some("actions_dropdown_btn"))
-}

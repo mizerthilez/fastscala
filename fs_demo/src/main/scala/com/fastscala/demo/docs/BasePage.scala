@@ -10,7 +10,7 @@ import scala.util.Try
 import scala.xml.NodeSeq
 
 
-trait BasePage extends ScalaXmlRenderableWithFSContext {
+trait BasePage extends ScalaXmlRenderableWithFSContext:
 
   val config = ConfigFactory.load()
 
@@ -29,7 +29,7 @@ trait BasePage extends ScalaXmlRenderableWithFSContext {
   /*
 com.fastscala.demo.pages.include_file_in_body
    */
-  def render()(implicit fsc: FSContext): NodeSeq = {
+  def render()(implicit fsc: FSContext): NodeSeq =
     import BSHelpers.{given, *}
 
     <html>
@@ -100,5 +100,3 @@ com.fastscala.demo.pages.include_file_in_body
       </body>
     </html>
 
-  }
-}

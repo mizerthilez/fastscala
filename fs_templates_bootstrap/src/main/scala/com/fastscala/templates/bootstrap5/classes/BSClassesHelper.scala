@@ -1,6 +1,6 @@
 package com.fastscala.templates.bootstrap5.classes
 
-trait BSClassesHelper[T] {
+trait BSClassesHelper[T]:
 
   protected def withClass(clas: String): T
 
@@ -4003,4 +4003,3 @@ trait BSClassesHelper[T] {
   def show: T = withClass("show")
 
   def form_check_label: T = withClass("form-check-label")
-}

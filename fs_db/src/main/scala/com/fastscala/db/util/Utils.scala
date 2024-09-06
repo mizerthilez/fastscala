@@ -23,21 +23,19 @@ package com.fastscala.db.util
 import scala.xml._
 
 
-object Utils {
+object Utils:
 
   var enableProfiling = true
 
-  implicit def __print[T](v: T): Object {def #!(s: String, t: T => String): T} = new {
+  implicit def __print[T](v: T): Object {def #!(s: String, t: T => String): T} = new:
     def #!(s: String = "", t: T => String = _.toString): T = { println(s + t(v)); v }
-  }
 
 
-  def time[T](f: => T)(r: Long => Unit): T = {
+  def time[T](f: => T)(r: Long => Unit): T =
     val start = System.currentTimeMillis()
     val v = f
     r(System.currentTimeMillis() - start)
     v
-  }
 
   def printNs = (ns: NodeSeq) => {println(ns); ns}
   def printNs(s: String) = (ns: NodeSeq) => {println(s + ":\n" + ns); ns}
@@ -53,65 +51,56 @@ object Utils {
 
   def %??[T1, T2](s: String)(f: T1 => T2): T1 => T2 = (v: T1) => %?(s)(f(v))
 
-  def disableProfiling[T](b: => T): T = {
+  def disableProfiling[T](b: => T): T =
     enabled = false
-    val (ret, ex) = try {
+    val (ret, ex) = try
       val ret = b
       (Some(ret), None)
-    } catch {
+    catch
       case t: Throwable => (None, Some(t))
-    }
     enabled = true
-    (ret, ex) match {
+    (ret, ex) match
       case (Some(ret), _) => ret
       case (_, Some(t)) => throw t
       case _ => ???
-    }
-  }
 
-  def %?[T](s: String, rslt: T => String)(b: => T): T = {
-    if (enabled) {
+  def %?[T](s: String, rslt: T => String)(b: => T): T =
+    if enabled then
       val space = (0 until idx).map(_ => "  ").mkString
 
-      if (lastOpen) println()
+      if lastOpen then println()
       print(space + s"Starting '$s'...")
 
       lastOpen = true
       idx = idx + 2
 
       val start = System.currentTimeMillis()
-      val (ret, ex) = try {
+      val (ret, ex) = try
         val ret = b
         (Some(ret), None)
-      } catch {
+      catch
         case t: Throwable => (None, Some(t))
-      }
       val took = System.currentTimeMillis() - start
 
       idx = idx - 2
 
-      val exception = ex match {
+      val exception = ex match
         case Some(t) => {
           s" !! {Exception: '${t.getMessage}'} @ " + Thread.currentThread().getStackTrace.mkString("\n", "\n", "\n")
         }
         case None => ""
-      }
 
       val rsltStr = ret.flatMap(ret => Option(rslt).map(_(ret))).map(" [" + _ + "]").getOrElse("")
       println(
-        if (lastOpen) s" [${took}ms]$exception$rsltStr" else s"${space}Finished '$s' [${took}ms]$exception$rsltStr"
+        if lastOpen then s" [${took}ms]$exception$rsltStr" else s"${space}Finished '$s' [${took}ms]$exception$rsltStr"
       )
       ex.foreach(_.printStackTrace())
       lastOpen = false
 
-      (ret, ex) match {
+      (ret, ex) match
         case (Some(ret), _) => ret
         case (_, Some(t)) => throw t
         case _ => ???
-      }
-    } else {
+    else
       b
-    }
 
-  }
-}

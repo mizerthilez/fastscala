@@ -7,29 +7,28 @@ import org.eclipse.jetty.websocket.api.annotations._
 import scala.util.Try
 import org.slf4j.LoggerFactory
 
-object FSJettyWebsocketEndpoint {
+object FSJettyWebsocketEndpoint:
   val logger = LoggerFactory.getLogger(getClass.getName)
-}
 
 @WebSocket(autoDemand = true)
-class FSJettyWebsocketEndpoint(implicit fss: FSSystem) {
+class FSJettyWebsocketEndpoint(implicit fss: FSSystem):
 
   @OnWebSocketOpen
-  def onOpen(session: Session): Unit = {
+  def onOpen(session: Session): Unit =
     implicit val _session = session
     val params = session.getUpgradeRequest().getParameterMap()
-    for {
+    for
       sessionIdValues <- Option(params.get("sessionId"))
       sessionId <- Try(sessionIdValues.get(0)).toOption
       pageIdValues <- Option(params.get("pageId"))
       pageId <- Try(pageIdValues.get(0)).toOption
-    } {
+    do
       fss.sessions.get(sessionId).map(fsSession => {
         fsSession.pages.get(pageId).map(page => {
           page.wsLock.synchronized {
             page.wsSession = Some(session)
             FSJettyWebsocketEndpoint.logger.info(s"Websocket session[sessionId=$sessionId, pageId=$pageId] opened")
-            if (page.wsQueue.nonEmpty) {
+            if page.wsQueue.nonEmpty then {
               sendText(page.wsQueue.reverse.reduce(_ & _).cmd)
               page.wsQueue = Nil
             }
@@ -40,22 +39,16 @@ class FSJettyWebsocketEndpoint(implicit fss: FSSystem) {
       }).getOrElse({
         sendText(fss.onSessionNotFoundForWebsocketReq(sessionId).cmd)
       })
-    }
-  }
 
   @OnWebSocketError
-  def onError(t: Throwable): Unit = {
+  def onError(t: Throwable): Unit =
     FSJettyWebsocketEndpoint.logger.info("Websocket session on error", t)
-  }
 
 
   @OnWebSocketClose
-  def onClose(statusCode: Int, reason: String) = {
+  def onClose(statusCode: Int, reason: String) =
     FSJettyWebsocketEndpoint.logger.info(s"Websocket session closed by $reason($statusCode)")
-  }
 
-  def sendText(text: String)(implicit session: Session): Unit = {
+  def sendText(text: String)(implicit session: Session): Unit =
     // block until session complete sendText
     Callback.Completable.`with`(cb => session.sendText(text, cb)).get()
-  }
-}

@@ -9,14 +9,13 @@ import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer
 
 import scala.xml.{Elem, NodeSeq}
 
-object BSModal5Size extends Enumeration {
+object BSModal5Size extends Enumeration:
   val SM = Value("modal-sm")
   val NORMAL = Value("")
   val LG = Value("modal-lg")
   val XL = Value("modal-xl")
-}
 
-abstract class BSModal5Base {
+abstract class BSModal5Base:
 
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
 
@@ -62,7 +61,7 @@ abstract class BSModal5Base {
     append2DOM() &
       Js(
         s""";new bootstrap.Modal(document.getElementById('$modalId'), {
-           |  backdrop: ${if (backdropStatic) "'static'" else backdrop.toString},
+           |  backdrop: ${if backdropStatic then "'static'" else backdrop.toString},
            |  keyboard: $keyboard,
            |  focus: $focus,
            |});""".stripMargin
@@ -96,10 +95,9 @@ abstract class BSModal5Base {
 
   def modalHeaderTitleNs: Elem = <h1 class="modal-title fs-5">{modalHeaderTitle}</h1>
 
-  def modalHeaderContents()(implicit fsc: FSContext): NodeSeq = {
+  def modalHeaderContents()(implicit fsc: FSContext): NodeSeq =
     modalHeaderTitleNs ++
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-  }
 
   def modalBodyContents()(implicit fsc: FSContext): NodeSeq
 
@@ -111,46 +109,34 @@ abstract class BSModal5Base {
 
   def rerenderModalFooterContent()(implicit fsc: FSContext): Js = modalContentsFooterRenderer.rerender()
 
-  def renderModalFooterContent()(implicit fsc: FSContext): Elem = {
+  def renderModalFooterContent()(implicit fsc: FSContext): Elem =
     modalFooterContents().map(contents => {
       transformModalFooterElem {
         div.apply(contents)
       }: Elem
     }).getOrElse(<div style="display:none;"></div>)
-  }
 
-  def renderModalContent()(implicit fsc: FSContext): Elem = {
-    transformModalContentElem {
-      div.apply {
+  def renderModalContent()(implicit fsc: FSContext): Elem =
+    transformModalContentElem:
+      div.apply:
         transformModalHeaderElem {
-          div.apply {
+          div.apply:
             modalHeaderContents()
-          }
         } ++
           transformModalBodyElem {
-            div.apply {
+            div.apply:
               modalBodyContents()
-            }
           } ++
           modalContentsFooterRenderer.render()
-      }
-    }
-  }
 
-  def renderModal()(implicit fsc: FSContext): Elem = {
-    transformModalElem {
-      div.withAttr("tabindex" -> "-1") {
-        transformModalDialogElem {
-          div.apply {
+  def renderModal()(implicit fsc: FSContext): Elem =
+    transformModalElem:
+      div.withAttr("tabindex" -> "-1"):
+        transformModalDialogElem:
+          div.apply:
             modalContentsRenderer.render()
-          }
-        }
-      }
-    }
-  }
-}
 
-object BSModal5 {
+object BSModal5:
 
   def verySimple(
                   title: String,
@@ -158,14 +144,11 @@ object BSModal5 {
                   onHidden: Js = JS.void
                 )(
                   contents: BSModal5Base => FSContext => NodeSeq
-                )(implicit fsc: FSContext): Js = {
-    val modal = new BSModal5Base {
+                )(implicit fsc: FSContext): Js =
+    val modal = new BSModal5Base:
       override def modalHeaderTitle: String = title
 
       override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = contents(this)(fsc)
 
       override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some(BSBtn().BtnPrimary.lbl(closeBtnText).onclick(hideAndRemove()).btn)
-    }
     modal.installAndShow() & modal.onHidden(onHidden)
-  }
-}

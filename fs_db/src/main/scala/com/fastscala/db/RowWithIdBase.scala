@@ -1,6 +1,6 @@
 package com.fastscala.db
 
-trait RowWithIdBase extends RowBase {
+trait RowWithIdBase extends RowBase:
 
   def reload(): Any
 
@@ -11,4 +11,3 @@ trait RowWithIdBase extends RowBase {
   def delete(): Unit
 
   def insert(): Unit
-}

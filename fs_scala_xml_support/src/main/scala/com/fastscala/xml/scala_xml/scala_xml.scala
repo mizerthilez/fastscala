@@ -52,7 +52,7 @@ object FSScalaXmlEnv extends FSXmlEnv:
     def updateMetaData(
           metaData: MetaData = Option(elem.attributes).getOrElse(Null),
           found: Boolean = false
-        ): MetaData = metaData match {
+        ): MetaData = metaData match
       case Null if !found => new UnprefixedAttribute(attrName, transform(None), Null)
       case Null if found => Null
       case PrefixedAttribute((pre, key, value, next)) if key == attrName =>
@@ -69,7 +69,6 @@ object FSScalaXmlEnv extends FSXmlEnv:
         }, updateMetaData(next, found = true))
       case PrefixedAttribute((pre, key, value, next)) => new PrefixedAttribute(pre, key, value, updateMetaData(next, found))
       case UnprefixedAttribute((key, value, next)) => new UnprefixedAttribute(key, value, updateMetaData(next, found))
-    }
     new Elem(elem.prefix, elem.label, updateMetaData(), elem.scope, elem.minimizeEmpty, elem.child: _*)
 
   extension (elem: scala.xml.Elem)

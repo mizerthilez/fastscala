@@ -24,7 +24,7 @@ class Many2ManyCache[
    val filterRightOnJoin: K => SQLSyntax,
    val left2Right: collection.mutable.Map[L, ListBuffer[R]] = collection.mutable.Map[L, ListBuffer[R]](),
    val right2Left: collection.mutable.Map[R, ListBuffer[L]] = collection.mutable.Map[R, ListBuffer[L]]()
- ) extends DBObserver {
+ ) extends DBObserver:
 
   override def observingTables: Seq[Table[_]] = Seq[Table[_]](cacheL.table, cacheJ.table, cacheR.table)
 
@@ -36,10 +36,9 @@ class Many2ManyCache[
 
   def getRightForLeft(left: L): Seq[R] = getRightForLeft(left.key)
 
-  def getRightForLeft(left: K): Seq[R] = {
+  def getRightForLeft(left: K): Seq[R] =
     val right = cacheJ.select(sqls"where ${filterLeftOnJoin(left)}").map(j => cacheR.getForIdX(getRight(j)))
     cacheR.getForIdsX(right.map(_.key): _*)
-  }
 
   def getJoinForLeft(left: K): Seq[J] = cacheJ.select(sqls"where ${filterLeftOnJoin(left)}")
 
@@ -47,10 +46,9 @@ class Many2ManyCache[
 
   def getLeftForRight(right: R): Seq[L] = getLeftForRight(right.key)
 
-  def getLeftForRight(right: K): Seq[L] = {
+  def getLeftForRight(right: K): Seq[L] =
     val left = cacheJ.select(sqls"where ${filterRightOnJoin(right)}").map(j => cacheL.getForIdX(getLeft(j)))
     cacheL.getForIdsX(left.map(_.key): _*)
-  }
 
   def getJoinForRight(right: K): Seq[J] = cacheJ.select(sqls"where ${filterRightOnJoin(right)}")
 
@@ -61,14 +59,13 @@ class Many2ManyCache[
 
   override def beforeSaved(table: TableBase, row: RowBase): Unit = ()
 
-  override def saved(table: TableBase, row: RowBase): Unit = (table, row) match {
+  override def saved(table: TableBase, row: RowBase): Unit = (table, row) match
     case (`cacheL`, row: L) =>
     case (`cacheJ`, row: J) =>
     case (`cacheR`, row: R) =>
     case _ =>
-  }
 
-  override def beforeDelete(table: TableBase, row: RowBase): Unit = (table, row) match {
+  override def beforeDelete(table: TableBase, row: RowBase): Unit = (table, row) match
     case (`cacheL`, row: L) =>
       val relevantOnTheRight: ListBuffer[R] = left2Right.getOrElse(row, ListBuffer[R]())
       left2Right -= row
@@ -89,7 +86,5 @@ class Many2ManyCache[
       right2Left -= row
       relevantOnTheLeft.foreach(l => left2Right(l) -= row)
     case _ =>
-  }
 
   override def deleted(table: TableBase, row: RowBase): Unit = ()
-}

@@ -7,14 +7,14 @@ import com.fastscala.templates.bootstrap5.utils.BSBtn
 
 import scala.xml.NodeSeq
 
-class BootstrapModalPage extends SingleCodeExamplePage() {
+class BootstrapModalPage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Simple Modal Example"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}
-    div.d_grid.mx_auto.col_8.my_5.apply {
+    div.d_grid.mx_auto.col_8.my_5.apply:
       BSBtn().BtnPrimary.lbl("Open Modal").ajax(implicit fsc => new BSModal5Base {
         override def modalHeaderTitle: String = "Simple Modal"
 
@@ -25,7 +25,4 @@ class BootstrapModalPage extends SingleCodeExamplePage() {
           Some(BSBtn().BtnPrimary.lbl("Hide Modal").onclick(hide() & remove()).btn)
         }
       }.installAndShow()).btn
-    }
     // === code snippet ===
-  }
-}

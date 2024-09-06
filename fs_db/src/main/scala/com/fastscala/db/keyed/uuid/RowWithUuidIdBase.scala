@@ -5,7 +5,7 @@ import scalikejdbc._
 
 import java.util.UUID
 
-trait RowWithUuidIdBase extends RowWithIdBase {
+trait RowWithUuidIdBase extends RowWithIdBase:
 
   def table: TableWithUUIDBase[_]
 
@@ -16,4 +16,3 @@ trait RowWithUuidIdBase extends RowWithIdBase {
   def isPersisted_?(): Boolean = uuid.isDefined
 
   def saveSQL(): SQL[Nothing, NoExtractor]
-}

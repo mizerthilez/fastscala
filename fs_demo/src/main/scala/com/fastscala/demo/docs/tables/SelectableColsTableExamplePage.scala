@@ -11,16 +11,15 @@ import java.util.Date
 import scala.xml.NodeSeq
 
 
-class SelectableColsTableExamplePage extends SingleCodeExamplePage() {
+class SelectableColsTableExamplePage extends SingleCodeExamplePage():
 
   override def pageTitle: String = "Selectable cols table example"
 
   override def pageTitleToolbar()(implicit fsc: FSContext): NodeSeq = table.renderSelectColsButton()
 
   // === code snippet ===
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq = {
+  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     table.render()
-  }
 
   lazy val table = new Table5Base
     with Table5BaseBootrapSupport
@@ -28,7 +27,7 @@ class SelectableColsTableExamplePage extends SingleCodeExamplePage() {
     with Table5SeqSortableDataSource
     with Table5StandardColumns
     with Table5Sortable
-    with Table5SelectableCols {
+    with Table5SelectableCols:
     override type R = Country
 
 
@@ -61,7 +60,7 @@ class SelectableColsTableExamplePage extends SingleCodeExamplePage() {
     val ColFlag = ColStr("Flag", _.flag)
 
 
-    override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] = {
+    override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
       case ColName => _.sortBy(_.name.common)
       case ColCCA2 => _.sortBy(_.cca2)
       case ColCCN3 => _.sortBy(_.ccn3)
@@ -79,7 +78,6 @@ class SelectableColsTableExamplePage extends SingleCodeExamplePage() {
       case ColArea => _.sortBy(_.area.toString)
       case ColCallingCodes => _.sortBy(_.callingCodes.mkString(", "))
       case ColFlag => _.sortBy(_.flag)
-    }
 
     override def allColumns(): List[C] = List(
       ColName
@@ -103,6 +101,4 @@ class SelectableColsTableExamplePage extends SingleCodeExamplePage() {
     )
 
     override def seqRowsSource: Seq[Country] = CountriesData.data
-  }
   // === code snippet ===
-}

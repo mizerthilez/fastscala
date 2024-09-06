@@ -13,7 +13,7 @@ case class Button(
                    target: Option[String] = None,
                    id: Option[String] = None,
                    contentsNs: NodeSeq = NodeSeq.Empty
-                 ) {
+                 ):
 
   def lg = copy(classes = classes + " btn-lg")
   def md = copy(classes = classes + " btn-md")
@@ -40,5 +40,4 @@ case class Button(
             target={target.getOrElse(null)}
             id={id.getOrElse(null)}
     >{contentsNs}</button>
-}
 

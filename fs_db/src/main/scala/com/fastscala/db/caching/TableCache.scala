@@ -11,7 +11,7 @@ class TableCache[K, R <: Row[R] with ObservableRowBase with RowWithId[K, R]](
                                                                               val loadAll: [R] => Table[R] => Seq[R] = [R] => (r: Table[R]) => r.selectAll().toVector,
                                                                               var status: CacheStatus.Value = CacheStatus.NONE_LOADED,
                                                                               val entries: collection.mutable.Map[K, R] = collection.mutable.Map[K, R]()
-                                                                            ) extends DBObserver with TableCacheLike[K, R] {
+                                                                            ) extends DBObserver with TableCacheLike[K, R]:
 
   val logger = LoggerFactory.getLogger(getClass.getName)
 
@@ -21,11 +21,11 @@ class TableCache[K, R <: Row[R] with ObservableRowBase with RowWithId[K, R]](
 
   def valuesLoadedInCache: Seq[R] = entries.values.toSeq
 
-  def values: Seq[R] = {
-    if (status != CacheStatus.ALL_LOADED) {
+  def values: Seq[R] =
+    if status != CacheStatus.ALL_LOADED then
       Utils.time({
         loadAll(table).foreach(e => {
-          if (!entries.contains(e.key)) {
+          if !entries.contains(e.key) then {
             entries += (e.key -> e)
           }
         })
@@ -33,11 +33,9 @@ class TableCache[K, R <: Row[R] with ObservableRowBase with RowWithId[K, R]](
       })(ms => {
         logger.trace(s"${table.tableName}.values: LOADED ${entries.size} entries FROM DB in ${ms}ms")
       })
-    }
     entries.values.toList
-  }
 
-  def select(rest: SQLSyntax): List[R] = {
+  def select(rest: SQLSyntax): List[R] =
     val rslt = table.select(rest)
     rslt.map(loaded => entries.get(loaded.key) match {
       case Some(existing) =>
@@ -45,17 +43,15 @@ class TableCache[K, R <: Row[R] with ObservableRowBase with RowWithId[K, R]](
         existing
       case None => loaded
     })
-  }
 
   def getForIdX(key: K): R = getForIdOptX(key).get
 
-  def getForIdOptX(key: K): Option[R] = {
+  def getForIdOptX(key: K): Option[R] =
 
-    if (status != CacheStatus.ALL_LOADED) {
+    if status != CacheStatus.ALL_LOADED then
       this.values
-    }
 
-    entries.get(key) match {
+    entries.get(key) match
       case Some(value) =>
         // logger.trace(s"${table.tableName}.getForIdOptX($uuid): CACHE HIT")
         Some(value)
@@ -66,43 +62,34 @@ class TableCache[K, R <: Row[R] with ObservableRowBase with RowWithId[K, R]](
         logger.trace(s"${table.tableName}.getForIdOptX($key): CACHE MISS (getting from db...)")
         Utils.time(table.getForIdOpt(key))(ms => {
           logger.trace(s"${table.tableName}.getForIdOptX($key): LOADED FROM DB in ${ms}ms")
-        }) match {
+        }) match
           case Some(value) =>
             entries += value.key -> value
-            if (status == CacheStatus.NONE_LOADED) {
+            if status == CacheStatus.NONE_LOADED then
               status = CacheStatus.SOME_LOADED
               logger.trace(s"${table.tableName} cache status: $status")
-            }
             Some(value)
           case None =>
             logger.trace(s"${table.tableName}.getForIdOptX($key): NOT FOUND (in db)")
             None
-        }
-    }
-  }
 
   def getForIdsX(ids: K*): List[R] =
     ids.toList.flatMap(id => table.getForIdOpt(id))
 
   override def beforeSaved(table: TableBase, row: RowBase): Unit = ()
 
-  def saved(t: TableBase, row: RowBase): Unit = (table, row) match {
+  def saved(t: TableBase, row: RowBase): Unit = (table, row) match
     case (`table`, row: R) =>
       entries += row.key -> row
-      if (status == CacheStatus.NONE_LOADED) {
+      if status == CacheStatus.NONE_LOADED then
         status = CacheStatus.SOME_LOADED
         logger.trace(s"${table.tableName} cache status: $status")
-      }
     case _ =>
-  }
 
-  def beforeDelete(t: TableBase, row: RowBase): Unit = (table, row) match {
+  def beforeDelete(t: TableBase, row: RowBase): Unit = (table, row) match
     case (`table`, row: R) =>
-      if (status != CacheStatus.NONE_LOADED) {
+      if status != CacheStatus.NONE_LOADED then
         entries -= row.key
-      }
     case _ =>
-  }
 
   override def deleted(table: TableBase, row: RowBase): Unit = ()
-}

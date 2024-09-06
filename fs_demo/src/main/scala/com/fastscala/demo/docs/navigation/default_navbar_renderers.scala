@@ -5,15 +5,14 @@ import com.fastscala.utils.IdGen
 
 import scala.xml.{Elem, NodeSeq}
 
-object DefaultBSNavBarRenderer {
+object DefaultBSNavBarRenderer:
   given DefaultBSNavBarRenderer = new DefaultBSNavBarRenderer {}
   given DefaultBSNavBarSectionRenderer = new DefaultBSNavBarSectionRenderer {}
   given DefaultSimpleBSNavBarItemRenderer = new DefaultSimpleBSNavBarItemRenderer {}
   given DefaultRoutingBSNavBarItemRenderer = new DefaultRoutingBSNavBarItemRenderer {}
   given DefaultHeaderBSNavBarItemRenderer = new DefaultHeaderBSNavBarItemRenderer {}
-}
 
-trait DefaultBSNavBarRenderer extends BSNavBarRenderer {
+trait DefaultBSNavBarRenderer extends BSNavBarRenderer:
 
   def renderHeader(elem: BSNav): Elem = <a class="navbar-brand" href="#"></a>
 
@@ -24,7 +23,7 @@ trait DefaultBSNavBarRenderer extends BSNavBarRenderer {
 
   def renderRightContents(elem: BSNav): NodeSeq = NodeSeq.Empty
 
-  def render(elem: BSNav)(implicit fsc: FSContext): NodeSeq = {
+  def render(elem: BSNav)(implicit fsc: FSContext): NodeSeq =
     <nav class="navbar navbar-expand-lg bg-primary-subtle">
       <div class="container-fluid">
         {renderHeader(elem)}
@@ -37,35 +36,28 @@ trait DefaultBSNavBarRenderer extends BSNavBarRenderer {
         {renderRightContents(elem)}
       </div>
     </nav>
-  }
-}
 
 
-trait DefaultBSNavBarSectionRenderer extends MenuSectionRenderer {
-  def render(elem: MenuSection)(implicit fsc: FSContext): NodeSeq = {
+trait DefaultBSNavBarSectionRenderer extends MenuSectionRenderer:
+  def render(elem: MenuSection)(implicit fsc: FSContext): NodeSeq =
     val isOpen = elem.items.exists(_.matches(fsc.page.req.getHttpURI.getPath))
     val id = IdGen.id
     <li class="mb-1">
-      <button class={"text-white btn bi btn-toggle d-inline-flex align-items-center rounded border-0" + (if (isOpen) "" else " collapsed")} data-bs-toggle="collapse" data-bs-target={s"#$id"} aria-expanded={isOpen.toString}>
+      <button class={"text-white btn bi btn-toggle d-inline-flex align-items-center rounded border-0" + (if isOpen then "" else " collapsed")} data-bs-toggle="collapse" data-bs-target={s"#$id"} aria-expanded={isOpen.toString}>
         {elem.name}
       </button>
-      <div class={"collapse" + (if (isOpen) " show" else "")} id={id}>
+      <div class={"collapse" + (if isOpen then " show" else "")} id={id}>
         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
           {elem.items.map(_.render())}
         </ul>
       </div>
     </li>
-  }
-}
 
-trait DefaultSimpleBSNavBarItemRenderer extends SimpleMenuItemRenderer {
+trait DefaultSimpleBSNavBarItemRenderer extends SimpleMenuItemRenderer:
   def render(elem: SimpleMenuItem)(implicit fsc: FSContext): NodeSeq = <li class="nav-item"><a class="nav-link" href={elem.href}>{elem.name}</a></li>
-}
 
-trait DefaultRoutingBSNavBarItemRenderer extends RoutingMenuItemRenderer {
+trait DefaultRoutingBSNavBarItemRenderer extends RoutingMenuItemRenderer:
   def render(elem: RoutingMenuItem)(implicit fsc: FSContext): NodeSeq = <li class="nav-item"><a class="nav-link" href={elem.href}>{elem.name}</a></li>
-}
 
-trait DefaultHeaderBSNavBarItemRenderer extends HeaderMenuItemRenderer {
+trait DefaultHeaderBSNavBarItemRenderer extends HeaderMenuItemRenderer:
   def render(elem: HeaderMenuItem)(implicit fsc: FSContext): NodeSeq =  <li class="mt-3"><span class="menu-heading fw-bold text-uppercase fs-7 ">{elem.title}</span></li>
-}

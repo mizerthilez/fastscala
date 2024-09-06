@@ -20,13 +20,12 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 import org.eclipse.jetty.server.{Request, Response => JettyServerResponse}
 import org.eclipse.jetty.util.{Callback, IO}
 
-object FSOptimizedResourceHandler {
+object FSOptimizedResourceHandler:
 
   def cssLoaderUrl(files: String*): String = "/static/optimized/css_loader.css?" + files.map("f=" + URLEncoder.encode(_, "UTF-8")).mkString("&")
 
   def cssLoaderElem[Env <: FSXmlEnv](files: String*)(using env: Env): env.Elem =
     env.buildElem("link", "rel" -> "stylesheet", "type" -> "text/css", "href" -> cssLoaderUrl(files: _*))(env.Empty)
-}
 
 class FSOptimizedResourceHandler(
                                   resourceRoots: Seq[String] = List("/web"),
@@ -34,7 +33,7 @@ class FSOptimizedResourceHandler(
                                   defaultMaxWidth: Int = 900,
                                   defaultMaxHeight: Int = 900,
                                   defaultCompression: Int = 7
-                                ) extends RoutingHandlerNoSessionHelper {
+                                ) extends RoutingHandlerNoSessionHelper:
 
   import RoutingHandlerHelper._
 
@@ -42,10 +41,10 @@ class FSOptimizedResourceHandler(
     resourceRoots.iterator.map(root => Option(getClass.getResourceAsStream(root + name)))
       .find(_.isDefined).flatten
 
-  private def rescale(scale: Double, bi: BufferedImage): BufferedImage = {
+  private def rescale(scale: Double, bi: BufferedImage): BufferedImage =
     val originalWidth = bi.getWidth
     val originalHeight = bi.getHeight
-    val imgType = if (bi.getType == 0) BufferedImage.TYPE_INT_ARGB else bi.getType
+    val imgType = if bi.getType == 0 then BufferedImage.TYPE_INT_ARGB else bi.getType
 
     val resizedImage = new BufferedImage((originalWidth * scale).toInt, (originalHeight * scale).toInt, imgType)
     //    val g = resizedImage.createGraphics
@@ -59,15 +58,14 @@ class FSOptimizedResourceHandler(
     val scaleTransform = AffineTransform.getScaleInstance(scale, scale)
     val bilinearScaleOp = new AffineTransformOp(scaleTransform, AffineTransformOp.TYPE_BILINEAR)
     bilinearScaleOp.filter(bi, resizedImage)
-  }
 
   @tailrec private def resizeMaxWidth(maxWidth: Int, bi: BufferedImage): BufferedImage =
-    if (maxWidth < bi.getWidth / 2) resizeMaxWidth(maxWidth, rescale(0.5, bi)) else bi
+    if maxWidth < bi.getWidth / 2 then resizeMaxWidth(maxWidth, rescale(0.5, bi)) else bi
 
   @tailrec private def resizeMaxHeight(maxHeight: Int, bi: BufferedImage): BufferedImage =
-    if (maxHeight < bi.getHeight / 2) resizeMaxHeight(maxHeight, rescale(0.5, bi)) else bi
+    if maxHeight < bi.getHeight / 2 then resizeMaxHeight(maxHeight, rescale(0.5, bi)) else bi
 
-  private def write(compression: Int, bi: BufferedImage): Array[Byte] = {
+  private def write(compression: Int, bi: BufferedImage): Array[Byte] =
     val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next
 
     val param = jpegWriter.getDefaultWriteParam
@@ -83,9 +81,8 @@ class FSOptimizedResourceHandler(
     memoryCacheImageOutputStream.close()
 
     out.toByteArray
-  }
 
-  private def write(bi: BufferedImage): Array[Byte] = {
+  private def write(bi: BufferedImage): Array[Byte] =
     val jpegWriter = ImageIO.getImageWritersByFormatName("jpeg").next
 
     val param = jpegWriter.getDefaultWriteParam
@@ -99,7 +96,6 @@ class FSOptimizedResourceHandler(
     memoryCacheImageOutputStream.close()
 
     out.toByteArray
-  }
 
   val cssLoaderCache = mutable.WeakHashMap[String, String]()
   val imgCache = mutable.WeakHashMap[String, Response]()
@@ -119,7 +115,7 @@ class FSOptimizedResourceHandler(
         .addHeader("Cache-control", "public, max-age=7776000")
 
     case r@Req(GET, "static" :: "optimized" :: restOfPath, suf@("jpg" | "jpeg"), _) =>
-      if (imgCache.size > 50) {
+      if imgCache.size > 50 then {
         imgCache --= imgCache.keys.take(25)
       }
       imgCache.getOrElseUpdate(r.getHttpURI.getPath, {
@@ -127,10 +123,10 @@ class FSOptimizedResourceHandler(
         val resourceName = "/web/static/" + remaining
         val resource = getClass.getResource(resourceName)
 
-        if (resource == null) {
+        if resource == null then {
           System.err.println(s"Not found: $resourceName")
           ClientError.NotFound
-        } else if (remaining.toLowerCase.endsWith("jpg") || remaining.toLowerCase.endsWith("jpeg")) {
+        } else if remaining.toLowerCase.endsWith("jpg") || remaining.toLowerCase.endsWith("jpeg") then {
           val parms = Request.getParameters(req)
           val maxWidth: Option[Int] = Option(parms.getValue("max-width")).flatMap(_.toIntOption)
           val maxHeight: Option[Int] = Option(parms.getValue("max-height")).flatMap(_.toIntOption)
@@ -139,7 +135,7 @@ class FSOptimizedResourceHandler(
           val is = resource.openStream()
           try {
             val byteArray: Array[Byte] = {
-              if (original) {
+              if original then {
                 IO.readBytes(is)
               } else {
                 val br: BufferedImage = ImageIO.read(is)
@@ -179,4 +175,3 @@ class FSOptimizedResourceHandler(
       "media" -> "all",
       "href" -> (s"/static/css_loader.css?version=$version&" + cssFiles.map("f=" + _).mkString("&"))
     )(env.Empty)
-}

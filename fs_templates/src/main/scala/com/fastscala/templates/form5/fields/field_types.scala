@@ -9,7 +9,7 @@ import com.fastscala.xml.scala_xml.JS
 import scala.xml.{Elem, NodeSeq}
 
 
-trait FormField {
+trait FormField:
 
   def render()(implicit form: Form5, fsc: FSContext, hints: Seq[RenderHint]): Elem
 
@@ -27,14 +27,12 @@ trait FormField {
   def deps: Set[FormField]
 
   def enabled: () => Boolean
-}
 
-trait FocusableFormField extends FormField {
+trait FocusableFormField extends FormField:
 
   def focusJs: Js
-}
 
-trait StandardFormField extends FormField with ElemWithRandomId {
+trait StandardFormField extends FormField with ElemWithRandomId:
 
   val aroundId: String = randomElemId
 
@@ -51,27 +49,22 @@ trait StandardFormField extends FormField with ElemWithRandomId {
 
   def readOnly: () => Boolean
 
-  def withFieldRenderHints[T](f: Seq[RenderHint] => T)(implicit renderHints: Seq[RenderHint]): T = f {
+  def withFieldRenderHints[T](f: Seq[RenderHint] => T)(implicit renderHints: Seq[RenderHint]): T = f:
     List(DisableFieldsHint).filter(_ => disabled()) ++
       List(ReadOnlyFieldsHint).filter(_ => readOnly()) ++
       renderHints
-  }
-}
 
-trait ValidatableField extends StandardFormField {
+trait ValidatableField extends StandardFormField:
   def hasErrors_?() = errors().nonEmpty
 
   def errors(): Seq[(ValidatableField, NodeSeq)] = Nil
-}
 
-trait StringSerializableField extends StandardFormField {
+trait StringSerializableField extends StandardFormField:
 
   def loadFromString(str: String): Seq[(ValidatableField, NodeSeq)]
 
   def saveToString(): Option[String]
-}
 
-trait QuerySerializableStringField extends StringSerializableField {
+trait QuerySerializableStringField extends StringSerializableField:
 
   def queryStringParamName: String
-}

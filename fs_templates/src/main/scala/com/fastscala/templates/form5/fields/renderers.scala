@@ -3,44 +3,38 @@ package com.fastscala.templates.form5.fields
 
 import scala.xml.{Elem, NodeSeq}
 
-trait TextFieldRenderer {
+trait TextFieldRenderer:
 
   def defaultRequiredFieldLabel: String
 
   def render[T](field: F5TextField[T])(label: Option[NodeSeq], inputElem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait TextareaFieldRenderer {
+trait TextareaFieldRenderer:
 
   def defaultRequiredFieldLabel: String
 
   def render(field: F5TextAreaField)(label: Option[NodeSeq], inputElem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait SelectFieldRenderer {
+trait SelectFieldRenderer:
 
   def defaultRequiredFieldLabel: String
 
   def render[T](field: F5SelectField[T])(label: Option[Elem], elem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait MultiSelectFieldRenderer {
+trait MultiSelectFieldRenderer:
 
   def defaultRequiredFieldLabel: String
 
   def render[T](field: F5MultiSelectField[T])(label: Option[Elem], elem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait CheckboxFieldRenderer {
+trait CheckboxFieldRenderer:
 
   def render(field: F5CheckboxField)(label: Option[Elem], elem: Elem, error: Option[NodeSeq])(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait ButtonFieldRenderer {
+trait ButtonFieldRenderer:
   def render(field: F5SaveButtonField[_])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem
-}
 
-trait FileUploadFieldRenderer {
+trait FileUploadFieldRenderer:
 
   def transformFormElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint]): Elem = elem
 
@@ -51,4 +45,3 @@ trait FileUploadFieldRenderer {
   def transforResetButtonElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint]): Elem = elem
 
   def transforFileInputElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint]): Elem = elem
-}

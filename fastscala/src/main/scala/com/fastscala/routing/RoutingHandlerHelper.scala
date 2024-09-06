@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 case class HttpStatus(name: String, code: Int)
 
-object HttpStatuses {
+object HttpStatuses:
 
   val Continue = HttpStatus("Continue", 100)
   val SwitchingProtocols = HttpStatus("SwitchingProtocols", 101)
@@ -98,9 +98,8 @@ object HttpStatuses {
     , HttpStatuses.TemporaryRedirect
     , HttpStatuses.PermanentRedirect
   )
-}
 
-trait Response {
+trait Response:
 
   def status: HttpStatus
 
@@ -108,89 +107,75 @@ trait Response {
 
   val cookiesToAdd = collection.mutable.ListBuffer[HttpCookie]()
 
-  def addHeader(name: String, value: String): this.type = {
+  def addHeader(name: String, value: String): this.type =
     headers += ((name, value))
     this
-  }
 
-  def addCookie(cookie: HttpCookie): this.type = {
+  def addCookie(cookie: HttpCookie): this.type =
     cookiesToAdd += cookie
     this
-  }
 
-  def addHeaders(headers: (String, String)*): this.type = {
+  def addHeaders(headers: (String, String)*): this.type =
     headers.foreach({
       case (name, value) => addHeader(name, value)
     })
     this
-  }
 
-  def respond(response: JettyServerResponse, callback: Callback): Boolean = {
+  def respond(response: JettyServerResponse, callback: Callback): Boolean =
     response.setStatus(status.code)
     val responseHeaders = response.getHeaders
-    headers.foreach {
+    headers.foreach:
       case (name, value) => responseHeaders.put(name, value)
-    }
     cookiesToAdd.foreach(JettyServerResponse.addCookie(response, _))
     false
-  }
-}
 
-object VoidResponse extends Response {
+object VoidResponse extends Response:
   val status = HttpStatuses.NoContent
 
   override def respond(response: JettyServerResponse, callback: Callback): Boolean = true
-}
 
-trait TextResponse extends Response {
+trait TextResponse extends Response:
   def contents: String
 
   def contentType: String
 
-  override def respond(response: JettyServerResponse, callback: Callback): Boolean = {
+  override def respond(response: JettyServerResponse, callback: Callback): Boolean =
     super.respond(response, callback)
     response.getHeaders.put(HttpHeader.CONTENT_TYPE, contentType)
     val charsetName = Option(MimeTypes.getCharsetFromContentType(contentType)).getOrElse("UTF-8")
     response.write(true, BufferUtil.toBuffer(contents.getBytes(charsetName)), callback)
     true
-  }
-}
 
-trait BinaryResponse extends Response {
+trait BinaryResponse extends Response:
   def contents: Array[Byte]
 
   def contentType: String
 
-  override final def respond(response: JettyServerResponse, callback: Callback): Boolean = {
+  override final def respond(response: JettyServerResponse, callback: Callback): Boolean =
     super.respond(response, callback)
     val responseHeaders = response.getHeaders
     responseHeaders.put(HttpHeader.CONTENT_TYPE, contentType)
     responseHeaders.put(HttpHeader.CONTENT_LENGTH, contents.length)
     response.write(true, BufferUtil.toBuffer(contents), callback)
     true
-  }
-}
 
-trait RedirectResponse extends TextResponse {
+trait RedirectResponse extends TextResponse:
 
   def redirectTo: String
 
   def contentType: String = "text/css;charset=utf-8"
 
-  override def contents: String = {
+  override def contents: String =
     s"""<html>
        |<head><title>Moved</title></head>
        |<body>=Moved=<p>This page has moved to <a href="$redirectTo">$redirectTo</a>.</p></body>
        |</html>""".stripMargin
-  }
 
-  override final def respond(response: JettyServerResponse, callback: Callback): Boolean = {
+  override final def respond(response: JettyServerResponse, callback: Callback): Boolean =
     response.getHeaders.put(HttpHeader.LOCATION, redirectTo)
     super.respond(response, callback)
-  }
-}
 
-object Ok {
+object Ok:
   def html[Env <: FSXmlEnv](using env: Env)(ns: env.NodeSeq) = new OkHtml(env.render(ns))
 
   def apply(ns: String) = new OkHtml(ns)
@@ -201,56 +186,47 @@ object Ok {
 
   def js(js: Js) = new OkTextBased(js.cmd, "text/javascript;charset=utf-8")
 
-  def utf8WithContentType(text: String, contentType: String) = {
+  def utf8WithContentType(text: String, contentType: String) =
     val _contentType = contentType
-    new BinaryResponse {
+    new BinaryResponse:
       override def contents: Array[Byte] = text.getBytes("UTF-8")
 
       override def contentType: String = _contentType
 
       override def status: HttpStatus = HttpStatuses.OK
-    }
-  }
 
-  def utf8AutoDetectContentType(text: String, fileName: String) = new BinaryResponse {
+  def utf8AutoDetectContentType(text: String, fileName: String) = new BinaryResponse:
     override def contents: Array[Byte] = text.getBytes("UTF-8")
 
     override def contentType: String = Files.probeContentType(Path.of(fileName))
 
     override def status: HttpStatus = HttpStatuses.OK
-  }
 
-  def binaryAutoDetectContentType(bytes: Array[Byte], fileName: String) = new BinaryResponse {
+  def binaryAutoDetectContentType(bytes: Array[Byte], fileName: String) = new BinaryResponse:
     override def contents: Array[Byte] = bytes
 
     override def contentType: String = Files.probeContentType(Path.of(fileName))
 
     override def status: HttpStatus = HttpStatuses.OK
-  }
 
-  def binaryWithContentType(bytes: Array[Byte], contentType: String) = {
+  def binaryWithContentType(bytes: Array[Byte], contentType: String) =
     val _contentType = contentType
-    new BinaryResponse {
+    new BinaryResponse:
       override def contents: Array[Byte] = bytes
 
       override def contentType: String = _contentType
 
       override def status: HttpStatus = HttpStatuses.OK
-    }
-  }
-}
 
-object Redirect {
+object Redirect:
 
-  def apply(redirectTo: String, status: HttpStatus): RedirectResponse = {
+  def apply(redirectTo: String, status: HttpStatus): RedirectResponse =
     val _redirectTo = redirectTo
     val _status: HttpStatus = status
-    new RedirectResponse {
+    new RedirectResponse:
       override def redirectTo: String = _redirectTo
 
       override def status: HttpStatus = _status
-    }
-  }
 
   def multipleChoices(redirectTo: String) = Redirect(redirectTo, HttpStatuses.MultipleChoices)
 
@@ -268,18 +244,15 @@ object Redirect {
 
   def permanentRedirect(redirectTo: String) = Redirect(redirectTo, HttpStatuses.PermanentRedirect)
 
-}
 
-object ClientError {
-  def apply(httpStatus: HttpStatus, cause: String = null) = new Response {
+object ClientError:
+  def apply(httpStatus: HttpStatus, cause: String = null) = new Response:
     override def status: HttpStatus = httpStatus
 
-    override final def respond(response: JettyServerResponse, callback: Callback): Boolean = {
+    override final def respond(response: JettyServerResponse, callback: Callback): Boolean =
       super.respond(response, callback)
       JettyServerResponse.writeError(response.getRequest(), response, callback, status.code, cause)
       true
-    }
-  }
 
   def BadRequest(cause: String) = apply(HttpStatuses.BadRequest, cause)
 
@@ -346,18 +319,15 @@ object ClientError {
   val BlockedByParentalControls = apply(HttpStatuses.BlockedByParentalControls)
 
   val UnavailableForLegalReasons = apply(HttpStatuses.UnavailableForLegalReasons)
-}
 
-object ServerError {
-  def apply(httpStatus: HttpStatus, cause: String = null) = new Response {
+object ServerError:
+  def apply(httpStatus: HttpStatus, cause: String = null) = new Response:
     override def status: HttpStatus = httpStatus
 
-    override final def respond(response: JettyServerResponse, callback: Callback): Boolean = {
+    override final def respond(response: JettyServerResponse, callback: Callback): Boolean =
       super.respond(response, callback)
       JettyServerResponse.writeError(response.getRequest(), response, callback, status.code, cause)
       true
-    }
-  }
 
   def InternalServerError(cause: String) = apply(HttpStatuses.InternalServerError, cause)
 
@@ -388,9 +358,8 @@ object ServerError {
   val NetworkReadTimeout = apply(HttpStatuses.NetworkReadTimeout)
 
   val NetworkConnectTimeout = apply(HttpStatuses.NetworkConnectTimeout)
-}
 
-class OkHtml(ns: String) extends TextResponse {
+class OkHtml(ns: String) extends TextResponse:
   override def status: HttpStatus = HttpStatuses.OK
 
   override def contentType: String = "text/html;charset=utf-8"
@@ -398,20 +367,18 @@ class OkHtml(ns: String) extends TextResponse {
   def docType: String = "<!DOCTYPE html>"
 
   override def contents: String = docType + "\n" + ns
-}
 
-class OkTextBased(text: String, val contentType: String) extends TextResponse {
+class OkTextBased(text: String, val contentType: String) extends TextResponse:
   override def status: HttpStatus = HttpStatuses.OK
 
   override def contents: String = text
-}
 
-object RoutingHandlerHelper {
+object RoutingHandlerHelper:
 
   trait Method
 
-  object Method {
-    def fromString: PartialFunction[String, Method] = {
+  object Method:
+    def fromString: PartialFunction[String, Method] =
       case "GET" => GET
       case "HEAD" => HEAD
       case "POST" => POST
@@ -421,8 +388,6 @@ object RoutingHandlerHelper {
       case "OPTIONS" => OPTIONS
       case "TRACE" => TRACE
       case "PATCH" => PATCH
-    }
-  }
 
   object GET extends Method
 
@@ -442,14 +407,13 @@ object RoutingHandlerHelper {
 
   object PATCH extends Method
 
-  abstract class UnapplyHelper1(methodName: String) {
+  abstract class UnapplyHelper1(methodName: String):
     def unapplySeq(req: Request): Option[Seq[String]] =
       Some(req.getHttpURI.getPath.replaceAll("^/", "").split("/").toList.filter(_ != "")).filter(_ => req.getMethod == methodName)
-  }
 
-  object Req {
+  object Req:
 
-    def unapply(req: Request): Option[(Method, List[String], String, Boolean)] = {
+    def unapply(req: Request): Option[(Method, List[String], String, Boolean)] =
       Method.fromString.unapply(req.getMethod).map(method => {
         val path = req.getHttpURI.getPath
         val ext = path.replaceAll(".*\\.(\\w+)$", "$1").toLowerCase
@@ -458,8 +422,6 @@ object RoutingHandlerHelper {
           ext,
           path.endsWith("/"))
       })
-    }
-  }
 
   object Get extends UnapplyHelper1("GET")
 
@@ -480,25 +442,22 @@ object RoutingHandlerHelper {
   object Patch extends UnapplyHelper1("PATCH")
 
   def onlyHandleHtmlRequests(handle: => Option[Response])(implicit req: Request): Option[Response] =
-    if (Option(req.getHeaders.get(HttpHeader.ACCEPT)).getOrElse("").contains("text/html")) handle else None
-}
+    if Option(req.getHeaders.get(HttpHeader.ACCEPT)).getOrElse("").contains("text/html") then handle else None
 
-abstract class RoutingHandlerNoSessionHelper extends Handler.Abstract {
+abstract class RoutingHandlerNoSessionHelper extends Handler.Abstract:
 
   def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request): Option[Response]
 
-  override def handle(request: Request, response: JettyServerResponse, callback: Callback): Boolean = {
+  override def handle(request: Request, response: JettyServerResponse, callback: Callback): Boolean =
     handlerNoSession(response, callback)(request).map(resp => {
       resp.respond(response, callback)
     }).getOrElse(false)
-  }
-}
 
-abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandlerNoSessionHelper {
+abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandlerNoSessionHelper:
 
   def servePage[Env <: FSXmlEnv]
         (renderable: RenderableWithFSContext[Env], debugLbl: Option[String] = None)
-        (implicit req: Request, session: FSSession): Response = {
+        (implicit req: Request, session: FSSession): Response =
     import renderable.given
     session.createPage(implicit fsc => Ok.html(renderable.render())
       .addHeaders(
@@ -507,13 +466,12 @@ abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandl
         , "Expires" -> "-1"
       ), debugLbl = debugLbl.orElse(Some(req.getHttpURI.getPath))
     )
-  }
 
   def handlerInSession(response: JettyServerResponse, callback: Callback)(implicit req: Request, session: FSSession): Option[Response]
 
 
-  override def handle(request: Request, response: JettyServerResponse, callback: Callback): Boolean = {
-    handlerNoSession(response, callback)(request) match {
+  override def handle(request: Request, response: JettyServerResponse, callback: Callback): Boolean =
+    handlerNoSession(response, callback)(request) match
       case Some(resp) =>
         resp.respond(response, callback)
       case None =>
@@ -526,6 +484,3 @@ abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandl
               resp.respond(response, callback)
             })
         }).getOrElse(false)
-    }
-  }
-}
