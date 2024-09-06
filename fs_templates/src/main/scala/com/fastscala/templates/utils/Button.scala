@@ -1,9 +1,9 @@
 package com.fastscala.templates.utils
 
+import scala.xml.{ Elem, Node, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
-
-import scala.xml.{ Elem, Node, NodeSeq }
 
 case class Button(
   classes: String = "btn",

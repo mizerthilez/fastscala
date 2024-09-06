@@ -1,9 +1,9 @@
 package com.fastscala.templates.bootstrap5.alerts
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.js.rerenderers.Rerenderer
 import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS }
-
-import scala.xml.{ Elem, NodeSeq }
 
 object SimpleAlert:
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }

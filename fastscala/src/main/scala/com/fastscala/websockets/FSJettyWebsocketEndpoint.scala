@@ -1,11 +1,12 @@
 package com.fastscala.websockets
 
-import com.fastscala.core.FSSystem
-import org.eclipse.jetty.websocket.api.{ Session, Callback }
-import org.eclipse.jetty.websocket.api.annotations.*
-
 import scala.util.Try
+
+import org.eclipse.jetty.websocket.api.annotations.*
+import org.eclipse.jetty.websocket.api.{ Callback, Session }
 import org.slf4j.LoggerFactory
+
+import com.fastscala.core.FSSystem
 
 object FSJettyWebsocketEndpoint:
   val logger = LoggerFactory.getLogger(getClass.getName)

@@ -1,14 +1,14 @@
 package com.fastscala.server
 
+import java.nio.file.{ Files, Path }
+
+import org.eclipse.jetty.http.{ HttpCookie, HttpHeader, MimeTypes }
+import org.eclipse.jetty.server.{ Handler, Request, Response as JettyServerResponse }
+import org.eclipse.jetty.util.{ BufferUtil, Callback }
+
 import com.fastscala.core.{ FSSession, FSSystem, FSXmlEnv }
 import com.fastscala.js.Js
 import com.fastscala.utils.RenderableWithFSContext
-import org.eclipse.jetty.http.{ HttpHeader, HttpCookie, MimeTypes }
-import org.eclipse.jetty.server.{ Request, Response as JettyServerResponse, Handler }
-import org.eclipse.jetty.util.{ BufferUtil, Callback }
-
-import java.nio.file.{ Path, Files }
-import java.nio.charset.StandardCharsets.UTF_8
 
 case class HttpStatus(name: String, code: Int)
 

@@ -1,13 +1,14 @@
 package com.fastscala.demo.docs
 
-import com.fastscala.core.FSContext
-import org.eclipse.jetty.util.IO
-
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import scala.util.matching.Regex
 import scala.xml.NodeSeq
+
+import org.eclipse.jetty.util.IO
+
+import com.fastscala.core.FSContext
 
 abstract class SingleCodeExamplePage() extends PageWithTopTitle:
   def file = getClass.getName.split("\\.").mkString("/", "/", ".scala")

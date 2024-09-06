@@ -1,13 +1,13 @@
 package com.fastscala.templates.form6.fields
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
-import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 import com.fastscala.xml.scala_xml.JS
-
-import scala.xml.{ Elem, NodeSeq }
+import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 
 class F6VerticalField()(children: F6Field*)
     extends StandardF6Field

@@ -1,7 +1,7 @@
 package com.fastscala.js.rerenderers
 
 import com.fastscala.core.{ FSContext, FSXmlEnv }
-import com.fastscala.js.{ Js, JsUtils, JsXmlUtils }
+import com.fastscala.js.{ Js, JsUtils }
 import com.fastscala.utils.IdGen
 
 class RerendererP[Env <: FSXmlEnv, P](

@@ -1,12 +1,12 @@
 package com.fastscala.templates.bootstrap5.utils
 
+import scala.xml.Elem
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.js.JsOps.RichJs
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
-
-import scala.xml.Elem
 
 object ImmediateInputFields:
   def checkbox(

@@ -1,8 +1,8 @@
 package com.fastscala.demo.docs.data
 
-import io.circe.generic.semiauto
-
 import scala.io.Source
+
+import io.circe.generic.semiauto
 
 case class CountryName(
   common: String,

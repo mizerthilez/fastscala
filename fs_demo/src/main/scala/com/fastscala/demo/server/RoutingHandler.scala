@@ -1,5 +1,15 @@
 package com.fastscala.demo.server
 
+import java.nio.charset.StandardCharsets
+import java.nio.file.{ Files, Paths }
+import java.util.Collections
+
+import scala.jdk.CollectionConverters.ListHasAsScala
+
+import org.eclipse.jetty.server.{ Request, Response as JettyServerResponse }
+import org.eclipse.jetty.util.Callback
+import org.slf4j.LoggerFactory
+
 import com.fastscala.core.{ FSSession, FSSystem }
 import com.fastscala.demo.db.{ CurrentUser, FakeDB }
 import com.fastscala.demo.docs.*
@@ -7,18 +17,8 @@ import com.fastscala.demo.docs.bootstrap.BootstrapModalPage
 import com.fastscala.demo.docs.chartjs.SimpleChartjsPage
 import com.fastscala.demo.docs.forms.BasicFormExamplePage
 import com.fastscala.demo.docs.tables.*
-import com.fastscala.server.{ Ok, Redirect, Response, RoutingHandlerHelper }
+import com.fastscala.server.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
-import org.slf4j.LoggerFactory
-
-import java.nio.charset.StandardCharsets
-import java.nio.file.{ Files, Paths }
-import java.util.Collections
-
-import org.eclipse.jetty.server.{ Request, Response as JettyServerResponse }
-import org.eclipse.jetty.util.Callback
-
-import scala.jdk.CollectionConverters.ListHasAsScala
 
 class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
   val logger = LoggerFactory.getLogger(getClass.getName)

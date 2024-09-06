@@ -1,12 +1,13 @@
 package com.fastscala.demo.docs.html
 
+import scala.xml.NodeSeq
+
+import scalatags.Text.TypedTag
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.templates.bootstrap5.modals.BSModal5
 import com.fastscala.templates.bootstrap5.utils.BSBtn
-import scalatags.Text.TypedTag
-
-import scala.xml.NodeSeq
 
 class ScalaTagsPage extends MultipleCodeExamples2Page():
   override def pageTitle: String = "ScalaTags interoperability"

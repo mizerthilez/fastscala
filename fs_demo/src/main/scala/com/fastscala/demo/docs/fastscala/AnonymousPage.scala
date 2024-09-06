@@ -1,11 +1,11 @@
 package com.fastscala.demo.docs.fastscala
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.templates.bootstrap5.utils.FileUpload
 import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS }
-
-import scala.xml.NodeSeq
 
 class AnonymousPage() extends SingleCodeExamplePage():
   override def pageTitle: String = "Anonymous Page"

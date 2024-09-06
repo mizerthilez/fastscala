@@ -1,12 +1,12 @@
 package com.fastscala.demo.docs.tables
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.demo.docs.components.Widget
 import com.fastscala.demo.docs.data.{ CountriesData, Country }
 import com.fastscala.templates.bootstrap5.tables.*
-
-import scala.xml.{ Elem, NodeSeq }
 
 class SelectableRowsTableExamplePage extends SingleCodeExamplePage():
   override def pageTitle: String = "Selectable rows table example"

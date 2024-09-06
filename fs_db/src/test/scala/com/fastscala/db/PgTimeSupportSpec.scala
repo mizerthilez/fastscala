@@ -1,47 +1,45 @@
 package com.fastscala.db
 
-import com.fastscala.db.keyed.uuid.PgRowWithUUID
-import org.scalatest.flatspec.AnyFlatSpec
-import scalikejdbc._
-
 import java.time.LocalDate
 
+import org.scalatest.flatspec.AnyFlatSpec
+import scalikejdbc.*
+
+import com.fastscala.db.keyed.uuid.PgRowWithUUID
+
 class TestEntity6(
-                   var myDate: LocalDate = LocalDate.now()
-                 ) extends PgRowWithUUID[TestEntity6] {
+  var myDate: LocalDate = LocalDate.now()
+) extends PgRowWithUUID[TestEntity6]:
   override def table: PgTableWithUUID[TestEntity6] = TestEntity6
-}
 
-object TestEntity6 extends PgTableWithUUID[TestEntity6] {
+object TestEntity6 extends PgTableWithUUID[TestEntity6]:
   override def createSampleRow(): TestEntity6 = new TestEntity6()
-}
 
-class PgTimeSupportSpec extends AnyFlatSpec with PostgresDB {
-
+class PgTimeSupportSpec extends AnyFlatSpec with PostgresDB:
   val today = LocalDate.now()
   val tomorrow = today.plusDays(1)
 
   "Create table" should "succeed" in {
-    DB.localTx({ implicit session =>
+    DB.localTx { implicit session =>
       TestEntity6.__createTableSQL.foreach(_.execute())
-    })
+    }
   }
   "Save row" should "succeed" in {
-    DB.localTx({ implicit session =>
+    DB.localTx { implicit session =>
       val saved = new TestEntity6(today).save()
       assert(saved.uuid.isDefined)
-    })
+    }
   }
   "Read row" should "succeed" in {
-    DB.localTx({ implicit session =>
+    DB.localTx { implicit session =>
       val single = TestEntity6.selectAll().head
 
       assert(single.myDate == today)
       assert(single.myDate != tomorrow)
-    })
+    }
   }
   "Update row" should "succeed" in {
-    DB.localTx({ implicit session =>
+    DB.localTx { implicit session =>
       val single = TestEntity6.selectAll().head
       single.myDate = tomorrow
       single.update()
@@ -53,11 +51,10 @@ class PgTimeSupportSpec extends AnyFlatSpec with PostgresDB {
       assert(single.uuid == inDB.uuid)
 
       assert(inDB.myDate == tomorrow)
-    })
+    }
   }
   "Delete table" should "succeed" in {
-    DB.localTx({ implicit session =>
+    DB.localTx { implicit session =>
       TestEntity6.__dropTableSQL.execute()
-    })
+    }
   }
-}

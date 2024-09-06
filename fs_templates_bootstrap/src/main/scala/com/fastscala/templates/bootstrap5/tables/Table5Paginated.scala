@@ -1,11 +1,11 @@
 package com.fastscala.templates.bootstrap5.tables
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.templates.bootstrap5.utils.{ BSBtn, ImmediateInputFields }
 import com.fastscala.utils.Lazy
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
-
-import scala.xml.{ Elem, NodeSeq }
 
 trait Table5Paginated extends Table5SeqDataSource:
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }

@@ -1,7 +1,8 @@
 package com.fastscala.db.keyed
 
-import com.fastscala.db.{ Row, RowWithId, RowWithIdBase }
 import scalikejdbc.*
+
+import com.fastscala.db.{ Row, RowWithId, RowWithIdBase }
 
 trait RowWithLongId[R <: RowWithLongId[R]]
     extends Row[R]
@@ -10,7 +11,7 @@ trait RowWithLongId[R <: RowWithLongId[R]]
   self: R =>
   def table: PgTableWithLongId[R]
 
-  var id: java.lang.Long = _
+  var id: java.lang.Long = scala.compiletime.uninitialized
 
   override def key: java.lang.Long = id
 

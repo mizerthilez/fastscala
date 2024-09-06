@@ -1,14 +1,13 @@
 package com.fastscala.stats
 
-import com.fastscala.core.{ FSContext, FSPage, FSSession, FSSystem }
 import com.github.loki4j.slf4j.marker.LabelMarker
 import io.circe.syntax.EncoderOps
 import io.prometheus.metrics.core.metrics.Counter
 import io.prometheus.metrics.model.snapshots.PrometheusNaming
-import org.slf4j.{ Logger, LoggerFactory }
 import org.slf4j.event.Level
+import org.slf4j.{ Logger, LoggerFactory }
 
-import java.util.concurrent.atomic.AtomicLong
+import com.fastscala.core.*
 
 class FSStats(
   logger: Logger = LoggerFactory.getLogger("com.fastscala.stats.FSStats")

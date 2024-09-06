@@ -1,12 +1,12 @@
 package com.fastscala.templates.form4
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.utils.{ Button, ElemWithRandomId }
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
-
-import scala.xml.NodeSeq
 
 trait FormField:
   def render()(implicit form: Form, fsc: FSContext): NodeSeq

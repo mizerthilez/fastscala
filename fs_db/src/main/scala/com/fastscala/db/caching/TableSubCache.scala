@@ -1,13 +1,11 @@
 package com.fastscala.db.caching
 
-import com.fastscala.db.keyed.uuid.RowWithUuidIdBase
-import com.fastscala.db.observable.ObservableRowBase
-import com.fastscala.db.{ Row, RowWithId, TableWithId }
 import scalikejdbc.interpolation.SQLSyntax
 
-import java.util.UUID
+import com.fastscala.db.observable.ObservableRowBase
+import com.fastscala.db.{ Row, RowWithId }
 
-class TableSubCache[K, R <: Row[R] with ObservableRowBase with RowWithId[K, R]](
+class TableSubCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]](
   val cache: TableCache[K, R],
   val loadSubsetSQL: SQLSyntax,
   val filterSubset: R => Boolean,

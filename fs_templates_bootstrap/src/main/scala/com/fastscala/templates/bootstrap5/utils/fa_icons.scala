@@ -1,8 +1,8 @@
 package com.fastscala.templates.bootstrap5.utils
 
-import com.fastscala.xml.scala_xml.FSScalaXmlEnv
-
 import scala.xml.Elem
+
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 object IcnFA:
   type FaIcn = String

@@ -1,19 +1,19 @@
 package com.fastscala.db.caching
 
-import com.fastscala.db.*
-import com.fastscala.db.observable.{ DBObserver, ObservableRowBase }
+import scala.collection.mutable.ListBuffer
+
 import org.slf4j.LoggerFactory
 import scalikejdbc.interpolation.SQLSyntax
 import scalikejdbc.scalikejdbcSQLInterpolationImplicitDef
 
-import java.util.UUID
-import scala.collection.mutable.ListBuffer
+import com.fastscala.db.*
+import com.fastscala.db.observable.{ DBObserver, ObservableRowBase }
 
 class Many2ManyCache[
   K,
-  L <: Row[L] with ObservableRowBase with RowWithId[K, L],
-  J <: Row[J] with ObservableRowBase with RowWithId[K, J],
-  R <: Row[R] with ObservableRowBase with RowWithId[K, R],
+  L <: Row[L] & ObservableRowBase & RowWithId[K, L],
+  J <: Row[J] & ObservableRowBase & RowWithId[K, J],
+  R <: Row[R] & ObservableRowBase & RowWithId[K, R],
 ](
   val cacheL: TableCache[K, L],
   val cacheJ: TableCache[K, J],
@@ -27,8 +27,8 @@ class Many2ManyCache[
   val right2Left: collection.mutable.Map[R, ListBuffer[L]] =
     collection.mutable.Map[R, ListBuffer[L]](),
 ) extends DBObserver:
-  override def observingTables: Seq[Table[_]] =
-    Seq[Table[_]](cacheL.table, cacheJ.table, cacheR.table)
+  override def observingTables: Seq[Table[?]] =
+    Seq[Table[?]](cacheL.table, cacheJ.table, cacheR.table)
 
   val logger = LoggerFactory.getLogger(getClass.getName)
 

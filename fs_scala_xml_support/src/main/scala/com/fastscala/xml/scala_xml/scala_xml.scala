@@ -1,10 +1,9 @@
 package com.fastscala.xml.scala_xml
 
-import com.fastscala.core.{ FSContext, FSXmlEnv }
-import com.fastscala.utils.{ Renderable, RenderableWithFSContext }
-import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
-
 import scala.xml.*
+
+import com.fastscala.core.FSXmlEnv
+import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
 
 object FSScalaXmlEnv extends FSXmlEnv:
   override type NodeSeq = scala.xml.NodeSeq

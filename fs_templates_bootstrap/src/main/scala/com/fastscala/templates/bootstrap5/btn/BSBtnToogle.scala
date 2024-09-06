@@ -1,12 +1,12 @@
 package com.fastscala.templates.bootstrap5.components
 
+import scala.util.chaining.scalaUtilChainingOps
+import scala.xml.Elem
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.xml.scala_xml.JS
-
-import scala.util.chaining.scalaUtilChainingOps
-import scala.xml.Elem
 
 object BSBtnToogle:
   implicit class RichBSBtnToogler(btn: BSBtn):

@@ -1,9 +1,9 @@
 package com.fastscala.templates.utils
 
+import scala.xml.NodeSeq
+
 import com.fastscala.js.Js
 import com.fastscala.xml.scala_xml.JS
-
-import scala.xml.NodeSeq
 
 trait Rerenderable extends ElemWithRandomId:
   def render(): NodeSeq

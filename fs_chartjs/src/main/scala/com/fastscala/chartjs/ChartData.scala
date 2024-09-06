@@ -1,8 +1,8 @@
 package com.fastscala.chartjs
 
 import io.circe.generic.semiauto
-import io.circe.{ Encoder, Json }
 import io.circe.syntax.EncoderOps
+import io.circe.{ Encoder, Json }
 
 case class ChartData(
   datasets: Option[List[ChartDataset]] = None,

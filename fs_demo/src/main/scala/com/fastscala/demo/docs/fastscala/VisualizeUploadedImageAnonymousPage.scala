@@ -1,11 +1,12 @@
 package com.fastscala.demo.docs.fastscala
 
+import java.util.Base64
+
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.xml.scala_xml.JS
-
-import java.util.Base64
-import scala.xml.NodeSeq
 
 // === code snippet ===
 class VisualizeUploadedImageAnonymousPage(

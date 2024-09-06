@@ -1,15 +1,17 @@
 package com.fastscala.templates.bootstrap5.form5
 
+import java.util.Locale
+
+import scala.xml.{ Elem, NodeSeq }
+
+import org.joda.time.{ DateTime, LocalDate }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.utils.ImmediateInputFields
 import com.fastscala.templates.form5.Form5
 import com.fastscala.templates.form5.fields.*
 import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS }
-import org.joda.time.{ DateTime, LocalDate }
-
-import java.util.Locale
-import scala.xml.{ Elem, NodeSeq }
 
 trait DateFieldOptRenderer:
   def defaultRequiredFieldLabel: String

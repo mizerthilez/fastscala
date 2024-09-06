@@ -1,8 +1,8 @@
 package com.fastscala.templates.bootstrap5.classes
 
-import com.fastscala.xml.scala_xml.FSScalaXmlEnv.{ Empty as EnvEmpty, * }
-
 import scala.xml.{ Elem, NodeSeq }
+
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv.{ Empty as EnvEmpty, * }
 
 trait BasicElemsHelper:
   def Empty: NodeSeq = EnvEmpty

@@ -1,11 +1,11 @@
 package com.fastscala.demo.docs.bootstrap
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.templates.bootstrap5.modals.BSModal5Base
 import com.fastscala.templates.bootstrap5.utils.BSBtn
-
-import scala.xml.NodeSeq
 
 class BootstrapModalPage extends SingleCodeExamplePage():
   override def pageTitle: String = "Simple Modal Example"

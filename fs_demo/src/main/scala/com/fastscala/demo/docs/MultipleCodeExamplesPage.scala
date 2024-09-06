@@ -1,13 +1,14 @@
 package com.fastscala.demo.docs
 
-import com.fastscala.demo.db.User
-import org.eclipse.jetty.util.IO
-
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import scala.util.matching.Regex
 import scala.xml.NodeSeq
+
+import org.eclipse.jetty.util.IO
+
+import com.fastscala.demo.db.User
 
 abstract class MultipleCodeExamplesPage(val file: String)(implicit val user: User)
     extends PageWithTopTitle:

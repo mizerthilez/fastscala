@@ -1,10 +1,10 @@
 package com.fastscala.templates.bootstrap5.modals
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form5.{ Form5, FormRenderer }
-
-import scala.xml.NodeSeq
 
 abstract class BSModal5WithForm5Base(
   val modalHeaderTitle: String

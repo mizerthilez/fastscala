@@ -1,14 +1,14 @@
 package com.fastscala.templates.form6
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.fields.*
 import com.fastscala.templates.utils.ElemWithRandomId
 import com.fastscala.utils.RenderableWithFSContext
-import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS, given }
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
-
-import scala.xml.{ Elem, NodeSeq }
+import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS, given }
 
 trait F6FormRenderer:
   def render(form: Elem): NodeSeq

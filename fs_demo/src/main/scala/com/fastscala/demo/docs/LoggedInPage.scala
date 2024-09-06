@@ -1,12 +1,12 @@
 package com.fastscala.demo.docs
 
+import java.time.LocalDate
+
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.xml.scala_xml.JS
-
-import java.time.LocalDate
-import scala.xml.NodeSeq
-
 import com.fastscala.xml.scala_xml.given
 
 abstract class LoggedInPage() extends BasePage:
@@ -24,7 +24,7 @@ abstract class LoggedInPage() extends BasePage:
   //      }).btn.ms_2
 
   def renderSideMenu()(implicit fsc: FSContext): NodeSeq =
-  FSDemoMainMenu.render() // ++
+    FSDemoMainMenu.render() // ++
   //      hr ++
   //      p_3.d_flex.align_items_center.apply {
   //        a.apply(user.miniHeadshotOrPlaceholderRendered.withStyle("width: 55px;border-radius: 55px;")) ++

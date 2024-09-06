@@ -1,8 +1,8 @@
 package com.fastscala.templates.bootstrap5.tables
 
-import com.fastscala.core.FSContext
-
 import scala.xml.{ Elem, NodeSeq }
+
+import com.fastscala.core.FSContext
 
 trait Table5StandardColumns
     extends Table5ColsRenderable

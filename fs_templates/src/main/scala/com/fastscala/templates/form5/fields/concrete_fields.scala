@@ -1,21 +1,23 @@
 package com.fastscala.templates.form5.fields
 
+import java.text.DecimalFormat
+import java.time.format.DateTimeFormatter
+import java.util.regex.Pattern
+
+import scala.util.chaining.scalaUtilChainingOps
+import scala.util.{ Failure, Success, Try }
+import scala.xml.{ Elem, NodeSeq, Unparsed }
+
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.{ DateTime, LocalDate }
+
 import com.fastscala.core.{ FSContext, FSUploadedFile }
 import com.fastscala.js.Js
 import com.fastscala.templates.form5.Form5
 import com.fastscala.utils.IdGen
-import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 import com.fastscala.xml.scala_xml.JS
-import org.joda.time.format.DateTimeFormat
-import org.joda.time.{ DateTime, LocalDate }
-
-import java.text.DecimalFormat
-import java.time.format.DateTimeFormatter
-import java.util.regex.Pattern
-import scala.util.chaining.scalaUtilChainingOps
-import scala.util.{ Failure, Success, Try }
-import scala.xml.{ Elem, NodeSeq, Unparsed }
+import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
 class F5RawHtmlField(
   gen: => NodeSeq,
@@ -1728,9 +1730,9 @@ class F5SaveButtonField[B](
   val disabled: () => Boolean = () => false,
   val enabled: () => Boolean = () => true,
   val deps: Set[FormField] = Set(),
-  val toInitialState: B => B = identity[B] _,
-  val toChangedState: B => B = identity[B] _,
-  val toErrorState: B => B = identity[B] _,
+  val toInitialState: B => B = identity[B],
+  val toChangedState: B => B = identity[B],
+  val toErrorState: B => B = identity[B],
 )(implicit renderer: ButtonFieldRenderer
 ) extends StandardFormField:
   def readOnly: () => Boolean = () => false
@@ -1790,11 +1792,11 @@ class F5FileUploadField(
   val readOnly: () => Boolean = () => false,
   val enabled: () => Boolean = () => true,
   val deps: Set[FormField] = Set(),
-  val transformFormElem: Elem => Elem = identity[Elem] _,
-  val transforLabelElem: Elem => Elem = identity[Elem] _,
-  val transforSubmitButtonElem: Elem => Elem = identity[Elem] _,
-  val transforResetButtonElem: Elem => Elem = identity[Elem] _,
-  val transforFileInputElem: Elem => Elem = identity[Elem] _,
+  val transformFormElem: Elem => Elem = identity[Elem],
+  val transforLabelElem: Elem => Elem = identity[Elem],
+  val transforSubmitButtonElem: Elem => Elem = identity[Elem],
+  val transforResetButtonElem: Elem => Elem = identity[Elem],
+  val transforFileInputElem: Elem => Elem = identity[Elem],
 )(implicit renderer: FileUploadFieldRenderer
 ) extends StandardFormField
        with ValidatableField:

@@ -1,9 +1,9 @@
 package com.fastscala.demo.docs.navigation
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.utils.IdGen
-
-import scala.xml.{ Elem, NodeSeq }
 
 object DefaultBSNavBarRenderer:
   given DefaultBSNavBarRenderer = new DefaultBSNavBarRenderer {}

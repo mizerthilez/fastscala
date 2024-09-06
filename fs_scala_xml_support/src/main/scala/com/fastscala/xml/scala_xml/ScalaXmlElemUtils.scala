@@ -1,9 +1,9 @@
 package com.fastscala.xml.scala_xml
 
+import scala.xml.*
+
 import com.fastscala.js.Js
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
-
-import scala.xml.*
 
 trait ScalaXmlElemUtils:
   def elem: Elem

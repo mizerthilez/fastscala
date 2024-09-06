@@ -1,10 +1,10 @@
 package com.fastscala.demo.server
 
-import com.fastscala.server.JettyServerHelper
+import java.awt.Desktop
+
 import org.eclipse.jetty.server.Handler
 
-import java.awt.Desktop
-import java.net.URI
+import com.fastscala.server.JettyServerHelper
 
 object JettyServer extends JettyServerHelper():
   override def appName: String = "fs_demo"

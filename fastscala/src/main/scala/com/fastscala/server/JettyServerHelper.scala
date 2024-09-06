@@ -1,17 +1,17 @@
 package com.fastscala.server
 
-import com.fastscala.core.FSSystem
-import com.fastscala.utils.{ FSOptimizedResourceHandler, Jetty12StatisticsCollector }
-import com.fastscala.websockets.FSWebsocketJettyContextHandler
 import com.typesafe.config.ConfigFactory
 import org.eclipse.jetty.http.CompressedContentFormat
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.gzip.GzipHandler
 import org.eclipse.jetty.server.handler.{ ContextHandler, ResourceHandler, StatisticsHandler }
-import org.eclipse.jetty.util.resource.{ Resources, ResourceFactory }
+import org.eclipse.jetty.util.VirtualThreads
+import org.eclipse.jetty.util.resource.{ ResourceFactory, Resources }
 import org.eclipse.jetty.util.thread.QueuedThreadPool
 
-import org.eclipse.jetty.util.VirtualThreads
+import com.fastscala.core.FSSystem
+import com.fastscala.utils.{ FSOptimizedResourceHandler, Jetty12StatisticsCollector }
+import com.fastscala.websockets.FSWebsocketJettyContextHandler
 
 abstract class JettyServerHelper():
   val config = ConfigFactory.load()

@@ -1,12 +1,13 @@
 package com.fastscala.demo.docs.fastscala
 
+import java.util.Date
+
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.xml.scala_xml.JS
-
-import java.util.Date
-import scala.xml.NodeSeq
 
 class RerenderablePage extends MultipleCodeExamples2Page():
   override def pageTitle: String = "FastScala Rerenderable"

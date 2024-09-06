@@ -1,5 +1,7 @@
 package com.fastscala.templates.bootstrap5.tables
 
+import scala.xml.Elem
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.modals.BSModal5
@@ -7,8 +9,6 @@ import com.fastscala.templates.bootstrap5.utils.{ BSBtn, ImmediateInputFields }
 import com.fastscala.utils.Lazy
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
-
-import scala.xml.Elem
 
 trait Table5SelectableCols extends Table5Base with Table5ColsLabeled:
   lazy val currentSelectedCols: Lazy[collection.mutable.Set[C]] = Lazy(

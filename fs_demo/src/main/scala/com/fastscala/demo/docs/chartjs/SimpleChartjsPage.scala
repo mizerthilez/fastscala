@@ -1,11 +1,11 @@
 package com.fastscala.demo.docs.chartjs
 
+import scala.xml.NodeSeq
+
 import com.fastscala.chartjs.*
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.xml.scala_xml.JS
-
-import scala.xml.NodeSeq
 
 class SimpleChartjsPage extends SingleCodeExamplePage():
   override def pageTitle: String = "Simple chart.js Example"

@@ -1,12 +1,14 @@
 package com.fastscala.templates.form6
 
+import java.net.URLEncoder
+
+import scala.jdk.CollectionConverters.MapHasAsScala
+
+import org.eclipse.jetty.server.Request
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.fields.QuerySerializableStringF6Field
-import org.eclipse.jetty.server.Request
-import scala.jdk.CollectionConverters.MapHasAsScala
-
-import java.net.URLEncoder
 
 trait QueryStringSavedForm extends Form6:
   override def initForm()(implicit fsc: FSContext): Unit =

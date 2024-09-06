@@ -1,13 +1,13 @@
 package com.fastscala.demo.components
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.modals.{ BSModal5Base, BSModal5Size }
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
-
-import scala.xml.NodeSeq
 
 trait LoggerUI:
   def title: String

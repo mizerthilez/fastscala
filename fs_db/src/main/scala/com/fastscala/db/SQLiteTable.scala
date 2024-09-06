@@ -1,10 +1,10 @@
 package com.fastscala.db
 
-import scalikejdbc.interpolation.SQLSyntax
-import scalikejdbc.{ WrappedResultSet, scalikejdbcSQLInterpolationImplicitDef }
-
 import java.lang.reflect.Field
 import java.util.UUID
+
+import scalikejdbc.interpolation.SQLSyntax
+import scalikejdbc.{ WrappedResultSet, scalikejdbcSQLInterpolationImplicitDef }
 
 trait SQLiteTable[R] extends Table[R]:
   override def fieldTypeToSQLType(

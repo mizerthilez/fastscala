@@ -2,6 +2,7 @@ package com.fastscala.utils
 
 import java.security.SecureRandom
 import java.util.Base64
+
 import scala.util.Random
 
 object IdGen:

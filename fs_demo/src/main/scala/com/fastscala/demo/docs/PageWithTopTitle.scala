@@ -1,8 +1,8 @@
 package com.fastscala.demo.docs
 
-import com.fastscala.core.FSContext
-
 import scala.xml.NodeSeq
+
+import com.fastscala.core.FSContext
 
 trait PageWithTopTitle extends LoggedInPage:
   def pageTitle: String

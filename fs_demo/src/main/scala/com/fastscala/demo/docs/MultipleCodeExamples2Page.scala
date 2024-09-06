@@ -1,13 +1,14 @@
 package com.fastscala.demo.docs
 
-import com.fastscala.core.FSContext
-import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
-import org.eclipse.jetty.util.{ IO, VirtualThreads }
-
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 import scala.xml.NodeSeq
+
+import org.eclipse.jetty.util.{ IO, VirtualThreads }
+
+import com.fastscala.core.FSContext
+import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
 
 abstract class MultipleCodeExamples2Page() extends LoggedInPage():
   def file = getClass.getName.split("\\.").mkString("/", "/", ".scala")
@@ -91,7 +92,7 @@ abstract class MultipleCodeExamples2Page() extends LoggedInPage():
     lastSection.foreach {
       case (lastSectionStartedAt, title, contents) =>
         val code =
-          lines.drop(lastSectionStartedAt).take(thisSectionStartsAt - lastSectionStartedAt - 2)
+          lines.drop(lastSectionStartedAt).take(thisSectionStartsAt - lastSectionStartedAt - 1)
         println(s"$lastSectionStartedAt:$thisSectionStartsAt: \n${code.mkString("\n")}")
         val leftPadding: Int =
           code.iterator.map(_.takeWhile(_ == ' ').size).filter(_ > 0).minOption.getOrElse(0)

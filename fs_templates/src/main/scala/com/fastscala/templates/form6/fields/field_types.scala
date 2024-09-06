@@ -1,12 +1,12 @@
 package com.fastscala.templates.form6.fields
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
 import com.fastscala.templates.utils.ElemWithRandomId
 import com.fastscala.xml.scala_xml.JS
-
-import scala.xml.{ Elem, NodeSeq }
 
 trait F6Field:
   def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem

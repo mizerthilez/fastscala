@@ -1,12 +1,12 @@
 package com.fastscala.templates.form6.fields
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
-
-import scala.xml.{ Elem, NodeSeq }
 
 trait TextF6FieldRenderer:
   def defaultRequiredFieldLabel: String
@@ -236,9 +236,9 @@ class F6SaveButtonField[B](
   using Conversion[B, Elem]
 )(
   btn: FSContext => B,
-  val toInitialState: B => B = identity[B] _,
-  val toChangedState: B => B = identity[B] _,
-  val toErrorState: B => B = identity[B] _,
+  val toInitialState: B => B = identity[B],
+  val toChangedState: B => B = identity[B],
+  val toErrorState: B => B = identity[B],
 )(implicit renderer: ButtonF6FieldRenderer
 ) extends StandardF6Field
        with F6FieldWithReadOnly

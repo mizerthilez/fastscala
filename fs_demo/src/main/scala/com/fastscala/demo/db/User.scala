@@ -1,15 +1,17 @@
 package com.fastscala.demo.db
 
+import java.io.File
+import java.nio.file.Files
+import java.util.Base64
+
+import scala.xml.Elem
+
 import at.favre.lib.crypto.bcrypt.BCrypt
+
 import com.fastscala.core.{ FSContext, FSSessionVarOpt }
 import com.fastscala.js.Js
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
-
-import java.io.File
-import java.nio.file.Files
-import java.util.Base64
-import scala.xml.Elem
 
 object CurrentUser extends FSSessionVarOpt[User]()
 

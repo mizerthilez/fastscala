@@ -1,22 +1,24 @@
 package com.fastscala.templates.form6.fields
 
+import java.text.DecimalFormat
+import java.time
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.regex.Pattern
+
+import scala.util.chaining.scalaUtilChainingOps
+import scala.util.{ Failure, Success, Try }
+import scala.xml.{ Elem, NodeSeq }
+
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
 import com.fastscala.utils.Lazy
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-
-import java.text.DecimalFormat
-import java.time
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.regex.Pattern
-import scala.util.chaining.scalaUtilChainingOps
-import scala.util.{ Failure, Success, Try }
-import scala.xml.{ Elem, NodeSeq }
 
 trait F6FieldMixin extends F6Field:
   def mutate(code: => Unit): this.type =

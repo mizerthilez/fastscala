@@ -1,9 +1,9 @@
 package com.fastscala.demo.docs.navigation
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.utils.IdGen
-
-import scala.xml.NodeSeq
 
 object DefaultBSMenuRenderer:
   given DefaultBSMenuRenderer = new DefaultBSMenuRenderer {}

@@ -1,14 +1,15 @@
 package com.fastscala.templates.bootstrap5.utils
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
-
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import scala.xml.{ Elem, NodeSeq }
 
 object ClickToEditFields:
   def Select[T](

@@ -1,5 +1,8 @@
 package com.fastscala.demo.docs.forms
 
+import java.awt.Color
+import java.time.format.DateTimeFormatter
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.js.Js
@@ -8,9 +11,6 @@ import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form6.DefaultForm6
 import com.fastscala.templates.form6.fields.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.given
-
-import java.awt.Color
-import java.time.format.DateTimeFormatter
 
 class FormInputTypesPage extends MultipleCodeExamples2Page():
   override def pageTitle: String = "Form 6 Input Types"

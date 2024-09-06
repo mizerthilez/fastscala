@@ -1,10 +1,11 @@
 package com.fastscala.db
 
-import com.fastscala.db.keyed.uuid.{ PgRowWithUUID, TableWithUUIDBase }
+import java.util.UUID
+
 import scalikejdbc.*
 import scalikejdbc.interpolation.SQLSyntax
 
-import java.util.UUID
+import com.fastscala.db.keyed.uuid.{ PgRowWithUUID, TableWithUUIDBase }
 
 trait PgTableWithUUID[R <: PgRowWithUUID[R]] extends PgTable[R] with TableWithUUIDBase[R]:
   protected lazy val PlaceholderUUID = PgTableWithUUID.PlaceholderUUID

@@ -6,11 +6,23 @@ import scala.concurrent.duration.*
 resolvers += Resolver.mavenLocal
 
 ThisBuild / organization := "com.fastscala"
-ThisBuild / scalaVersion := "3.3.3"
+ThisBuild / scalaVersion := "3.5.0"
 
 ThisBuild / shellPrompt := { state => Project.extract(state).currentRef.project + "> " }
 
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 ThisBuild / scalacOptions ++= Seq("-Xmax-inlines", "64")
+ThisBuild / scalacOptions += "-Wunused:imports"
+
+addCommandAlias(
+  "styleCheck",
+  "scalafmtSbtCheck; scalafmtCheckAll; compile; scalafixAll --check",
+)
+addCommandAlias(
+  "styleFix",
+  "compile; scalafixAll; scalafmtSbt; scalafmtAll",
+)
 
 val FSRoot = "./"
 

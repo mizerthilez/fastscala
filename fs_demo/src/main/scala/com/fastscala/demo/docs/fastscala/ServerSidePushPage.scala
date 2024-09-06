@@ -1,15 +1,17 @@
 package com.fastscala.demo.docs.fastscala
 
+import java.util.concurrent.Executors
+
+import scala.concurrent.duration.DurationInt
+import scala.xml.NodeSeq
+
 import cats.effect.IO
+import org.eclipse.jetty.util.VirtualThreads
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
-
-import scala.concurrent.duration.DurationInt
-import scala.xml.NodeSeq
-import org.eclipse.jetty.util.VirtualThreads
-import java.util.concurrent.Executors
 
 object ServerSidePushPage:
   lazy val singleThreadExecutor = Executors.newSingleThreadExecutor

@@ -1,10 +1,10 @@
 package com.fastscala.templates.form4
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.utils.ElemWithRandomId
-
-import scala.xml.NodeSeq
 
 trait Form extends ElemWithRandomId:
   implicit def form: Form = this

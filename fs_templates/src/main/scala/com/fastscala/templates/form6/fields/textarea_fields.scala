@@ -1,13 +1,13 @@
 package com.fastscala.templates.form6.fields
 
+import scala.util.chaining.scalaUtilChainingOps
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
-
-import scala.util.chaining.scalaUtilChainingOps
-import scala.xml.{ Elem, NodeSeq }
 
 trait F6FieldWithNumRows extends F6FieldInputFieldMixin:
   var _rows: () => Option[Int] = () => None

@@ -5,6 +5,7 @@ import java.awt.image.{ AffineTransformOp, BufferedImage }
 import java.io.ByteArrayOutputStream
 import javax.imageio.stream.MemoryCacheImageOutputStream
 import javax.imageio.{ IIOImage, ImageIO, ImageWriteParam }
+
 import scala.annotation.tailrec
 
 object RouterUtils:

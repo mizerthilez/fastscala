@@ -1,5 +1,15 @@
 package com.fastscala.demo.docs.about
 
+import java.net.{ HttpURLConnection, URL, URLEncoder }
+import java.util.Date
+
+import scala.io.Source
+import scala.util.Try
+import scala.xml.NodeSeq
+
+import io.circe.Decoder
+import io.circe.generic.semiauto
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.demo.docs.forms.DefaultBSForm6Renderer
@@ -7,22 +17,9 @@ import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.modals.BSModal5
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form6.DefaultForm6
-import com.fastscala.templates.form6.fields.{
-  F6Field,
-  F6SaveButtonField,
-  F6StringField,
-  F6VerticalField,
-}
+import com.fastscala.templates.form6.fields.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.given
 import com.fastscala.xml.scala_xml.JS
-import io.circe.Decoder
-import io.circe.generic.semiauto
-
-import java.net.{ HttpURLConnection, URL, URLEncoder }
-import java.util.Date
-import scala.io.Source
-import scala.util.Try
-import scala.xml.NodeSeq
 
 class AboutPage extends MultipleCodeExamples2Page:
   override def pageTitle: String = "FastScala | About"

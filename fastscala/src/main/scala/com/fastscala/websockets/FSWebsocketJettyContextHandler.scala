@@ -1,13 +1,13 @@
 package com.fastscala.websockets
 
-import com.fastscala.core.FSSystem
+import java.time.Duration
 
 import org.eclipse.jetty.server.Server
 import org.eclipse.jetty.server.handler.ContextHandler
 import org.eclipse.jetty.websocket.api.util.WebSocketConstants
 import org.eclipse.jetty.websocket.server.WebSocketUpgradeHandler
 
-import java.time.Duration
+import com.fastscala.core.FSSystem
 
 object FSWebsocketJettyContextHandler:
   def apply(server: Server, context: String)(implicit fss: FSSystem): ContextHandler =

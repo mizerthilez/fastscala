@@ -1,13 +1,15 @@
 package com.fastscala.templates.form5
 
+import java.net.URLEncoder
+
+import scala.jdk.CollectionConverters.MapHasAsScala
+
+import org.eclipse.jetty.server.Request
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form5.fields.QuerySerializableStringField
 import com.fastscala.xml.scala_xml.JS
-import org.eclipse.jetty.server.Request
-
-import java.net.URLEncoder
-import scala.jdk.CollectionConverters.MapHasAsScala
 
 trait QueryStringSavedForm extends Form5:
   override def initForm()(implicit fsc: FSContext): Unit =

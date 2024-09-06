@@ -1,12 +1,13 @@
 package com.fastscala.db.caching
 
-import com.fastscala.db.*
-import com.fastscala.db.observable.{ DBObserver, ObservableRowBase }
-import com.fastscala.db.util.Utils
 import org.slf4j.LoggerFactory
 import scalikejdbc.interpolation.SQLSyntax
 
-class TableCache[K, R <: Row[R] with ObservableRowBase with RowWithId[K, R]](
+import com.fastscala.db.*
+import com.fastscala.db.observable.{ DBObserver, ObservableRowBase }
+import com.fastscala.db.util.Utils
+
+class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]](
   val table: TableWithId[R, K],
   val loadAll: [R] => Table[R] => Seq[R] = [R] => (r: Table[R]) => r.selectAll().toVector,
   var status: CacheStatus.Value = CacheStatus.NONE_LOADED,

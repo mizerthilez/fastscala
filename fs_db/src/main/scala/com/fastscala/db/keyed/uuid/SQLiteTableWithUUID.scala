@@ -1,9 +1,10 @@
 package com.fastscala.db
 
-import com.fastscala.db.keyed.uuid.{ SQLiteRowWithUUID, TableWithUUIDBase }
+import java.util.UUID
+
 import scalikejdbc.*
 
-import java.util.UUID
+import com.fastscala.db.keyed.uuid.{ SQLiteRowWithUUID, TableWithUUIDBase }
 
 trait SQLiteTableWithUUID[R <: SQLiteRowWithUUID[R]]
     extends SQLiteTable[R]

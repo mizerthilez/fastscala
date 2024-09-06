@@ -1,11 +1,11 @@
 package com.fastscala.demo.docs.js
 
+import java.util.UUID
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.js.Js
 import com.fastscala.xml.scala_xml.JS
-
-import java.util.UUID
 
 class JsUtilsPage extends MultipleCodeExamples2Page():
   override def pageTitle: String = "Js utils"

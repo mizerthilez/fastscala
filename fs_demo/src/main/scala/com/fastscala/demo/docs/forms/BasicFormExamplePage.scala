@@ -1,5 +1,7 @@
 package com.fastscala.demo.docs.forms
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.demo.docs.data.{ CountriesData, Country }
@@ -10,8 +12,6 @@ import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form6.*
 import com.fastscala.templates.form6.fields.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.given
-
-import scala.xml.NodeSeq
 
 class User1(
   var firstName: String,

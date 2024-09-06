@@ -1,7 +1,6 @@
 package com.fastscala.db.data
 
-object Countries {
-
+object Countries:
   def all = List(
     "Abkhazia",
     "Afghanistan",
@@ -258,6 +257,5 @@ object Countries {
     "Western Sahara",
     "Yemen",
     "Zambia",
-    "Zimbabwe"
+    "Zimbabwe",
   )
-}

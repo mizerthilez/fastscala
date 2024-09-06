@@ -1,8 +1,8 @@
 package com.fastscala.templates.bootstrap5.tables
 
-import com.fastscala.core.FSContext
-
 import scala.xml.Elem
+
+import com.fastscala.core.FSContext
 
 trait Table5ColsRenderable:
   type R

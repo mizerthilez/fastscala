@@ -1,10 +1,10 @@
 package com.fastscala.templates.bootstrap5.form6
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.templates.bootstrap5.classes.BSHelpers
 import com.fastscala.templates.form6.F6FormRenderer
 import com.fastscala.templates.form6.fields.*
-
-import scala.xml.{ Elem, NodeSeq }
 
 abstract class BSForm6Renderer:
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }

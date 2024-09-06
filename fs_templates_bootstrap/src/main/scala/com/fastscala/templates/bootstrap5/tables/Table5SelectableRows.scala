@@ -1,12 +1,12 @@
 package com.fastscala.templates.bootstrap5.tables
 
+import scala.util.chaining.scalaUtilChainingOps
+import scala.xml.Elem
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.utils.{ BSBtn, ImmediateInputFields }
 import com.fastscala.xml.scala_xml.JS
-
-import scala.util.chaining.scalaUtilChainingOps
-import scala.xml.Elem
 
 trait Table5SelectableRows extends Table5Base with Table5ColsLabeled:
   import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }

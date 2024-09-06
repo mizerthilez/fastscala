@@ -1,13 +1,14 @@
 package com.fastscala.demo.docs
 
-import com.fastscala.core.FSContext
-import com.fastscala.templates.bootstrap5.classes.BSHelpers
-import com.fastscala.xml.scala_xml.{ JS, ScalaXmlRenderableWithFSContext }
-import com.typesafe.config.ConfigFactory
-
 import scala.io.Source
 import scala.util.Try
 import scala.xml.NodeSeq
+
+import com.typesafe.config.ConfigFactory
+
+import com.fastscala.core.FSContext
+import com.fastscala.templates.bootstrap5.classes.BSHelpers
+import com.fastscala.xml.scala_xml.{ JS, ScalaXmlRenderableWithFSContext }
 
 trait BasePage extends ScalaXmlRenderableWithFSContext:
   val config = ConfigFactory.load()

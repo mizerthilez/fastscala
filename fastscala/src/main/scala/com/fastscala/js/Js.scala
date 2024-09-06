@@ -1,21 +1,16 @@
 package com.fastscala.js
 
-import com.fastscala.core.{ FSContext, FSXmlEnv }
-import com.fastscala.js.rerenderers.{
-  ContentRerenderer,
-  ContentRerendererP,
-  Rerenderer,
-  RerendererP,
-}
-import com.fastscala.utils.IdGen
-import org.apache.commons.text.StringEscapeUtils
+import java.util.Date
 
+import org.apache.commons.text.StringEscapeUtils
 import org.eclipse.jetty.http.{ HttpHeader, MimeTypes }
-import org.eclipse.jetty.server.Response
 import org.eclipse.jetty.io.Content
+import org.eclipse.jetty.server.Response
 import org.eclipse.jetty.util.BufferUtil
 
-import java.util.Date
+import com.fastscala.core.{ FSContext, FSXmlEnv }
+import com.fastscala.js.rerenderers.*
+import com.fastscala.utils.IdGen
 
 trait Js:
   def cmd: String

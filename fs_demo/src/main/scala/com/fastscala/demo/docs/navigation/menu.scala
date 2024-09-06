@@ -1,12 +1,12 @@
 package com.fastscala.demo.docs.navigation
 
-import com.fastscala.core.{ FSContext, FSSession }
-import com.fastscala.utils.IdGen
-import com.fastscala.xml.scala_xml.ScalaXmlRenderableWithFSContext
+import scala.xml.NodeSeq
 
 import org.eclipse.jetty.server.Request
 
-import scala.xml.NodeSeq
+import com.fastscala.core.{ FSContext, FSSession }
+import com.fastscala.utils.IdGen
+import com.fastscala.xml.scala_xml.ScalaXmlRenderableWithFSContext
 
 case class BSMenu(items: MenuItem*)(implicit renderer: BSMenuRenderer):
   def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)

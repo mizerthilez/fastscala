@@ -1,9 +1,11 @@
 package com.fastscala.core
 
-import com.fastscala.js.Js
-import com.fastscala.server.*
-import com.fastscala.stats.{ FSStats, StatEvent }
-import com.fastscala.utils.IdGen
+import java.net.URLEncoder
+import java.nio.file.{ Files, Path }
+import java.util.Collections
+
+import scala.jdk.CollectionConverters.{ IterableHasAsScala, MapHasAsScala }
+
 import com.typesafe.config.ConfigFactory
 import io.circe.{ Decoder, Json }
 import org.eclipse.jetty.http.*
@@ -14,10 +16,10 @@ import org.eclipse.jetty.websocket.api.Callback.Completable
 import org.eclipse.jetty.websocket.api.Session
 import org.slf4j.LoggerFactory
 
-import java.net.URLEncoder
-import java.nio.file.{ Files, Path }
-import java.util.Collections
-import scala.jdk.CollectionConverters.{ IterableHasAsScala, MapHasAsScala }
+import com.fastscala.js.Js
+import com.fastscala.server.*
+import com.fastscala.stats.{ FSStats, StatEvent }
+import com.fastscala.utils.IdGen
 
 class FSFunc(
   val id: String,
@@ -471,7 +473,7 @@ class FSSession(
   //  }
 
   val pages = collection.mutable.Map[String, FSPage]()
-  val anonymousPages = collection.mutable.Map[String, FSAnonymousPage[_]]()
+  val anonymousPages = collection.mutable.Map[String, FSAnonymousPage[?]]()
 
   def nPages(): Int = pages.size
 

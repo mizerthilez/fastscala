@@ -1,9 +1,10 @@
 package com.fastscala.db.keyed
 
-import com.fastscala.db.{ PgTable, TableWithId }
+import java.lang.reflect.Field
+
 import scalikejdbc.*
 
-import java.lang.reflect.Field
+import com.fastscala.db.{ PgTable, TableWithId }
 
 trait PgTableWithLongId[R <: RowWithLongId[R]]
     extends PgTable[R]

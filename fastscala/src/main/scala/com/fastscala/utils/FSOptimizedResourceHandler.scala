@@ -1,8 +1,5 @@
 package com.fastscala.utils
 
-import com.fastscala.core.FSXmlEnv
-import com.fastscala.server.*
-
 import java.awt.geom.AffineTransform
 import java.awt.image.{ AffineTransformOp, BufferedImage }
 import java.io.{ ByteArrayOutputStream, InputStream }
@@ -14,11 +11,14 @@ import javax.imageio.{ IIOImage, ImageIO, ImageWriteParam }
 
 import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.util.Using
 import scala.jdk.CollectionConverters.ListHasAsScala
+import scala.util.Using
 
 import org.eclipse.jetty.server.{ Request, Response as JettyServerResponse }
 import org.eclipse.jetty.util.{ Callback, IO }
+
+import com.fastscala.core.FSXmlEnv
+import com.fastscala.server.*
 
 object FSOptimizedResourceHandler:
   def cssLoaderUrl(files: String*): String = "/static/optimized/css_loader.css?" + files

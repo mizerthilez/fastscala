@@ -1,9 +1,10 @@
 package com.fastscala.db.caching
 
-import com.fastscala.db.{ RowWithId, RowWithIdBase }
 import scalikejdbc.interpolation.SQLSyntax
 
-trait TableCacheLike[K, R <: RowWithIdBase with RowWithId[K, R]]:
+import com.fastscala.db.{ RowWithId, RowWithIdBase }
+
+trait TableCacheLike[K, R <: RowWithIdBase & RowWithId[K, R]]:
   def values: Seq[R]
 
   def select(rest: SQLSyntax): List[R]

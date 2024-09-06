@@ -1,9 +1,10 @@
 package com.fastscala.db.keyed.uuid
 
-import com.fastscala.db.RowWithIdBase
+import java.util.UUID
+
 import scalikejdbc.*
 
-import java.util.UUID
+import com.fastscala.db.RowWithIdBase
 
 trait RowWithUuidIdBase extends RowWithIdBase:
   def table: TableWithUUIDBase[?]

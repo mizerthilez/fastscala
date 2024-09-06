@@ -1,9 +1,10 @@
 package com.fastscala.db.keyed.uuid
 
-import com.fastscala.db.{ PgTableWithUUID, Row, RowWithId }
+import java.util.UUID
+
 import scalikejdbc.*
 
-import java.util.UUID
+import com.fastscala.db.{ PgTableWithUUID, Row, RowWithId }
 
 trait PgRowWithUUID[R <: PgRowWithUUID[R]]
     extends Row[R]

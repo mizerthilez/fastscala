@@ -1,12 +1,12 @@
 package com.fastscala.templates.form5.fields
 
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form5.Form5
 import com.fastscala.templates.utils.ElemWithRandomId
 import com.fastscala.xml.scala_xml.JS
-
-import scala.xml.{ Elem, NodeSeq }
 
 trait FormField:
   def render()(implicit form: Form5, fsc: FSContext, hints: Seq[RenderHint]): Elem

@@ -1,10 +1,10 @@
 package com.fastscala.js.rerenderers
 
-import com.fastscala.core.{ FSContext, FSXmlEnv }
-import com.fastscala.js.{ Js, JsUtils, JsXmlUtils }
-import com.fastscala.utils.IdGen
-
 import scala.util.chaining.scalaUtilChainingOps
+
+import com.fastscala.core.{ FSContext, FSXmlEnv }
+import com.fastscala.js.JsUtils
+import com.fastscala.utils.IdGen
 
 class ContentRerendererP[Env <: FSXmlEnv, P](
   using val env: Env

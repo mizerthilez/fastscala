@@ -1,9 +1,10 @@
 package com.fastscala.templates.bootstrap5.icons
 
-import com.fastscala.xml.scala_xml.FSScalaXmlEnv
+import scala.xml.{ Elem, XML }
+
 import org.eclipse.jetty.util.IO
 
-import scala.xml.{ Elem, XML }
+import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 class BSIcon(val name: String):
   def clas = "bi-" + name

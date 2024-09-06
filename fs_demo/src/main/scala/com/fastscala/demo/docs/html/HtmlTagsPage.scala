@@ -57,6 +57,6 @@ class HtmlTagsPage extends MultipleCodeExamples2Page():
       import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
       h6.apply("h6 element")
     renderSnippet("Creating hr tags"):
-      import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+      import com.fastscala.templates.bootstrap5.classes.BSHelpers.*
       hr
     closeSnippet()

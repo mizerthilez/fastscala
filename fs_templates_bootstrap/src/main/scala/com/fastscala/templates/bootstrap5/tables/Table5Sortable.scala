@@ -1,11 +1,11 @@
 package com.fastscala.templates.bootstrap5.tables
 
+import scala.xml.Elem
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.utils.Lazy
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
-
-import scala.xml.Elem
 
 trait Table5Sortable extends Table5Base with Table5StandardColumns:
   def defaultSortCol: Option[C] = None

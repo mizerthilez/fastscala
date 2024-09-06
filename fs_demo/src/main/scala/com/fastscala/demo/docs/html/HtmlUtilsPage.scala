@@ -1,10 +1,10 @@
 package com.fastscala.demo.docs.html
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.js.Js
-
-import scala.xml.NodeSeq
 
 class HtmlUtilsPage extends MultipleCodeExamples2Page():
   override def pageTitle: String = "HTML Basics"

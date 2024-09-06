@@ -1,12 +1,12 @@
 package com.fastscala.demo.docs.components
 
+import scala.util.chaining.scalaUtilChainingOps
+import scala.xml.{ Elem, NodeSeq }
+
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
-
-import scala.util.chaining.scalaUtilChainingOps
-import scala.xml.{ Elem, NodeSeq }
 
 abstract class Widget:
   lazy val widgetId = IdGen.id("widget-")

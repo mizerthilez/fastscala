@@ -1,11 +1,11 @@
 package com.fastscala.demo.docs.tables
 
+import scala.xml.NodeSeq
+
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.demo.docs.data.{ CountriesData, Country }
 import com.fastscala.templates.bootstrap5.tables.*
-
-import scala.xml.NodeSeq
 
 class PaginatedTableExamplePage extends SingleCodeExamplePage():
   override def pageTitle: String = "Paginated Table Example"

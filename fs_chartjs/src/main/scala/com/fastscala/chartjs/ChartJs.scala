@@ -1,14 +1,15 @@
 package com.fastscala.chartjs
 
-import com.fastscala.js.Js
-import com.fastscala.utils.IdGen
-import com.fastscala.xml.scala_xml.JS
-import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
+import scala.xml.{ Elem, NodeSeq }
+
 import io.circe.generic.semiauto
 import io.circe.syntax.EncoderOps
 import io.circe.{ Encoder, Json }
 
-import scala.xml.{ Elem, NodeSeq }
+import com.fastscala.js.Js
+import com.fastscala.utils.IdGen
+import com.fastscala.xml.scala_xml.JS
+import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
 object ChartJsNullable2Option:
   implicit def nullable2Option[T <: AnyRef](v: T): Option[T] = if v == null then None else Some(v)
@@ -30,7 +31,6 @@ case class ChartJs(
   import ChartJsEncoders.*
 
   def installInCanvas(canvasId: String): Js =
-    import io.circe.generic.auto.*
     import io.circe.syntax.*
 
     Js(
