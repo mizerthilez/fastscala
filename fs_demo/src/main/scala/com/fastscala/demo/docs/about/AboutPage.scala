@@ -33,7 +33,7 @@ class AboutPage extends MultipleCodeExamples2Page:
         .d_flex
         .justify_content_between
         .align_items_center
-        .apply {
+        .apply:
           div.apply(
             "Interested in learning more about the FastScala framework? Register now for a free live demo/training here!:"
           ) ++
@@ -42,7 +42,7 @@ class AboutPage extends MultipleCodeExamples2Page:
               .href("https://training.fastscala.com/")
               .btnLink
               .ms_3
-        } ++
+      ++
         h3.apply("What is the FastScala framework?") ++
         <p>
           The FastScala web framework allows you to do <b>fast web application development</b> in Scala.
@@ -121,32 +121,28 @@ class AboutPage extends MultipleCodeExamples2Page:
       var numBtns = 3
       JS.rerenderableContents(rerenderer =>
         implicit fsc =>
-          val buttons = (0 until numBtns).map { btnNum =>
+          val buttons = (0 until numBtns).map: btnNum =>
             val points = btnNum + 1
             BSBtn().BtnSecondary.lg
               .lbl(points.toString)
               .onclick(JS.alert(points + " points"))
               .btn
               .mx_3
-          }
           d_flex.justify_content_center.apply(buttons*).mb_2 ++
-            d_flex.justify_content_center.apply {
+            d_flex.justify_content_center.apply:
               BSBtn().BtnPrimary.sm
                 .lbl("-")
-                .ajax { _ =>
+                .ajax: _ =>
                   numBtns -= 1
                   rerenderer.rerender()
-                }
                 .btn ++
                 BSBtn().BtnPrimary.sm
                   .lbl("+")
-                  .ajax { _ =>
+                  .ajax: _ =>
                     numBtns += 1
                     rerenderer.rerender()
-                  }
                   .btn
                   .ms_2
-            }
       ).render()
     renderSnippet(
       "Variable number of input buttons - more elegant/functional approach, with JS.rerenderableContentsP"
@@ -154,29 +150,27 @@ class AboutPage extends MultipleCodeExamples2Page:
       JS.rerenderableContentsP[Int](rerenderer =>
         implicit fsc =>
           numBtns =>
-            val buttons = (0 until numBtns).map(_ + 1).map { points =>
-              BSBtn().BtnSecondary.lg
-                .lbl(points.toString)
-                .onclick(JS.alert(points + " points"))
-                .btn
-                .mx_3
-            }
+            val buttons = (0 until numBtns)
+              .map(_ + 1)
+              .map: points =>
+                BSBtn().BtnSecondary.lg
+                  .lbl(points.toString)
+                  .onclick(JS.alert(points + " points"))
+                  .btn
+                  .mx_3
             d_flex.justify_content_center.apply(buttons*).mb_2 ++
-              d_flex.justify_content_center.apply {
+              d_flex.justify_content_center.apply:
                 BSBtn().BtnPrimary.sm
                   .lbl("-")
-                  .ajax { _ =>
+                  .ajax: _ =>
                     rerenderer.rerender(math.max(1, numBtns - 1))
-                  }
                   .btn ++
                   BSBtn().BtnPrimary.sm
                     .lbl("+")
-                    .ajax { _ =>
+                    .ajax: _ =>
                       rerenderer.rerender(math.min(10, numBtns + 1))
-                    }
                     .btn
                     .ms_2
-              }
       ).render(3)
     renderHtml():
       <p>
@@ -213,10 +207,12 @@ class AboutPage extends MultipleCodeExamples2Page:
         def render(): NodeSeq = definition
           .map(definition => <li><i>{definition}</i>{example.map(": " + _).getOrElse("")}</li>)
           .getOrElse(NodeSeq.Empty)
+
       case class Meaning(partOfSpeech: String, definitions: List[Definition]):
         def render(): NodeSeq = <li><i>{partOfSpeech}</i></li> ++
           <li>Definitions: <ul class="ms-2">{definitions.flatMap(_.render())}</ul></li>
             .showIf(definitions.nonEmpty)
+
       case class Response(
         word: String,
         phonetic: String,
@@ -225,12 +221,10 @@ class AboutPage extends MultipleCodeExamples2Page:
       ):
         def render(): NodeSeq = <h6>{word}</h6> ++
           <ul class="ms-2">
-            <li>Phonetic: {phonetic}</li>{
-            origin.map(origin => <li>Origin: {origin}</li>).getOrElse(NodeSeq.Empty)
-          }
+            <li>Phonetic: {phonetic}</li>
+            {origin.map(origin => <li>Origin: {origin}</li>).getOrElse(NodeSeq.Empty)}
             {
-            <li>Meanings: <ul class="ms-2">{meanings.flatMap(_.render())}</ul></li>
-              .showIf(meanings.nonEmpty)
+            <li>Meanings: <ul class="ms-2">{meanings.flatMap(_.render())}</ul></li>.showIf(meanings.nonEmpty)
           }
           </ul>.ms_2
       implicit val definitionDecoder: Decoder[Definition] = semiauto.deriveDecoder[Definition]
@@ -249,10 +243,10 @@ class AboutPage extends MultipleCodeExamples2Page:
                 )
                 val con = url.openConnection().asInstanceOf[HttpURLConnection]
                 con.setRequestMethod("GET")
+                // format: off
                 try
-                  Try(Source.fromInputStream(con.getInputStream).mkString).toEither.flatMap {
-                    json =>
-                      io.circe.parser.decode[List[Response]](json)
+                  Try(Source.fromInputStream(con.getInputStream).mkString).toEither.flatMap{ json =>
+                    io.circe.parser.decode[List[Response]](json)
                   } match
                     case Right(responses) => renderResponses(responses)
                     case Left(_: java.io.FileNotFoundException) =>
@@ -260,6 +254,7 @@ class AboutPage extends MultipleCodeExamples2Page:
                     case Left(value) => span.apply("Error when calling the API: " + value)
                 finally
                   Try(con.getInputStream.close())
+                // format: on
               case None => div.apply("...").text_center
       )
 

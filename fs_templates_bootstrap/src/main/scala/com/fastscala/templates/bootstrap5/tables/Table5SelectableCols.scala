@@ -32,18 +32,19 @@ trait Table5SelectableCols extends Table5Base with Table5ColsLabeled:
     onHidden = fsc.callback(() => rerenderTableAround()),
   )(modal =>
     implicit fsc =>
-      allColumns().map { col =>
-        ImmediateInputFields.checkbox(
-          () => currentSelectedCols().contains(col),
-          {
-            case true =>
-              currentSelectedCols() += col
-              JS.void
-            case false =>
-              currentSelectedCols() -= col
-              JS.void
-          },
-          colLabel(col),
-        )
-      }.mkNS
+      allColumns()
+        .map: col =>
+          ImmediateInputFields.checkbox(
+            () => currentSelectedCols().contains(col),
+            {
+              case true =>
+                currentSelectedCols() += col
+                JS.void
+              case false =>
+                currentSelectedCols() -= col
+                JS.void
+            },
+            colLabel(col),
+          )
+        .mkNS
   )

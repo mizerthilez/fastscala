@@ -1,6 +1,7 @@
 package com.fastscala.db.caching
 
 import scala.collection.mutable.ListBuffer
+import scala.reflect.Typeable
 
 import org.slf4j.LoggerFactory
 import scalikejdbc.interpolation.SQLSyntax
@@ -11,9 +12,9 @@ import com.fastscala.db.observable.{ DBObserver, ObservableRowBase }
 
 class Many2ManyCache[
   K,
-  L <: Row[L] & ObservableRowBase & RowWithId[K, L],
-  J <: Row[J] & ObservableRowBase & RowWithId[K, J],
-  R <: Row[R] & ObservableRowBase & RowWithId[K, R],
+  L <: Row[L] & ObservableRowBase & RowWithId[K, L]: Typeable,
+  J <: Row[J] & ObservableRowBase & RowWithId[K, J]: Typeable,
+  R <: Row[R] & ObservableRowBase & RowWithId[K, R]: Typeable,
 ](
   val cacheL: TableCache[K, L],
   val cacheJ: TableCache[K, J],
@@ -22,10 +23,8 @@ class Many2ManyCache[
   val getRight: J => K,
   val filterLeftOnJoin: K => SQLSyntax,
   val filterRightOnJoin: K => SQLSyntax,
-  val left2Right: collection.mutable.Map[L, ListBuffer[R]] =
-    collection.mutable.Map[L, ListBuffer[R]](),
-  val right2Left: collection.mutable.Map[R, ListBuffer[L]] =
-    collection.mutable.Map[R, ListBuffer[L]](),
+  val left2Right: collection.mutable.Map[L, ListBuffer[R]] = collection.mutable.Map[L, ListBuffer[R]](),
+  val right2Left: collection.mutable.Map[R, ListBuffer[L]] = collection.mutable.Map[R, ListBuffer[L]](),
 ) extends DBObserver:
   override def observingTables: Seq[Table[?]] =
     Seq[Table[?]](cacheL.table, cacheJ.table, cacheR.table)

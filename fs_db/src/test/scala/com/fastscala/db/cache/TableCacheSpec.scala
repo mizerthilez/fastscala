@@ -23,9 +23,8 @@ class TableCacheSpec extends AnyFlatSpec with PostgresDB:
     val country = new TableCache[java.lang.Long, Country](Country)
 
   "Create table" should "succeed" in {
-    DB.localTx { implicit session =>
-      Country.__createTableSQL.foreach(_.execute())
-    }
+    DB.localTx:
+      implicit session => Country.__createTableSQL.foreach(_.execute())
   }
   "Cache" should "store created row" in {
     implicit val cache = new DBCache()
@@ -41,7 +40,6 @@ class TableCacheSpec extends AnyFlatSpec with PostgresDB:
     assert(!cache.country.entries.contains(saved.id))
   }
   "Delete table" should "succeed" in {
-    DB.localTx { implicit session =>
-      Country.__dropTableSQL.execute()
-    }
+    DB.localTx:
+      implicit session => Country.__dropTableSQL.execute()
   }

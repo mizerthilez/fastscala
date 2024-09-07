@@ -18,12 +18,13 @@ trait TableBase:
 
   def sampleRow: Any
 
-  val fieldsList: List[Field] = sampleRow.getClass.getDeclaredFields.iterator.filter {
-    case field =>
-      !field.getAnnotations.exists(anno =>
-        Set("java.beans.Transient", "scala.transient").contains(anno.annotationType().getName)
-      )
-  }.toList
+  val fieldsList: List[Field] = sampleRow.getClass.getDeclaredFields.iterator
+    .filter:
+      case field =>
+        !field.getAnnotations.exists(anno =>
+          Set("java.beans.Transient", "scala.transient").contains(anno.annotationType().getName)
+        )
+    .toList
 
   def tableName =
     CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, sampleRow.getClass.getSimpleName)
@@ -174,10 +175,9 @@ trait TableBase:
 
   def __createTableSQL: List[SQL[Nothing, NoExtractor]] =
     val columns: String = fieldsList
-      .map { field =>
+      .map: field =>
         field.setAccessible(true)
         s""""${fieldName(field)}" ${fieldTypeToSQLType(field, field.getType, field.get(sampleRow))}"""
-      }
       .mkString("(", ",", ")")
 
     List(SQL(s"""CREATE TABLE IF NOT EXISTS ${s"\"$tableName\""} $columns"""))
@@ -193,7 +193,7 @@ trait TableBase:
 
   def __addMissingColumnsIfNotExistsWithDefaults(default: PartialFunction[Field, Any])
     : List[SQL[Nothing, NoExtractor]] =
-    fieldsList.map { field =>
+    fieldsList.map: field =>
       field.setAccessible(true)
       val dfltValue = if default.isDefinedAt(field) then Some(default(field)) else None
       val defaultSQL: SQLSyntax =
@@ -201,17 +201,15 @@ trait TableBase:
       val statement =
         sql"""ALTER TABLE ${SQLSyntax.createUnsafely(s"\"$tableName\"")} ADD COLUMN IF NOT EXISTS "${SQLSyntax.createUnsafely(fieldName(field))}" ${SQLSyntax.createUnsafely(fieldTypeToSQLType(field, field.getType, field.get(sampleRow)))} ${defaultSQL}""".stripMargin
       statement
-    }
 
   def __addMissingColumnsIfNotExistsWithDefaultsFromSampleRow(): List[SQL[Nothing, NoExtractor]] =
-    fieldsList.map { field =>
+    fieldsList.map: field =>
       field.setAccessible(true)
       val dfltValue = field.get(sampleRow)
       val defaultSQL: SQLSyntax = sqls"default " + valueToLiteral(dfltValue)
       val statement =
         sql"""ALTER TABLE ${SQLSyntax.createUnsafely(s"\"$tableName\"")} ADD COLUMN IF NOT EXISTS "${SQLSyntax.createUnsafely(fieldName(field))}" ${SQLSyntax.createUnsafely(fieldTypeToSQLType(field, field.getType, field.get(sampleRow)))} ${defaultSQL}""".stripMargin
       statement
-    }
 
   def __dropTableSQL: SQL[Nothing, NoExtractor] = SQL(s"""drop table ${s"\"$tableName\""}""")
 
@@ -293,9 +291,8 @@ trait TableBase:
 
   def fromWrappedResultSet(rs: WrappedResultSet): Any =
     val instance = createEmptyRowInternal()
-    fieldsList.zipWithIndex.foreach {
+    fieldsList.zipWithIndex.foreach:
       case (field, idx) =>
         field.setAccessible(true)
         setValue(rs, idx + 1, field, field.getType, instance)
-    }
     instance

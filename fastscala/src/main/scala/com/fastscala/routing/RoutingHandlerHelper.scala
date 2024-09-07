@@ -114,9 +114,8 @@ trait Response:
     this
 
   def addHeaders(headers: (String, String)*): this.type =
-    headers.foreach {
+    headers.foreach:
       case (name, value) => addHeader(name, value)
-    }
     this
 
   def respond(response: JettyServerResponse, callback: Callback): Boolean =
@@ -369,74 +368,55 @@ class OkTextBased(text: String, val contentType: String) extends TextResponse:
   override def contents: String = text
 
 object RoutingHandlerHelper:
-  trait Method
+  trait Method(methodName: String):
+    def unapplySeq(req: Request): Option[Seq[String]] =
+      Some(req.getHttpURI.getPath.replaceAll("^/", "").split("/").toList.filter(_ != "")).filter(_ =>
+        req.getMethod == methodName
+      )
 
   object Method:
     def fromString: PartialFunction[String, Method] =
-      case "GET" => GET
-      case "HEAD" => HEAD
-      case "POST" => POST
-      case "PUT" => PUT
-      case "DELETE" => DELETE
-      case "CONNECT" => CONNECT
-      case "OPTIONS" => OPTIONS
-      case "TRACE" => TRACE
-      case "PATCH" => PATCH
-
-  object GET extends Method
-
-  object HEAD extends Method
-
-  object POST extends Method
-
-  object PUT extends Method
-
-  object DELETE extends Method
-
-  object CONNECT extends Method
-
-  object OPTIONS extends Method
-
-  object TRACE extends Method
-
-  object PATCH extends Method
-
-  abstract class UnapplyHelper1(methodName: String):
-    def unapplySeq(req: Request): Option[Seq[String]] =
-      Some(req.getHttpURI.getPath.replaceAll("^/", "").split("/").toList.filter(_ != "")).filter(
-        _ => req.getMethod == methodName
-      )
+      case "GET" => Get
+      case "HEAD" => Head
+      case "POST" => Post
+      case "PUT" => Put
+      case "DELETE" => Delete
+      case "CONNECT" => Connect
+      case "OPTIONS" => Options
+      case "TRACE" => Trace
+      case "PATCH" => Patch
 
   object Req:
     def unapply(req: Request): Option[(Method, List[String], String, Boolean)] =
-      Method.fromString.unapply(req.getMethod).map { method =>
-        val path = req.getHttpURI.getPath
-        val ext = path.replaceAll(".*\\.(\\w+)$", "$1").toLowerCase
-        (
-          method,
-          path.replaceAll("^/", "").replaceAll(s"\\.$ext$$", "").split("/").toList.filter(_ != ""),
-          ext,
-          path.endsWith("/"),
-        )
-      }
+      Method.fromString
+        .unapply(req.getMethod)
+        .map: method =>
+          val path = req.getHttpURI.getPath
+          val ext = path.replaceAll(".*\\.(\\w+)$", "$1").toLowerCase
+          (
+            method,
+            path.replaceAll("^/", "").replaceAll(s"\\.$ext$$", "").split("/").toList.filter(_ != ""),
+            ext,
+            path.endsWith("/"),
+          )
 
-  object Get extends UnapplyHelper1("GET")
+  object Get extends Method("GET")
 
-  object Head extends UnapplyHelper1("HEAD")
+  object Head extends Method("HEAD")
 
-  object Post extends UnapplyHelper1("POST")
+  object Post extends Method("POST")
 
-  object Put extends UnapplyHelper1("PUT")
+  object Put extends Method("PUT")
 
-  object Delete extends UnapplyHelper1("DELETE")
+  object Delete extends Method("DELETE")
 
-  object Connect extends UnapplyHelper1("CONNECT")
+  object Connect extends Method("CONNECT")
 
-  object Options extends UnapplyHelper1("OPTIONS")
+  object Options extends Method("OPTIONS")
 
-  object Trace extends UnapplyHelper1("TRACE")
+  object Trace extends Method("TRACE")
 
-  object Patch extends UnapplyHelper1("PATCH")
+  object Patch extends Method("PATCH")
 
   def onlyHandleHtmlRequests(handle: => Option[Response])(implicit req: Request): Option[Response] =
     if Option(req.getHeaders.get(HttpHeader.ACCEPT)).getOrElse("").contains("text/html") then handle
@@ -446,12 +426,10 @@ abstract class RoutingHandlerNoSessionHelper extends Handler.Abstract:
   def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request)
     : Option[Response]
 
-  override def handle(request: Request, response: JettyServerResponse, callback: Callback)
-    : Boolean =
+  override def handle(request: Request, response: JettyServerResponse, callback: Callback): Boolean =
     handlerNoSession(response, callback)(request)
-      .map { resp =>
+      .map: resp =>
         resp.respond(response, callback)
-      }
       .getOrElse(false)
 
 abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandlerNoSessionHelper:
@@ -482,8 +460,7 @@ abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandl
     session: FSSession,
   ): Option[Response]
 
-  override def handle(request: Request, response: JettyServerResponse, callback: Callback)
-    : Boolean =
+  override def handle(request: Request, response: JettyServerResponse, callback: Callback): Boolean =
     handlerNoSession(response, callback)(request) match
       case Some(resp) =>
         resp.respond(response, callback)
@@ -492,11 +469,9 @@ abstract class RoutingHandlerHelper(implicit fss: FSSystem) extends RoutingHandl
           .inSession { implicit session =>
             handlerInSession(response, callback)(request, session)
           }(request)
-          .flatMap {
+          .flatMap:
             case (cookies, resp) =>
               cookies.foreach(JettyServerResponse.addCookie(response, _))
-              resp.map { resp =>
+              resp.map: resp =>
                 resp.respond(response, callback)
-              }
-          }
           .getOrElse(false)

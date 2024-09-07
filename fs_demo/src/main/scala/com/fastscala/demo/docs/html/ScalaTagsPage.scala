@@ -35,15 +35,15 @@ class ScalaTagsPage extends MultipleCodeExamples2Page():
       BSBtn().BtnPrimary
         .lbl("Open Modal")
         .ajax(implicit fsc =>
-          BSModal5.verySimple("Simple modal", "Close") { modal => implicit fsc =>
-            import scalatags.Text.all.*
-            div(
-              p(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id elit velit. Proin convallis ultrices nisi ac fermentum."
-              ),
-              p("Nunc a lobortis arcu. Nullam cursus dapibus risus in pulvinar."),
-            )
-          }
+          BSModal5.verySimple("Simple modal", "Close"): modal =>
+            implicit fsc =>
+              import scalatags.Text.all.*
+              div(
+                p(
+                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id elit velit. Proin convallis ultrices nisi ac fermentum."
+                ),
+                p("Nunc a lobortis arcu. Nullam cursus dapibus risus in pulvinar."),
+              )
         )
         .btn
     closeSnippet()

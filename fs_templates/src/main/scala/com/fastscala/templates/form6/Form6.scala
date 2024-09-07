@@ -34,8 +34,10 @@ trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRan
 
   def focusFirstFocusableFieldJs(): Js =
     rootField
-      .fieldsMatching { case _: FocusableF6Field => true }
-      .collectFirst { case fff: FocusableF6Field => fff }
+      .fieldsMatching:
+        case _: FocusableF6Field => true
+      .collectFirst:
+        case fff: FocusableF6Field => fff
       .map(_.focusJs)
       .getOrElse(Js.void)
 
@@ -59,10 +61,9 @@ trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRan
   def onSaveServerSide()(implicit fsc: FSContext): Js =
     if fsc != fsc.page.rootFSContext then onSaveServerSide()(fsc.page.rootFSContext)
     else
-      val hasErrors = rootField.enabledFields.exists {
+      val hasErrors = rootField.enabledFields.exists:
         case field: ValidatableF6Field => field.hasErrors_?()
         case _ => false
-      }
       implicit val renderHints: Seq[RenderHint] = formRenderHits() :+ OnSaveRerender
       if hasErrors then
         rootField.onEvent(ErrorsOnSave) &

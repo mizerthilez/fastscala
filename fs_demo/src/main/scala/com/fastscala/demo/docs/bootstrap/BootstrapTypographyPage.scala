@@ -63,12 +63,11 @@ class BootstrapTypographyPage extends MultipleCodeExamples2Page():
           li.apply("Item 5") ++
           li.apply(
             p.apply("Nested list:") ++
-              ul.apply {
+              ul.apply:
                 li.apply("Item 1") ++
                   li.apply("Item 2") ++
                   li.apply("Item 3") ++
                   li.apply("Item 4") ++
                   li.apply("Item 5")
-              }
           )
     closeSnippet()

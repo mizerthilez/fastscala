@@ -112,12 +112,12 @@ class FSContext(
               throw ex
         case None => page.wsQueue = js :: page.wsQueue
 
-  def createNewChildContextAndGCExistingOne(key: AnyRef, debugLabel: Option[String] = None)
-    : FSContext =
-    page.key2FSContext.get(key).foreach { existing =>
-      children -= existing
-      existing.gc()
-    }
+  def createNewChildContextAndGCExistingOne(key: AnyRef, debugLabel: Option[String] = None): FSContext =
+    page.key2FSContext
+      .get(key)
+      .foreach: existing =>
+        children -= existing
+        existing.gc()
     val newContext = new FSContext(session, page, Some(this), debugLbl = debugLabel)
     page.key2FSContext(key) = newContext
     logger.debug(s"Creating context ${newContext.fullPath}")
@@ -360,9 +360,8 @@ class FSPage(
     val currentFunctions = functions.toVector
     val functionsToRemove = currentFunctions.filter(_._2.keepAliveAt < keepAliveOlderThan)
     functions --= functionsToRemove.map(_._1)
-    functionsToRemove.foreach {
+    functionsToRemove.foreach:
       case (_, f) => f.fsc.functionsGenerated -= f.id
-    }
     session.fsSystem.stats.event(StatEvent.GC_CALLBACK, n = functionsToRemove.size)
     // logger.info(s"Removed ${functionsToRemove.size} functions")
 
@@ -370,9 +369,8 @@ class FSPage(
     val functionsFileUploadToRemove =
       currentFunctionsFileUpload.filter(_._2.keepAliveAt < keepAliveOlderThan)
     functionsFileUpload --= functionsFileUploadToRemove.map(_._1)
-    functionsFileUploadToRemove.foreach {
+    functionsFileUploadToRemove.foreach:
       case (_, f) => f.fsc.functionsFileUploadGenerated -= f.id
-    }
     session.fsSystem.stats.event(StatEvent.GC_FILE_UPLOAD, n = functionsFileUploadToRemove.size)
     // logger.info(s"Removed ${functionsFileUploadToRemove.size} functions")
 
@@ -380,9 +378,8 @@ class FSPage(
     val functionsFileDownloadToRemove =
       currentFunctionsFileDownload.filter(_._2.keepAliveAt < keepAliveOlderThan)
     functionsFileDownload --= functionsFileDownloadToRemove.map(_._1)
-    functionsFileDownloadToRemove.foreach {
+    functionsFileDownloadToRemove.foreach:
       case (_, f) => f.fsc.functionsFileDownloadGenerated -= f.id
-    }
     session.fsSystem.stats.event(StatEvent.GC_FILE_DOWNLOAD, n = functionsFileDownloadToRemove.size)
     // logger.info(s"Removed ${functionsFileDownloadToRemove.size} functions")
 
@@ -391,10 +388,11 @@ object FSSession:
 
 abstract class FSSessionVar[T](default: => T):
   def apply()(implicit hasSession: FSHasSession): T =
-    hasSession.session.getDataOpt(this).getOrElse {
-      hasSession.session.setData(this, default)
-      apply()
-    }
+    hasSession.session
+      .getDataOpt(this)
+      .getOrElse:
+        hasSession.session.setData(this, default)
+        apply()
 
   def update(value: T)(implicit hasSession: FSHasSession): Unit =
     hasSession.session.setData(this, value)
@@ -542,8 +540,7 @@ class FSSystem(
 
   val FSPrefix = "fs"
 
-  def inSession[T](inSession: FSSession => T)(implicit req: Request)
-    : Option[(List[HttpCookie], T)] =
+  def inSession[T](inSession: FSSession => T)(implicit req: Request): Option[(List[HttpCookie], T)] =
     val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
     cookies
       .filter(_.getName == FSSessionIdCookieName)
@@ -571,14 +568,12 @@ class FSSystem(
 
   def handleCallbackException(ex: Throwable): Js =
     ex.printStackTrace()
-    if __fsSystem.debug then
-      Js.alert(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
+    if __fsSystem.debug then Js.alert(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
     else Js.alert(s"Internal error")
 
   def handleFileUploadCallbackException(ex: Throwable): Js =
     ex.printStackTrace()
-    if __fsSystem.debug then
-      Js.alert(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
+    if __fsSystem.debug then Js.alert(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
     else Js.alert(s"Internal error")
 
   def handleFileDownloadCallbackException(ex: Throwable): Response =
@@ -623,8 +618,9 @@ class FSSystem(
                     implicit val __fsContextOpt: Option[FSContext] = __fsFuncOpt.map(_.fsc)
                     fsFunc.keepAlive()
                     val start = System.currentTimeMillis()
-                    Content.Source.asStringAsync(req, Request.getCharset(req)).whenComplete {
-                      (arg, failure) =>
+                    Content.Source
+                      .asStringAsync(req, Request.getCharset(req))
+                      .whenComplete: (arg, failure) =>
                         val rslt: Js = Option(failure) match
                           case Some(failure) =>
                             handleCallbackException(failure)
@@ -639,23 +635,19 @@ class FSSystem(
                           additionalFields = Seq("func_name" -> fsFunc.fullPath),
                         )
                         Ok.js(rslt).respond(response, callback)
-                    }
                     VoidResponse
                   }
-                  .getOrElse {
+                  .getOrElse:
                     stats.event(StatEvent.NOT_FOUND_CALLBACK)
                     onFuncNotFoundForAjaxReq(funcId)(page, req)
-                  }
               }
-              .getOrElse {
+              .getOrElse:
                 stats.event(StatEvent.NOT_FOUND_PAGE)
                 onPageNotFoundForAjaxReq(pageId, funcId)(session, req)
-              }
           }
-          .getOrElse {
+          .getOrElse:
             stats.event(StatEvent.NOT_FOUND_SESSION)
             onSessionNotFoundForAjaxReq(sessionIdOpt)
-          }
 
       case Post(FSPrefix, "file-upload", pageId, funcId) =>
         implicit val __fsSessionOpt: Option[FSSession] = None
@@ -683,32 +675,32 @@ class FSSystem(
                       // avoid to read the file content (which can be large) in memory.
                       parser.setFilesDirectory(Path.of(System.getProperty("java.io.tmpdir")))
                       // Convert the request content into parts.
-                      parser.parse(req).whenComplete { (parts, failure) =>
-                        val rslt: Js = Option(failure) match
-                          case Some(failure) =>
-                            handleFileUploadCallbackException(failure)
-                          case None =>
-                            fSFileUpload.func(
-                              parts.asScala
-                                .map(part =>
-                                  try
-                                    new FSUploadedFile(
-                                      name = part.getName,
-                                      submittedFileName = part.getFileName,
-                                      contentType = part.getHeaders.get(HttpHeader.CONTENT_TYPE),
-                                      content =
-                                        Content.Source.asByteBuffer(part.getContentSource).array,
-                                    )
-                                  finally
+                      parser
+                        .parse(req)
+                        .whenComplete: (parts, failure) =>
+                          val rslt: Js = Option(failure) match
+                            case Some(failure) =>
+                              handleFileUploadCallbackException(failure)
+                            case None =>
+                              fSFileUpload.func(
+                                parts.asScala
+                                  .map(part =>
                                     try
-                                      part.close()
+                                      new FSUploadedFile(
+                                        name = part.getName,
+                                        submittedFileName = part.getFileName,
+                                        contentType = part.getHeaders.get(HttpHeader.CONTENT_TYPE),
+                                        content = Content.Source.asByteBuffer(part.getContentSource).array,
+                                      )
                                     finally
-                                      part.delete()
-                                )
-                                .toSeq
-                            )
-                        Ok.js(rslt).respond(response, callback)
-                      }
+                                      try
+                                        part.close()
+                                      finally
+                                        part.delete()
+                                  )
+                                  .toSeq
+                              )
+                          Ok.js(rslt).respond(response, callback)
                       VoidResponse
                     else Ok.js(Js.alert("Not multipart form data"))
 
@@ -719,62 +711,57 @@ class FSSystem(
                 stats.event(StatEvent.NOT_FOUND_PAGE)
                 onPageNotFoundForAjaxReq(pageId, funcId)(session, req)
           }
-          .getOrElse {
+          .getOrElse:
             stats.event(StatEvent.NOT_FOUND_SESSION)
             onSessionNotFoundForAjaxReq(sessionIdOpt)
-          }
 
       // File downloads:
       case Get(FSPrefix, "file-download", pageId, funcId, _) =>
         sessionOpt
-          .map { implicit session =>
-            session.pages.get(pageId) match
-              case Some(page) =>
-                page.functionsFileDownload.get(funcId) match
-                  case Some(fSFileDownload) =>
-                    fSFileDownload.keepAlive()
-                    try
-                      val bytes = fSFileDownload.func()
-                      Ok.binaryWithContentType(bytes, fSFileDownload.contentType)
-                    catch case ex: Exception => handleFileDownloadCallbackException(ex)
-                  case None =>
-                    stats.event(StatEvent.NOT_FOUND_FILE_DOWNLOAD)
-                    onFuncNotFoundForStdReq(pageId, funcId)(session, req)
-              case None =>
-                stats.event(StatEvent.NOT_FOUND_PAGE)
-                onPageNotFoundForStdReq(pageId)(session, req)
-          }
-          .getOrElse {
+          .map:
+            implicit session =>
+              session.pages.get(pageId) match
+                case Some(page) =>
+                  page.functionsFileDownload.get(funcId) match
+                    case Some(fSFileDownload) =>
+                      fSFileDownload.keepAlive()
+                      try
+                        val bytes = fSFileDownload.func()
+                        Ok.binaryWithContentType(bytes, fSFileDownload.contentType)
+                      catch case ex: Exception => handleFileDownloadCallbackException(ex)
+                    case None =>
+                      stats.event(StatEvent.NOT_FOUND_FILE_DOWNLOAD)
+                      onFuncNotFoundForStdReq(pageId, funcId)(session, req)
+                case None =>
+                  stats.event(StatEvent.NOT_FOUND_PAGE)
+                  onPageNotFoundForStdReq(pageId)(session, req)
+          .getOrElse:
             stats.event(StatEvent.NOT_FOUND_SESSION)
             onSessionNotFoundForStdReq(sessionIdOpt)
-          }
 
       // Anonymous pages:
       case Get(FSPrefix, "anon", anonymousPageId, _) =>
         sessionOpt
-          .map { implicit session =>
-            session.anonymousPages
-              .get(anonymousPageId)
-              .map { anonymousPage =>
-                anonymousPage.keepAlive()
-                val nodeSeqStr = session.createPage(
-                  implicit fsc => anonymousPage.renderAsString,
-                  onPageUnload = () => anonymousPage.onPageUnload(),
-                  debugLbl = Some(
-                    s"page for anon page ${anonymousPage.debugLbl.getOrElse(s"with id ${anonymousPage.id}")}"
-                  ),
-                )
-                Ok(nodeSeqStr)
-              }
-              .getOrElse {
-                stats.event(StatEvent.NOT_FOUND_ANON_PAGE)
-                onAnonymousPageNotFoundForStdReq(anonymousPageId)
-              }
-          }
-          .getOrElse {
+          .map:
+            implicit session =>
+              session.anonymousPages
+                .get(anonymousPageId)
+                .map: anonymousPage =>
+                  anonymousPage.keepAlive()
+                  val nodeSeqStr = session.createPage(
+                    implicit fsc => anonymousPage.renderAsString,
+                    onPageUnload = () => anonymousPage.onPageUnload(),
+                    debugLbl = Some(
+                      s"page for anon page ${anonymousPage.debugLbl.getOrElse(s"with id ${anonymousPage.id}")}"
+                    ),
+                  )
+                  Ok(nodeSeqStr)
+                .getOrElse:
+                  stats.event(StatEvent.NOT_FOUND_ANON_PAGE)
+                  onAnonymousPageNotFoundForStdReq(anonymousPageId)
+          .getOrElse:
             stats.event(StatEvent.NOT_FOUND_SESSION)
             onSessionNotFoundForStdReq(sessionIdOpt)
-          }
 
   def onSessionNotFoundForAjaxReq(sessionId: Option[String])(implicit req: Request): Response =
     logger.warn(s"Session not found: session_id=$sessionId, evt_type=session_id_not_found")
@@ -820,8 +807,7 @@ class FSSystem(
       else Js.confirm(s"Page $pageId not found", Js.redirectTo("/"))
     Ok.js(js)
 
-  def onPageNotFoundForWebsocketReq(sessionId: String, pageId: String)(implicit session: Session)
-    : Js =
+  def onPageNotFoundForWebsocketReq(sessionId: String, pageId: String)(implicit session: Session): Js =
     logger.warn(
       s"Page not found: session_id=$sessionId, page_id=$pageId, evt_type=page_id_not_found"
     )
@@ -864,8 +850,7 @@ class FSSystem(
     )
     Redirect.temporaryRedirect("/")
 
-  def onAnonymousPageNotFoundForStdReq(anonymousPageId: String)(implicit session: FSSession)
-    : Response =
+  def onAnonymousPageNotFoundForStdReq(anonymousPageId: String)(implicit session: FSSession): Response =
     logger.warn(
       s"Anonymous page not found: session_id=${session.id}, anonymous_page_id=$anonymousPageId, evt_type=anonymous_page_id_not_found"
     )

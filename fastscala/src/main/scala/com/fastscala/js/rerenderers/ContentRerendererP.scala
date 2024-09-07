@@ -21,13 +21,13 @@ class ContentRerendererP[Env <: FSXmlEnv, P](
 
   def render(param: P)(implicit fsc: FSContext) =
     rootRenderContext = Some(fsc)
-    outterElem.withIdIfNotSet(aroundId).pipe { elem =>
-      elem.withContents(renderFunc(this) {
-        if gcOldFSContext then
-          fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
-        else fsc
-      }(param))
-    }
+    outterElem
+      .withIdIfNotSet(aroundId)
+      .pipe: elem =>
+        elem.withContents(renderFunc(this) {
+          if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
+          else fsc
+        }(param))
 
   def rerender(param: P) = JsUtils.generic.replace(
     aroundId,

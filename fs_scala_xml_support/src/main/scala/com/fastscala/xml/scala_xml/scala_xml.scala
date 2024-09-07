@@ -39,8 +39,8 @@ object FSScalaXmlEnv extends FSXmlEnv:
 
   override def render(elem: NodeSeq): String = elem.toString()
 
-  override def transformAttribute(elem: Elem, attrName: String, transform: Option[String] => String)
-    : Elem = attributeTransform(elem, attrName, transform)
+  override def transformAttribute(elem: Elem, attrName: String, transform: Option[String] => String): Elem =
+    attributeTransform(elem, attrName, transform)
 
   override def attribute(elem: Elem, attrName: String): Option[String] =
     elem.attributes.get(attrName).map(_.mkString(""))
@@ -62,8 +62,7 @@ object FSScalaXmlEnv extends FSXmlEnv:
 
   override def Empty: NodeSeq = NodeSeq.Empty
 
-  private def attributeTransform(elem: Elem, attrName: String, transform: Option[String] => String)
-    : Elem =
+  private def attributeTransform(elem: Elem, attrName: String, transform: Option[String] => String): Elem =
 
     def updateMetaData(
       metaData: MetaData = Option(elem.attributes).getOrElse(Null),
@@ -98,11 +97,9 @@ object FSScalaXmlEnv extends FSXmlEnv:
         new UnprefixedAttribute(key, value, updateMetaData(next, found))
     new Elem(elem.prefix, elem.label, updateMetaData(), elem.scope, elem.minimizeEmpty, elem.child*)
 
-  extension (elem: scala.xml.Elem)
-    def asFSXml[E <: FSXmlEnv](using e: E): e.Elem = e.buildElemFrom(elem)
+  extension (elem: scala.xml.Elem) def asFSXml[E <: FSXmlEnv](using e: E): e.Elem = e.buildElemFrom(elem)
 
-  extension (ns: scala.xml.NodeSeq)
-    def asFSXml[E <: FSXmlEnv](using e: E): e.NodeSeq = e.buildNodeSeqFrom(ns)
+  extension (ns: scala.xml.NodeSeq) def asFSXml[E <: FSXmlEnv](using e: E): e.NodeSeq = e.buildNodeSeqFrom(ns)
 
   given [E <: FSXmlEnv](using e: E): Conversion[scala.xml.NodeSeq, e.NodeSeq] =
     ns => e.buildUnparsed(ns.toString())

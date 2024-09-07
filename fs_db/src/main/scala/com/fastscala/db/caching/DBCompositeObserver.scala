@@ -12,10 +12,9 @@ trait DBCompositeObserver extends DBObserver:
       .filter(f => classOf[DBObserver].isAssignableFrom(f.getType))
       .toVector
     // println("CACHES:\n" + fields.map(_.getName).sorted.mkString("\n"))
-    fields.map { f =>
+    fields.map: f =>
       f.setAccessible(true)
       f.get(this).asInstanceOf[DBObserver]
-    }
 
   private lazy val table2Observers: Map[TableBase, Seq[DBObserver]] = allObservers
     .flatMap(obs => obs.observingTables.map(t => t -> obs))

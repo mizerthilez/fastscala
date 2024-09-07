@@ -27,7 +27,7 @@ class AuthorPage extends LoggedInPage():
             .justify_content_between
             .align_items_center
             .mb_5
-            .apply {
+            .apply:
               div.apply(
                 "Interested in learning more about the FastScala framework? Register now for a free live demo/training here!:"
               ) ++
@@ -36,10 +36,10 @@ class AuthorPage extends LoggedInPage():
                   .href("https://training.fastscala.com/")
                   .btnLink
                   .ms_3
-            } ++
+          ++
           h2.apply("FastScala Author") ++
           row.apply:
-            col_md_6.apply {
+            col_md_6.apply:
               <p>
               FastScala is developed by me, David Antunes. I started programming with Scala on 2012 and have been working both on startups as well as
                 big companies developing in Scala.
@@ -49,6 +49,6 @@ class AuthorPage extends LoggedInPage():
                 <pre>david at fastscala.com</pre>.d_inline
               }.
             </p>
-            } ++
+            ++
               col_md_6.text_center.apply:
                 <img src="/static/images/david_antunes.png" class="bd-placeholder-img img-thumbnail" width="200px" height="200px"></img>

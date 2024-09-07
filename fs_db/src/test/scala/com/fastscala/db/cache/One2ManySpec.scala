@@ -41,10 +41,10 @@ class One2ManySpec extends AnyFlatSpec with PostgresDB:
     )
 
   "Create tables" should "succeed" in {
-    DB.localTx { implicit session =>
-      Teacher.__createTableSQL.foreach(_.execute())
-      Class.__createTableSQL.foreach(_.execute())
-    }
+    DB.localTx:
+      implicit session =>
+        Teacher.__createTableSQL.foreach(_.execute())
+        Class.__createTableSQL.foreach(_.execute())
   }
   val alice = new Teacher("Alice")
   val bob = new Teacher("Bob")
@@ -79,8 +79,8 @@ class One2ManySpec extends AnyFlatSpec with PostgresDB:
     assert(cache.class2Teacher.getOne(grade9) == Some(alice))
   }
   "Delete tables" should "succeed" in {
-    DB.localTx { implicit session =>
-      Teacher.__dropTableSQL.execute()
-      Class.__dropTableSQL.execute()
-    }
+    DB.localTx:
+      implicit session =>
+        Teacher.__dropTableSQL.execute()
+        Class.__dropTableSQL.execute()
   }

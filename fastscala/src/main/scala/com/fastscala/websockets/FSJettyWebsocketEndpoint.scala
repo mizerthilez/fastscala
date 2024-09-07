@@ -25,11 +25,11 @@ class FSJettyWebsocketEndpoint(implicit fss: FSSystem):
     do
       fss.sessions
         .get(sessionId)
-        .map { fsSession =>
+        .map: fsSession =>
           fsSession.pages
             .get(pageId)
-            .map { page =>
-              page.wsLock.synchronized {
+            .map: page =>
+              page.wsLock.synchronized:
                 page.wsSession = Some(session)
                 FSJettyWebsocketEndpoint.logger.info(
                   s"Websocket session[sessionId=$sessionId, pageId=$pageId] opened"
@@ -37,15 +37,10 @@ class FSJettyWebsocketEndpoint(implicit fss: FSSystem):
                 if page.wsQueue.nonEmpty then
                   sendText(page.wsQueue.reverse.reduce(_ & _).cmd)
                   page.wsQueue = Nil
-              }
-            }
-            .getOrElse {
+            .getOrElse:
               sendText(fss.onPageNotFoundForWebsocketReq(sessionId, pageId).cmd)
-            }
-        }
-        .getOrElse {
+        .getOrElse:
           sendText(fss.onSessionNotFoundForWebsocketReq(sessionId).cmd)
-        }
 
   @OnWebSocketError
   def onError(t: Throwable): Unit =

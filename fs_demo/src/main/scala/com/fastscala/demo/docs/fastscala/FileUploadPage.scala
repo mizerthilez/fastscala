@@ -21,7 +21,7 @@ class FileUploadPage extends SingleCodeExamplePage():
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     JS.rerenderable(rerenderer =>
       implicit fsc =>
-        div.border.p_2.rounded.apply {
+        div.border.p_2.rounded.apply:
           UploadedImage() match
             case Some(uploadedFile) =>
               h3.apply("Uploaded image:") ++
@@ -32,10 +32,8 @@ class FileUploadPage extends SingleCodeExamplePage():
                 }></img>.mx_auto.my_4.d_block
             case None =>
               h3.apply("Upload an image:") ++
-                FileUpload { uploadedFile =>
+                FileUpload: uploadedFile =>
                   UploadedImage() = uploadedFile.head
                   rerenderer.rerender()
-                }
-        }
     ).render()
     // === code snippet ===

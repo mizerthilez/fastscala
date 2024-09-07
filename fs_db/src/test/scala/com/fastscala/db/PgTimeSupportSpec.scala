@@ -20,41 +20,39 @@ class PgTimeSupportSpec extends AnyFlatSpec with PostgresDB:
   val tomorrow = today.plusDays(1)
 
   "Create table" should "succeed" in {
-    DB.localTx { implicit session =>
-      TestEntity6.__createTableSQL.foreach(_.execute())
-    }
+    DB.localTx:
+      implicit session => TestEntity6.__createTableSQL.foreach(_.execute())
   }
   "Save row" should "succeed" in {
-    DB.localTx { implicit session =>
-      val saved = new TestEntity6(today).save()
-      assert(saved.uuid.isDefined)
-    }
+    DB.localTx:
+      implicit session =>
+        val saved = new TestEntity6(today).save()
+        assert(saved.uuid.isDefined)
   }
   "Read row" should "succeed" in {
-    DB.localTx { implicit session =>
-      val single = TestEntity6.selectAll().head
+    DB.localTx:
+      implicit session =>
+        val single = TestEntity6.selectAll().head
 
-      assert(single.myDate == today)
-      assert(single.myDate != tomorrow)
-    }
+        assert(single.myDate == today)
+        assert(single.myDate != tomorrow)
   }
   "Update row" should "succeed" in {
-    DB.localTx { implicit session =>
-      val single = TestEntity6.selectAll().head
-      single.myDate = tomorrow
-      single.update()
+    DB.localTx:
+      implicit session =>
+        val single = TestEntity6.selectAll().head
+        single.myDate = tomorrow
+        single.update()
 
-      assert(TestEntity6.selectAll().size == 1)
+        assert(TestEntity6.selectAll().size == 1)
 
-      val inDB = TestEntity6.selectAll().head
-      assert(single.uuid.isDefined)
-      assert(single.uuid == inDB.uuid)
+        val inDB = TestEntity6.selectAll().head
+        assert(single.uuid.isDefined)
+        assert(single.uuid == inDB.uuid)
 
-      assert(inDB.myDate == tomorrow)
-    }
+        assert(inDB.myDate == tomorrow)
   }
   "Delete table" should "succeed" in {
-    DB.localTx { implicit session =>
-      TestEntity6.__dropTableSQL.execute()
-    }
+    DB.localTx:
+      implicit session => TestEntity6.__dropTableSQL.execute()
   }

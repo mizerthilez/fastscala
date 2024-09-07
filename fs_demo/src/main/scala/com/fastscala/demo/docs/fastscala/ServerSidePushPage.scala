@@ -27,7 +27,7 @@ class ServerSidePushPage extends SingleCodeExamplePage():
 
     Option(VirtualThreads.getDefaultVirtualThreadsExecutor())
       .getOrElse(ServerSidePushPage.singleThreadExecutor)
-      .execute { () =>
+      .execute: () =>
         def factorial(n: BigInt): IO[BigInt] = for
           _ <- IO.sleep(100.millis)
           _ <- IO(fsc.sendToPage(JS.prepend2(id, div.apply(s"factorial($n)").text_white_50)))
@@ -41,7 +41,6 @@ class ServerSidePushPage extends SingleCodeExamplePage():
         import cats.effect.unsafe.implicits.global
         val rslt = factorial(N).unsafeRunSync()
         fsc.sendToPage(JS.prepend2(id, div.apply(s"factorial($N) = $rslt").text_white))
-      }
 
     h2.apply(s"Calculating the factorial($N)") ++
       <div id={id}></div>.m_2.bg_secondary.p_1

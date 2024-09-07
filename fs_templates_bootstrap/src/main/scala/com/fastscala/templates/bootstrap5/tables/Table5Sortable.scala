@@ -19,9 +19,10 @@ trait Table5Sortable extends Table5Base with Table5StandardColumns:
     currentSortCol().map(defaultSortAsc).getOrElse(true)
   )
 
-  override def rowsHints(): Seq[RowsHint] = super.rowsHints() ++ currentSortCol().map { col =>
-    SortingRowsHint[C](col, currentSortAsc())
-  }.toSeq
+  override def rowsHints(): Seq[RowsHint] = super.rowsHints() ++ currentSortCol()
+    .map: col =>
+      SortingRowsHint[C](col, currentSortAsc())
+    .toSeq
 
   def clickedClientSide(
   )(implicit
@@ -35,13 +36,12 @@ trait Table5Sortable extends Table5Base with Table5StandardColumns:
     tableColIdx: TableColIdx,
     fsc: FSContext,
   ): Js =
-    fsc.callback { () =>
+    fsc.callback: () =>
       if currentSortCol() == Some(col) then currentSortAsc() = !currentSortAsc()
       else
         currentSortCol() = Some(col)
         currentSortAsc() = defaultSortAsc(col)
       tableRenderer.rerenderer.rerender()
-    }
 
   override def renderTableHeadTRTH(
   )(implicit
@@ -64,6 +64,5 @@ trait Table5Sortable extends Table5Base with Table5StandardColumns:
           else "bi-chevron-expand"
         elem.withAppendedToContents(<i class={s"bi $chevron"} style="float: right;padding: 0;"></i>)
       else elem
-    }).withAttr("onclick") { old =>
+    }).withAttr("onclick"): old =>
       clickedClientSide().cmd
-    }

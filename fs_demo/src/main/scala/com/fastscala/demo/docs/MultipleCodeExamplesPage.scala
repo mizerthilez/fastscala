@@ -10,8 +10,7 @@ import org.eclipse.jetty.util.IO
 
 import com.fastscala.demo.db.User
 
-abstract class MultipleCodeExamplesPage(val file: String)(implicit val user: User)
-    extends PageWithTopTitle:
+abstract class MultipleCodeExamplesPage(val file: String)(implicit val user: User) extends PageWithTopTitle:
   override def append2Head(): NodeSeq = super.append2Head() ++
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-light.min.css" integrity="sha512-o5v54Kh5PH0dgnf9ei0L+vMRsbm5fvIvnR/XkrZZjN4mqdaeH7PW66tumBoQVIaKNVrLCZiBEfHzRY4JJSMK/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -23,10 +22,9 @@ abstract class MultipleCodeExamplesPage(val file: String)(implicit val user: Use
   def codeSnippet(file: String, separator: String = "=== code snippet ==="): NodeSeq =
     val allCode = IO.toString(Path.of(getClass.getResource(file).toURI()), StandardCharsets.UTF_8)
     val allSections: Array[String] = allCode.split("\n.*" + Regex.quote(separator) + ".*\n")
-    val relevantSections: List[String] = allSections.zipWithIndex.toList.collect {
+    val relevantSections: List[String] = allSections.zipWithIndex.toList.collect:
       case (code, idx) if (idx + 1) % 2 == 0 =>
         code.replaceAll("(^|\n).*" + Regex.quote(separator) + ".*\n", "")
-    }
     val code = relevantSections.mkString("\n\n// [...]\n\n")
     val leftPadding: Int =
       code.split("\n").iterator.map(_.takeWhile(_ == ' ').size).filter(_ > 0).minOption.getOrElse(0)

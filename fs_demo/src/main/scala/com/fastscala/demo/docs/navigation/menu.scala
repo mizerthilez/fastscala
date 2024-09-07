@@ -35,8 +35,7 @@ case class MenuSection(name: String)(val items: MenuItem*)(implicit renderer: Me
 
   override def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
 
-  override def serve()(implicit req: Request, session: FSSession)
-    : Option[ScalaXmlRenderableWithFSContext] =
+  override def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] =
     items.map(_.serve()).find(_.isDefined).flatten
 
 case class SimpleMenuItem(name: String, href: String)(implicit renderer: SimpleMenuItemRenderer)
@@ -70,7 +69,7 @@ class RoutingMenuItem(
 class HeaderMenuItem(val title: String)(implicit renderer: HeaderMenuItemRenderer) extends MenuItem:
   override def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
 
-  override def serve()(implicit req: Request, session: FSSession)
-    : Option[ScalaXmlRenderableWithFSContext] = None
+  override def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] =
+    None
 
   override def matches(uri: String): Boolean = false

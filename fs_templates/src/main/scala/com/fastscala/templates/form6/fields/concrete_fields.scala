@@ -281,12 +281,11 @@ class F6SaveButtonField[B](
   override def render()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then <div style="display:none;" id={aroundId}></div>
     else
-      withFieldRenderHints { implicit hints =>
-        renderer.render(this) {
-          if hints.contains(FailedSaveStateHint) then btnRenderer.render((toErrorState, form))
-          else btnRenderer.render((toInitialState, form))
-        }
-      }
+      withFieldRenderHints:
+        implicit hints =>
+          renderer.render(this):
+            if hints.contains(FailedSaveStateHint) then btnRenderer.render((toErrorState, form))
+            else btnRenderer.render((toInitialState, form))
 
 //
 //trait FileUploadFieldRenderer {

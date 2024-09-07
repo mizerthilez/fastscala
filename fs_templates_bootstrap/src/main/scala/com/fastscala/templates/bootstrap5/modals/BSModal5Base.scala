@@ -120,24 +120,23 @@ abstract class BSModal5Base:
 
   def renderModalFooterContent()(implicit fsc: FSContext): Elem =
     modalFooterContents()
-      .map { contents =>
+      .map: contents =>
         transformModalFooterElem {
           div.apply(contents)
         }: Elem
-      }
       .getOrElse(<div style="display:none;"></div>)
 
   def renderModalContent()(implicit fsc: FSContext): Elem =
     transformModalContentElem:
       div.apply:
-        transformModalHeaderElem {
+        transformModalHeaderElem:
           div.apply:
             modalHeaderContents()
-        } ++
-          transformModalBodyElem {
+        ++
+          transformModalBodyElem:
             div.apply:
               modalBodyContents()
-          } ++
+          ++
           modalContentsFooterRenderer.render()
 
   def renderModal()(implicit fsc: FSContext): Elem =

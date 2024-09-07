@@ -21,8 +21,7 @@ class RerendererP[Env <: FSXmlEnv, P](
   def render(param: P)(implicit fsc: FSContext): env.Elem =
     rootRenderContext = Some(fsc)
     val rendered = renderFunc(this) {
-      if gcOldFSContext then
-        fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
+      if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
       else fsc
     }(param)
     rendered.getId() match

@@ -15,9 +15,9 @@ class AnonymousPage() extends SingleCodeExamplePage():
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     JS.rerenderable(rerenderer =>
       implicit fsc =>
-        div.border.p_2.rounded.apply {
+        div.border.p_2.rounded.apply:
           h3.apply("Upload an image:") ++
-            FileUpload { uploadedFile =>
+            FileUpload: uploadedFile =>
               rerenderer.rerender()
               JS.redirectTo(
                 fsc.anonymousPageURL[FSScalaXmlEnv.type](
@@ -29,7 +29,5 @@ class AnonymousPage() extends SingleCodeExamplePage():
                   "visualize_image",
                 )
               )
-            }
-        }
     ).render()
     // === code snippet ===

@@ -6,9 +6,7 @@ import scalikejdbc.*
 
 import com.fastscala.db.keyed.uuid.{ SQLiteRowWithUUID, TableWithUUIDBase }
 
-trait SQLiteTableWithUUID[R <: SQLiteRowWithUUID[R]]
-    extends SQLiteTable[R]
-       with TableWithUUIDBase[R]:
+trait SQLiteTableWithUUID[R <: SQLiteRowWithUUID[R]] extends SQLiteTable[R] with TableWithUUIDBase[R]:
   protected lazy val PlaceholderUUID = UUID.randomUUID()
 
   override def createSampleRowInternal(): R =

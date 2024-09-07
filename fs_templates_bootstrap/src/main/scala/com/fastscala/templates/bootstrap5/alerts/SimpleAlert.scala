@@ -13,10 +13,11 @@ object SimpleAlert:
     closeBtn: Elem,
   ): Rerenderer[FSScalaXmlEnv.type] = JS.rerenderable(rerenderer =>
     implicit fsc =>
-      alert.alert_dismissible.fade.show.withRole("alert").apply {
-        contents ++ closeBtn
-          .addClass("btn-close")
-          .withType("button")
-          .withAttr("data-bs-dismiss" -> "alert")
-      }
+      alert.alert_dismissible.fade.show
+        .withRole("alert")
+        .apply:
+          contents ++ closeBtn
+            .addClass("btn-close")
+            .withType("button")
+            .withAttr("data-bs-dismiss" -> "alert")
   )

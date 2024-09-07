@@ -30,9 +30,7 @@ trait Table5SelectableRows extends Table5Base with Table5ColsLabeled:
   ): Elem =
     super
       .transformTRTDElem(elem)
-      .pipe(elem =>
-        if allSelectedRowsEvenIfNotVisible.contains(value) then elem.bg_primary_subtle else elem
-      )
+      .pipe(elem => if allSelectedRowsEvenIfNotVisible.contains(value) then elem.bg_primary_subtle else elem)
       .pipe(elem =>
         col match
           case ColSelectRow => elem.align_middle.text_center
@@ -42,19 +40,23 @@ trait Table5SelectableRows extends Table5Base with Table5ColsLabeled:
   def onSelectedRowsChange()(implicit fsc: FSContext): Js = JS.void
 
   def selectAllVisibleRowsBtn: BSBtn =
-    BSBtn().BtnOutlinePrimary.lbl(s"Select All").ajax { implicit fsc =>
-      allSelectedRowsEvenIfNotVisible.clear()
-      allSelectedRowsEvenIfNotVisible ++= rows(rowsHints())
-      onSelectedRowsChange() &
-        rerenderTableAround()
-    }
+    BSBtn().BtnOutlinePrimary
+      .lbl(s"Select All")
+      .ajax:
+        implicit fsc =>
+          allSelectedRowsEvenIfNotVisible.clear()
+          allSelectedRowsEvenIfNotVisible ++= rows(rowsHints())
+          onSelectedRowsChange() &
+            rerenderTableAround()
 
   def clearRowSelectionBtn: BSBtn =
-    BSBtn().BtnOutlinePrimary.lbl(s"Clear Selection").ajax { implicit fsc =>
-      allSelectedRowsEvenIfNotVisible.clear()
-      onSelectedRowsChange() &
-        rerenderTableAround()
-    }
+    BSBtn().BtnOutlinePrimary
+      .lbl(s"Clear Selection")
+      .ajax:
+        implicit fsc =>
+          allSelectedRowsEvenIfNotVisible.clear()
+          onSelectedRowsChange() &
+            rerenderTableAround()
 
   val ColSelectRow = new Table5StandardColumn[R]:
 

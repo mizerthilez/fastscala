@@ -34,14 +34,14 @@ trait DateFieldOptRenderer:
         labelOpt.map(_.form_label.withFor(field.elemId)).getOrElse(Empty) ++
           input_group
             .withId(field.elemId)
-            .withClassIf(showErrors && error.isDefined, is_invalid.getClassAttr) {
+            .withClassIf(showErrors && error.isDefined, is_invalid.getClassAttr):
               yearSelectElem.withClassIf(showErrors && error.isDefined, is_invalid.getClassAttr) ++
                 monthSelectElem.withClassIf(
                   showErrors && error.isDefined,
                   is_invalid.getClassAttr,
                 ) ++
                 daySelectElem.withClassIf(showErrors && error.isDefined, is_invalid.getClassAttr)
-            } ++
+          ++
           error.filter(_ => showErrors).map(error => invalid_feedback.apply(error)).getOrElse(Empty)
 
 class DateFieldOpt(
@@ -124,8 +124,7 @@ class DateFieldOpt(
             () => currentDay,
             value =>
               currentDay = value
-              form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then
-                                                    reRender()
+              form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then reRender()
                                                   else JS.void)
             ,
             toString = _.map(_.toString).getOrElse("--"),
@@ -143,9 +142,7 @@ class DateFieldOpt(
         ,
         toString = idx =>
           idx
-            .map(idx =>
-              DateTime.now().withMonthOfYear(idx).toString("MMMM", Locale.forLanguageTag("pt-PT"))
-            )
+            .map(idx => DateTime.now().withMonthOfYear(idx).toString("MMMM", Locale.forLanguageTag("pt-PT")))
             .getOrElse("--"),
       )
       val yearField = ImmediateInputFields.select[Option[Int]](

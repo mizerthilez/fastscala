@@ -60,11 +60,11 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
               .headOption
               .filter(_.trim != "")
           )
-          .foreach { token =>
-            FakeDB.users.find(_.loginToken == token).foreach { user =>
-              CurrentUser() = user
-            }
-          }
+          .foreach: token =>
+            FakeDB.users
+              .find(_.loginToken == token)
+              .foreach: user =>
+                CurrentUser() = user
 
       FSDemoMainMenu
         .serve()

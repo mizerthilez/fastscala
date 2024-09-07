@@ -24,10 +24,10 @@ object BSBtnToogle:
         implicit fsc =>
           btn
             .lbl(if current then trueLbl else falseLbl)
-            .ajax { implicit fsc =>
-              current = !current
-              set(current) & rerenderer.rerender()
-            }
+            .ajax:
+              implicit fsc =>
+                current = !current
+                set(current) & rerenderer.rerender()
             .pipe(if current then trueTransform else falseTransform)
             .btn
       ).render()

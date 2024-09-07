@@ -1,12 +1,13 @@
 package com.fastscala.db.keyed.uuid
 
 import java.util.UUID
+import scala.reflect.Typeable
 
 import scalikejdbc.*
 
 import com.fastscala.db.{ Row, SQLiteTableWithUUID }
 
-trait SQLiteRowWithUUID[R <: SQLiteRowWithUUID[R]] extends Row[R] with RowWithUuidIdBase:
+trait SQLiteRowWithUUID[R <: SQLiteRowWithUUID[R]: Typeable] extends Row[R] with RowWithUuidIdBase:
   self: R =>
   def table: SQLiteTableWithUUID[R]
 
@@ -27,29 +28,24 @@ trait SQLiteRowWithUUID[R <: SQLiteRowWithUUID[R]] extends Row[R] with RowWithUu
     this
 
   def update(): Unit =
-    uuid.foreach { uuid =>
-      DB.localTx { implicit session =>
-        table.updateSQL(this, sqls" where uuid = ${uuid.toString}").execute()
-      }
-    }
+    uuid.foreach: uuid =>
+      DB.localTx:
+        implicit session => table.updateSQL(this, sqls" where uuid = ${uuid.toString}").execute()
 
   def delete(): Unit =
-    uuid.foreach { uuid =>
-      DB.localTx { implicit session =>
-        table.deleteSQL(this, sqls"where uuid = $uuid").execute()
-      }
-    }
+    uuid.foreach: uuid =>
+      DB.localTx:
+        implicit session => table.deleteSQL(this, sqls"where uuid = $uuid").execute()
 
   override def insert(): Unit =
-    if uuid.isDefined then
-      throw new Exception(s"Row already inserted with uuid ${uuid.get.toString}")
+    if uuid.isDefined then throw new Exception(s"Row already inserted with uuid ${uuid.get.toString}")
     super.insert()
 
   override def hashCode(): Int = uuid.hashCode() * 41
 
   override def equals(obj: Any): Boolean =
-    if obj.isInstanceOf[R] then
-      val obj2 = obj.asInstanceOf[R]
-      (obj2.uuid.isDefined && uuid.isDefined && obj2.uuid == uuid) ||
-      (obj2.uuid.isEmpty && uuid.isEmpty && super.equals(obj2))
-    else false
+    obj match
+      case obj2: R =>
+        (obj2.uuid.isDefined && uuid.isDefined && obj2.uuid == uuid) ||
+        (obj2.uuid.isEmpty && uuid.isEmpty && super.equals(obj2))
+      case _ => false

@@ -1,5 +1,7 @@
 package com.fastscala.db.caching
 
+import scala.reflect.Typeable
+
 import org.slf4j.LoggerFactory
 import scalikejdbc.interpolation.SQLSyntax
 
@@ -7,7 +9,7 @@ import com.fastscala.db.*
 import com.fastscala.db.observable.{ DBObserver, ObservableRowBase }
 import com.fastscala.db.util.Utils
 
-class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]](
+class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]: Typeable](
   val table: TableWithId[R, K],
   val loadAll: [R] => Table[R] => Seq[R] = [R] => (r: Table[R]) => r.selectAll().toVector,
   var status: CacheStatus.Value = CacheStatus.NONE_LOADED,
@@ -25,16 +27,17 @@ class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]](
 
   def values: Seq[R] =
     if status != CacheStatus.ALL_LOADED then
+      // format: off
       Utils.time {
-        loadAll(table).foreach { e =>
+        loadAll(table).foreach: e =>
           if !entries.contains(e.key) then entries += (e.key -> e)
-        }
         status = CacheStatus.ALL_LOADED
       } { ms =>
         logger.trace(
           s"${table.tableName}.values: LOADED ${entries.size} entries FROM DB in ${ms}ms"
         )
       }
+      // format: on
     entries.values.toList
 
   def select(rest: SQLSyntax): List[R] =
@@ -62,7 +65,8 @@ class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]](
         None
       case None =>
         logger.trace(s"${table.tableName}.getForIdOptX($key): CACHE MISS (getting from db...)")
-        Utils.time(table.getForIdOpt(key)) { ms =>
+        // format: off
+        Utils.time(table.getForIdOpt(key)){ ms =>
           logger.trace(s"${table.tableName}.getForIdOptX($key): LOADED FROM DB in ${ms}ms")
         } match
           case Some(value) =>
@@ -74,6 +78,7 @@ class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]](
           case None =>
             logger.trace(s"${table.tableName}.getForIdOptX($key): NOT FOUND (in db)")
             None
+        // format: on
 
   def getForIdsX(ids: K*): List[R] =
     ids.toList.flatMap(id => table.getForIdOpt(id))

@@ -27,7 +27,7 @@ class GettingStartedPage extends LoggedInPage():
             .justify_content_between
             .align_items_center
             .mb_5
-            .apply {
+            .apply:
               div.apply(
                 "Interested in learning more about the FastScala framework? Register now for a free live demo/training here!:"
               ) ++
@@ -36,19 +36,19 @@ class GettingStartedPage extends LoggedInPage():
                   .href("https://training.fastscala.com/")
                   .btnLink
                   .ms_3
-            } ++
+          ++
           h2.apply("Github repo") ++
           <p>You can access the FastScala framework repo at: <a href="https://github.com/fastscala/fastscala">https://github.com/fastscala/fastscala</a></p> ++
           mb_5 ++
-          text_center.apply {
+          text_center.apply:
             h2.apply("Basic Scala Environment Installation") ++
               <iframe width="560" height="315" src="https://www.youtube.com/embed/DyvwpBI9wms?" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="true"></iframe>
-          } ++
+          ++
           mb_5 ++
-          text_center.apply {
+          text_center.apply:
             h2.apply("Running the Demo locally") ++
               <iframe width="560" height="315" src="https://www.youtube.com/embed/9dVYEipQg18?" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="true"></iframe>
-          } ++
+          ++
           mb_5 ++
           text_center.apply:
             h2.apply("Deploying online in 5min!") ++

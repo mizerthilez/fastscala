@@ -54,16 +54,15 @@ class F6ContainerField(aroundClass: String)(children: (String, F6Field)*)
     currentlyEnabled = enabled
     if !currentlyEnabled then <div style="display:none;" id={aroundId}></div>
     else
-      withFieldRenderHints { implicit hints =>
-        val contents = children
-          .map {
-            case (clas, field) =>
-              <div class={clas}>{field.render()}</div>
-          }
-          .reduceOption[NodeSeq](_ ++ _)
-          .getOrElse(NodeSeq.Empty)
-        <div class={aroundClass} id={aroundId}>{contents}</div>
-      }
+      withFieldRenderHints:
+        implicit hints =>
+          val contents = children
+            .map:
+              case (clas, field) =>
+                <div class={clas}>{field.render()}</div>
+            .reduceOption[NodeSeq](_ ++ _)
+            .getOrElse(NodeSeq.Empty)
+          <div class={aroundClass} id={aroundId}>{contents}</div>
 
   override def reRender()(implicit form: Form6, fsc: FSContext, hints: Seq[RenderHint]): Js =
     if enabled != currentlyEnabled then JS.replace(aroundId, render())

@@ -72,17 +72,14 @@ case class BSBtn(
     copy(onclickOpt = Some(fsc => onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc) & jsCmd))
 
   def ajax(jsCmd: FSContext => Js): BSBtn = copy(onclickOpt =
-    Some(fsc =>
-      onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc) & fsc.callback(() => jsCmd(fsc))
-    )
+    Some(fsc => onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc) & fsc.callback(() => jsCmd(fsc)))
   )
 
   def ajaxOnce(jsCmd: FSContext => Js, moreThanOnceRslt: Option[Js] = None): BSBtn =
     val used = new AtomicBoolean(false)
-    ajax { fsc =>
+    ajax: fsc =>
       if !used.getAndSet(true) then jsCmd(fsc)
       else moreThanOnceRslt.getOrElse(JS.void)
-    }
 
   def ajaxConfirm(question: String, jsCmd: FSContext => Js): BSBtn =
     copy(onclickOpt =
@@ -121,13 +118,15 @@ case class BSBtn(
 
     def generate: Elem =
       if get then
-        selected(finalBtn).ajax { implicit fsc =>
-          set(false) & JS.replace(finalBtn.idOpt.get, generate)
-        }.btn
+        selected(finalBtn)
+          .ajax:
+            implicit fsc => set(false) & JS.replace(finalBtn.idOpt.get, generate)
+          .btn
       else
-        unselected(finalBtn).ajax { implicit fsc =>
-          set(true) & JS.replace(finalBtn.idOpt.get, generate)
-        }.btn
+        unselected(finalBtn)
+          .ajax:
+            implicit fsc => set(true) & JS.replace(finalBtn.idOpt.get, generate)
+          .btn
 
     generate
 

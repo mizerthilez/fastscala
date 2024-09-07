@@ -32,16 +32,15 @@ class User(
   def checkPassword(password: String): Boolean =
     BCrypt.verifyer().verify(password.toCharArray(), passwordHashed).verified
 
-  def logOut()(implicit fg: FSContext): Js = fg.callback { () =>
+  def logOut()(implicit fg: FSContext): Js = fg.callback: () =>
     loginToken = IdGen.id
     CurrentUser.clear()
     JS.deleteCookie("user_token", "/") & JS.redirectTo("/login")
-  }
 
   def miniHeadshotOrPlaceholderRendered: Elem =
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
     photo
-      .map {
+      .map:
         case (photoFileName, photoBytes) =>
           def imageData =
             s"data:${Files.probeContentType(new File(photoFileName).toPath())};base64,${Base64.getEncoder.encodeToString(photoBytes)}"
@@ -51,9 +50,7 @@ class User(
               s"background-image: url('$imageData');background-size: cover;background-position: center; box-shadow: inset 0 0 1em 0em #00000029; aspect-ratio: 1;"
             )
             .d_inline_block
-      }
-      .getOrElse {
+      .getOrElse:
         <img src="/static/images/user-159-white.svg" class="card-img-top" style={
           s"background-color: #dddddd;"
         }/>
-      }

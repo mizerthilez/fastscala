@@ -26,8 +26,7 @@ trait FSXmlEnv:
 
   def transformAttribute(elem: Elem, attrNamenv: String, transform: Option[String] => String): Elem
 
-  def transformContents[E <: FSXmlEnv](using e: E)(elem: Elem, transform: NodeSeq => e.NodeSeq)
-    : Elem
+  def transformContents[E <: FSXmlEnv](using e: E)(elem: Elem, transform: NodeSeq => e.NodeSeq): Elem
 
   def concat(ns1: NodeSeq, ns2: NodeSeq): NodeSeq
 

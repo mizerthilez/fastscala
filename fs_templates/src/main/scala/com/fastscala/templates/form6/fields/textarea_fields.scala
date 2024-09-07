@@ -23,9 +23,10 @@ trait F6FieldWithNumRows extends F6FieldInputFieldMixin:
   def rows(f: () => Option[Int]): this.type = mutate:
     _rows = f
 
-  override def processInputElem(input: Elem): Elem = super.processInputElem(input).pipe { input =>
-    _rows().map(rows => input.withAttr("rows", rows.toString)).getOrElse(input)
-  }
+  override def processInputElem(input: Elem): Elem = super
+    .processInputElem(input)
+    .pipe: input =>
+      _rows().map(rows => input.withAttr("rows", rows.toString)).getOrElse(input)
 
 abstract class F6TextareaField[T]()(implicit renderer: TextareaF6FieldRenderer)
     extends StandardF6Field
@@ -107,8 +108,7 @@ abstract class F6TextareaField[T]()(implicit renderer: TextareaF6FieldRenderer)
   override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] =
     if predicate.applyOrElse[F6Field, Boolean](this, _ => false) then List(this) else Nil
 
-class F6StringTextareaField()(implicit renderer: TextareaF6FieldRenderer)
-    extends F6TextareaField[String]:
+class F6StringTextareaField()(implicit renderer: TextareaF6FieldRenderer) extends F6TextareaField[String]:
   override def defaultValue: String = ""
 
   def toString(value: String): String = value
@@ -116,8 +116,7 @@ class F6StringTextareaField()(implicit renderer: TextareaF6FieldRenderer)
   def fromString(str: String): Either[String, String] = Right(str)
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if required && currentValue == "" then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required && currentValue == "" then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
 class F6StringOptTextareaField()(implicit renderer: TextareaF6FieldRenderer)
@@ -129,6 +128,5 @@ class F6StringOptTextareaField()(implicit renderer: TextareaF6FieldRenderer)
   def fromString(str: String): Either[String, Option[String]] = Right(Some(str).filter(_ != ""))
 
   override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
-    (if required && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())

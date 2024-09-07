@@ -25,9 +25,8 @@ object FileUpload:
     acceptTypes: Option[String] = None,
   )(implicit fsc: FSContext
   ): NodeSeq =
-    val actionUrl = fsc.fileUploadActionUrl {
+    val actionUrl = fsc.fileUploadActionUrl:
       case uploadedFile => processUpload(uploadedFile)
-    }
     val targetId = IdGen.id("targetFrame")
     val inputId = IdGen.id("input")
     val buttonId = IdGen.id("btn")
@@ -38,7 +37,7 @@ object FileUpload:
           json.arrayOrObject(
             JS.void,
             {
-              case Vector(fileName, fileType, contentsEncoded) =>
+              case Vector(fileName, fileType, contentsEncoded, _*) =>
                 processUpload(
                   Seq(
                     new FSUploadedFile(
@@ -49,6 +48,7 @@ object FileUpload:
                     )
                   )
                 )
+              case _ => JS.void
             },
             obj => JS.void,
           ),
@@ -90,8 +90,8 @@ object FileUpload:
         JS.show(buttonId).cmd
       } />
         {
-        transformSubmit(button.withId(buttonId).withStyle("display:none").withTypeSubmit()).pipe(
-          btn => buttonLbl.map(lbl => btn.apply(lbl)).getOrElse(btn)
+        transformSubmit(button.withId(buttonId).withStyle("display:none").withTypeSubmit()).pipe(btn =>
+          buttonLbl.map(lbl => btn.apply(lbl)).getOrElse(btn)
         )
       }
       </form>
@@ -105,22 +105,24 @@ object FileUpload:
   )(implicit fsc: FSContext
   ): NodeSeq = apply(
     uploadedFiles =>
-      callback(uploadedFiles.flatMap { uploadedFile =>
-        if uploadedFile.name.trim.toLowerCase.endsWith(".zip") then
-          val zipFile = new ZipInputStream(new ByteArrayInputStream(uploadedFile.content))
+      callback(
+        uploadedFiles
+          .flatMap: uploadedFile =>
+            if uploadedFile.name.trim.toLowerCase.endsWith(".zip") then
+              val zipFile = new ZipInputStream(new ByteArrayInputStream(uploadedFile.content))
 
-          Iterator
-            .continually(zipFile.getNextEntry)
-            .takeWhile(_ != null)
-            .map { entry =>
-              (
-                entry.getName,
-                Iterator.continually(zipFile.read()).takeWhile(_ >= 0).map(_.toByte).toArray[Byte],
-              )
-            }
-            .toList
-        else List((uploadedFile.name, uploadedFile.content))
-      }.toList),
+              Iterator
+                .continually(zipFile.getNextEntry)
+                .takeWhile(_ != null)
+                .map: entry =>
+                  (
+                    entry.getName,
+                    Iterator.continually(zipFile.read()).takeWhile(_ >= 0).map(_.toByte).toArray[Byte],
+                  )
+                .toList
+            else List((uploadedFile.name, uploadedFile.content))
+          .toList
+      ),
     labelOpt = labelOpt,
     transformSubmit = transformSubmit,
     buttonLbl = buttonLbl,

@@ -42,8 +42,7 @@ object StatEvent:
 
   object NOT_FOUND_ANON_PAGE extends StatEvent("NOT_FOUND_ANON_PAGE", StatEventType.NOT_FOUND)
 
-  object NOT_FOUND_FILE_DOWNLOAD
-      extends StatEvent("NOT_FOUND_FILE_DOWNLOAD", StatEventType.NOT_FOUND)
+  object NOT_FOUND_FILE_DOWNLOAD extends StatEvent("NOT_FOUND_FILE_DOWNLOAD", StatEventType.NOT_FOUND)
 
   object NOT_FOUND_FILE_UPLOAD extends StatEvent("NOT_FOUND_FILE_UPLOAD", StatEventType.NOT_FOUND)
 

@@ -109,10 +109,12 @@ class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI:
       if hasFinished then BSBtn().BtnSecondary.lbl("Close").onclick(hideAndRemove()).btn
       else
         val btn: BSBtn = BSBtn().BtnDark.lbl("Stop").withRandomId
-        btn.ajax { implicit fsc =>
-          continue = false
-          btn.disable()
-        }.btn
+        btn
+          .ajax:
+            implicit fsc =>
+              continue = false
+              btn.disable()
+          .btn
 
   def openProgressModal(): Js = fsc.initWebSocket() & modal.installAndShow()
 

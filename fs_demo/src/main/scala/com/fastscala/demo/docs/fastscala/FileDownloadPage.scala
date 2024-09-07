@@ -44,10 +44,9 @@ class FileDownloadPage extends SingleCodeExamplePage():
                   .d_block
             case None =>
               h3.apply("Upload an image:") ++
-                FileUpload { uploadedFile =>
+                FileUpload: uploadedFile =>
                   FileDownloadPageUploadedImage() = uploadedFile.head
                   rerenderer.rerender()
-                }
         }
     ).render()
     // === code snippet ===

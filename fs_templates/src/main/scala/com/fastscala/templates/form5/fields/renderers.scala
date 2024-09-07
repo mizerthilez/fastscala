@@ -64,11 +64,9 @@ trait ButtonFieldRenderer:
   def render(field: F5SaveButtonField[?])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem
 
 trait FileUploadFieldRenderer:
-  def transformFormElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint])
-    : Elem = elem
+  def transformFormElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint]): Elem = elem
 
-  def transforLabelElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint])
-    : Elem = elem
+  def transforLabelElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint]): Elem = elem
 
   def transforSubmitButtonElem(
     field: F5FileUploadField
@@ -77,8 +75,8 @@ trait FileUploadFieldRenderer:
   )(implicit hints: Seq[RenderHint]
   ): Elem = elem
 
-  def transforResetButtonElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint])
-    : Elem = elem
+  def transforResetButtonElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint]): Elem =
+    elem
 
-  def transforFileInputElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint])
-    : Elem = elem
+  def transforFileInputElem(field: F5FileUploadField)(elem: Elem)(implicit hints: Seq[RenderHint]): Elem =
+    elem

@@ -22,31 +22,31 @@ object TestEntity5 extends SQLiteTableWithUUID[TestEntity5]:
 
 class SQLiteTableUUIDRowSpec extends AnyFlatSpec with SQLiteDB:
   "Create table" should "succeed" in {
-    DB.localTx { implicit session =>
-      TestEntity5.__createTableSQL.map(_.statement).foreach(println)
-      TestEntity5.__createTableSQL.foreach(_.execute())
-    }
+    DB.localTx:
+      implicit session =>
+        TestEntity5.__createTableSQL.map(_.statement).foreach(println)
+        TestEntity5.__createTableSQL.foreach(_.execute())
   }
   "Save row" should "succeed" in {
-    DB.localTx { implicit session =>
-      val saved = new TestEntity5().save()
-      assert(saved.uuid.isDefined)
-    }
+    DB.localTx:
+      implicit session =>
+        val saved = new TestEntity5().save()
+        assert(saved.uuid.isDefined)
   }
   "Read row" should "succeed" in {
-    DB.localTx { implicit session =>
-      val example = new TestEntity5()
-      val single = TestEntity5.selectAll().head
+    DB.localTx:
+      implicit session =>
+        val example = new TestEntity5()
+        val single = TestEntity5.selectAll().head
 
-      assert(example.myInt == single.myInt)
-      assert(example.myLong == single.myLong)
-      assert(example.myDouble == single.myDouble)
-      assert(example.myFloat == single.myFloat)
-      assert(example.myShort == single.myShort)
-      assert(example.myString == single.myString)
-      assert(example.myBoolean == single.myBoolean)
-      assert(example.myChar == single.myChar)
-    }
+        assert(example.myInt == single.myInt)
+        assert(example.myLong == single.myLong)
+        assert(example.myDouble == single.myDouble)
+        assert(example.myFloat == single.myFloat)
+        assert(example.myShort == single.myShort)
+        assert(example.myString == single.myString)
+        assert(example.myBoolean == single.myBoolean)
+        assert(example.myChar == single.myChar)
   }
   "Update row" should "succeed" in {
     DB.localTx { implicit session =>
@@ -82,16 +82,15 @@ class SQLiteTableUUIDRowSpec extends AnyFlatSpec with SQLiteDB:
     }
   }
   "Select by UUID" should "succeed" in {
-    DB.localTx { implicit session =>
-      new TestEntity5().save()
-      new TestEntity5().save()
-      val uuids = TestEntity5.selectAll().map(_.uuid.get)
+    DB.localTx:
+      implicit session =>
+        new TestEntity5().save()
+        new TestEntity5().save()
+        val uuids = TestEntity5.selectAll().map(_.uuid.get)
 
-      assert(TestEntity5.getForIds(uuids*).size == 3)
-    }
+        assert(TestEntity5.getForIds(uuids*).size == 3)
   }
   "Delete table" should "succeed" in {
-    DB.localTx { implicit session =>
-      TestEntity5.__dropTableSQL.execute()
-    }
+    DB.localTx:
+      implicit session => TestEntity5.__dropTableSQL.execute()
   }

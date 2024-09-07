@@ -4,10 +4,7 @@ import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
 
-trait Table5StandardColumns
-    extends Table5ColsRenderable
-       with Table5ColsLabeled
-       with Table5StdColsHelper:
+trait Table5StandardColumns extends Table5ColsRenderable with Table5ColsLabeled with Table5StdColsHelper:
   type C = Table5StandardColumn[R]
 
   override def renderTRTD(

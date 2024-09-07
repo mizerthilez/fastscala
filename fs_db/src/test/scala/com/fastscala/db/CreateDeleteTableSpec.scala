@@ -20,14 +20,12 @@ object TestEntity2 extends PgTable[TestEntity2]:
 
 trait CreateTableSpecBase extends AnyFlatSpec:
   "Create table" should "succeed" in {
-    DB.localTx { implicit session =>
-      TestEntity2.__createTableSQL.foreach(_.execute())
-    }
+    DB.localTx:
+      implicit session => TestEntity2.__createTableSQL.foreach(_.execute())
   }
   "Delete table" should "succeed" in {
-    DB.localTx { implicit session =>
-      TestEntity2.__dropTableSQL.execute()
-    }
+    DB.localTx:
+      implicit session => TestEntity2.__dropTableSQL.execute()
   }
 
 class SQLiteCreateTableSpec extends CreateTableSpecBase with SQLiteDB

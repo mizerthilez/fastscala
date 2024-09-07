@@ -31,8 +31,10 @@ trait Form5 extends ElemWithRandomId:
 
   def focusFirstFocusableFieldJs(): Js =
     rootField
-      .fieldsMatching { case _: FocusableFormField => true }
-      .collectFirst { case fff: FocusableFormField => fff }
+      .fieldsMatching:
+        case _: FocusableFormField => true
+      .collectFirst:
+        case fff: FocusableFormField => fff
       .map(_.focusJs)
       .getOrElse(Js.void)
 
@@ -56,10 +58,9 @@ trait Form5 extends ElemWithRandomId:
   def onSaveServerSide()(implicit fsc: FSContext): Js =
     if fsc != fsc.page.rootFSContext then onSaveServerSide()(fsc.page.rootFSContext)
     else
-      val hasErrors = rootField.enabledFields.exists {
+      val hasErrors = rootField.enabledFields.exists:
         case field: ValidatableField => field.hasErrors_?()
         case _ => false
-      }
       implicit val renderHints = formRenderHits() :+ OnSaveRerender
       if hasErrors then
         rootField.onEvent(ErrorsOnSave) &

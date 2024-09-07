@@ -31,28 +31,25 @@ object LightTableTestLightEntity extends PgTable[LightTableTestLightEntity]:
 
 trait LightTableSpecBase extends AnyFlatSpec:
   "Create table" should "succeed" in {
-    DB.localTx { implicit session =>
-      LightTableTestEntity.__createTableSQL.foreach(_.execute())
-    }
+    DB.localTx:
+      implicit session => LightTableTestEntity.__createTableSQL.foreach(_.execute())
   }
   "Insert row" should "succeed" in {
-    DB.localTx { implicit session =>
-      new LightTableTestEntity().insert()
-    }
+    DB.localTx:
+      implicit session => new LightTableTestEntity().insert()
   }
   "Read light row" should "succeed" in {
-    DB.localTx { implicit session =>
-      val example = new LightTableTestLightEntity()
-      val single = LightTableTestLightEntity.selectAll().head
+    DB.localTx:
+      implicit session =>
+        val example = new LightTableTestLightEntity()
+        val single = LightTableTestLightEntity.selectAll().head
 
-      assert(example.myInt == single.myInt)
-      assert(example.myChar == single.myChar)
-    }
+        assert(example.myInt == single.myInt)
+        assert(example.myChar == single.myChar)
   }
   "Delete table" should "succeed" in {
-    DB.localTx { implicit session =>
-      LightTableTestEntity.__dropTableSQL.execute()
-    }
+    DB.localTx:
+      implicit session => LightTableTestEntity.__dropTableSQL.execute()
   }
 
 class SQLiteLightTableSpec extends LightTableSpecBase with SQLiteDB

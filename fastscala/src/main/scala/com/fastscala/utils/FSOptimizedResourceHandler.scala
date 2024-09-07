@@ -123,17 +123,16 @@ class FSOptimizedResourceHandler(
         files.toList
           .map(java.net.URLDecoder.decode(_, "UTF-8"))
           .reverse
-          .map { file =>
+          .map: file =>
             openResource(file) match
               case Some(is) => Using(is)(is => IO.toString(is, StandardCharsets.UTF_8)).get
               case None => s"/* File '$file': NOT FOUND*/" + "\n"
-          }
           .mkString("\n\n"),
       )
       Ok.css(css)
         .addHeader("Cache-control", "public, max-age=7776000")
 
-    case r @ Req(GET, "static" :: "optimized" :: restOfPath, suf @ ("jpg" | "jpeg"), _) =>
+    case r @ Req(Get, "static" :: "optimized" :: restOfPath, suf @ ("jpg" | "jpeg"), _) =>
       if imgCache.size > 50 then imgCache --= imgCache.keys.take(25)
       imgCache.getOrElseUpdate(
         r.getHttpURI.getPath, {
@@ -163,16 +162,14 @@ class FSOptimizedResourceHandler(
                   val resizedWidth: BufferedImage = maxWidth
                     .orElse(Some(defaultMaxWidth))
                     .filter(_ > 0)
-                    .map { maxWidth =>
+                    .map: maxWidth =>
                       resizeMaxWidth(maxWidth, br)
-                    }
                     .getOrElse(br)
                   val resizedHeight: BufferedImage = maxHeight
                     .orElse(Some(defaultMaxHeight))
                     .filter(_ > 0)
-                    .map { maxHeight =>
+                    .map: maxHeight =>
                       resizeMaxHeight(maxHeight, resizedWidth)
-                    }
                     .getOrElse(resizedWidth)
                   val afterHook: BufferedImage =
                     imagePostProcessHook("static/" + remaining, resizedHeight)

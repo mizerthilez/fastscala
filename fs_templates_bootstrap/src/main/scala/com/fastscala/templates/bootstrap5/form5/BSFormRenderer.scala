@@ -192,8 +192,7 @@ abstract class BSFormRenderer:
     ): Elem = super.transformFormElem(field)(elem).mb_3
 
   implicit val buttonFieldRenderer: ButtonFieldRenderer = new ButtonFieldRenderer:
-    override def render(field: F5SaveButtonField[?])(btn: Elem)(implicit hints: Seq[RenderHint])
-      : Elem =
+    override def render(field: F5SaveButtonField[?])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem =
       if !field.enabled() then div.withId(field.aroundId).withStyle(";display:none;")
       else
         div.mb_3

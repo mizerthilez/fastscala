@@ -46,9 +46,7 @@ trait DefaultBSNavBarSectionRenderer extends MenuSectionRenderer:
       <button class={
       "text-white btn bi btn-toggle d-inline-flex align-items-center rounded border-0" + (if isOpen
                                                                                           then ""
-                                                                                          else
-                                                                                            " collapsed"
-      )
+                                                                                          else " collapsed")
     } data-bs-toggle="collapse" data-bs-target={s"#$id"} aria-expanded={isOpen.toString}>
         {elem.name}
       </button>

@@ -112,13 +112,13 @@ class F5HorizontalField(
     currentlyEnabled = enabled()
     if !currentlyEnabled then buildElem("div", "style" -> "display:none;", "id" -> aroundId)()
     else
-      withFieldRenderHints { implicit hints =>
-        buildElem("div", "id" -> aroundId, "class" -> "row")(
-          (children.map {
-            case (clas, field) => buildElem("div", "class" -> clas)(field.render())
-          }: Seq[Elem])*
-        )
-      }
+      withFieldRenderHints:
+        implicit hints =>
+          buildElem("div", "id" -> aroundId, "class" -> "row")(
+            (children.map:
+              case (clas, field) => buildElem("div", "class" -> clas)(field.render())
+            : Seq[Elem])*
+          )
 
   override def reRender()(implicit form: Form5, fsc: FSContext, hints: Seq[RenderHint]): Js =
     if enabled() != currentlyEnabled then JS.replace(aroundId, render())
@@ -340,8 +340,7 @@ class F5StringOptField(
       additionalAttrs = additionalAttrs,
     ):
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   def withLabel(label: String) = copy(label = Some(<span>{label}</span>))
@@ -418,8 +417,7 @@ class F5JodaDateOptField(
       additionalAttrs = additionalAttrs,
     ):
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   def withLabel(label: String) = copy(label = Some(<span>{label}</span>))
@@ -475,8 +473,7 @@ object F5DateOptField:
     additionalAttrs: Seq[(String, String)] = Nil,
   )(implicit renderer: TextFieldRenderer
   ) = new F5DateOptField(
-    get = () =>
-      get().map(date => java.time.LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern))),
+    get = () => get().map(date => java.time.LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern))),
     set = localDate =>
       set(localDate.map(localDate => localDate.format(DateTimeFormatter.ofPattern(pattern)))),
     label = label,
@@ -533,8 +530,7 @@ class F5DateOptField(
       additionalAttrs = additionalAttrs,
     ):
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   def withLabel(label: String) = copy(label = Some(<span>{label}</span>))
@@ -595,9 +591,7 @@ class F5DateTimeOptField(
         Right(
           Some(str)
             .filter(_.trim != "")
-            .map(str =>
-              java.time.LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
-            )
+            .map(str => java.time.LocalDateTime.parse(str, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")))
         ),
       label = label,
       name = name,
@@ -613,8 +607,7 @@ class F5DateTimeOptField(
       additionalAttrs = additionalAttrs,
     ):
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   def withLabel(label: String) = copy(label = Some(<span>{label}</span>))
@@ -674,9 +667,9 @@ class F5DoubleOptField(
 ) extends F5TextField[Double](
       getOpt = () => get(),
       setOpt = doubleOpt => set(doubleOpt),
-      toString = _.map(value =>
-        prefix + " " + new DecimalFormat("0.#").format(value) + " " + suffix
-      ).map(_.trim).getOrElse(""),
+      toString = _.map(value => prefix + " " + new DecimalFormat("0.#").format(value) + " " + suffix)
+        .map(_.trim)
+        .getOrElse(""),
       fromString = str =>
         if str.trim == "" then Right(None)
         else
@@ -701,8 +694,7 @@ class F5DoubleOptField(
       additionalAttrs = additionalAttrs,
     ):
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   override def finalAdditionalAttrs: Seq[(String, String)] = super.finalAdditionalAttrs ++ List(
@@ -776,9 +768,9 @@ class F5IntOptField(
 ) extends F5TextField[Int](
       getOpt = () => get(),
       setOpt = intOpt => set(intOpt),
-      toString = _.map(value =>
-        prefix + " " + new DecimalFormat("0.#").format(value) + " " + suffix
-      ).map(_.trim).getOrElse(""),
+      toString = _.map(value => prefix + " " + new DecimalFormat("0.#").format(value) + " " + suffix)
+        .map(_.trim)
+        .getOrElse(""),
       fromString = str =>
         if str.trim == "" then Right(None)
         else
@@ -803,8 +795,7 @@ class F5IntOptField(
       additionalAttrs = additionalAttrs,
     ):
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   override def finalAdditionalAttrs: Seq[(String, String)] = super.finalAdditionalAttrs ++ List(
@@ -885,12 +876,11 @@ class F5TimeOfDayField(
           str.toLowerCase.trim
             .replaceAll("^" + Pattern.quote(prefix.toLowerCase) + " *", "")
             .replaceAll(" *" + Pattern.quote(suffix.toLowerCase) + "$", "")
-            .pipe { txt =>
+            .pipe: txt =>
               Try(DateTimeFormat.forPattern("HH:mm").parseLocalTime(txt)) match
                 case Failure(exception) => Left(s"Not a time?: $txt")
                 case Success(parsed) =>
                   Right(Some(parsed.getHourOfDay * 60 + parsed.getMinuteOfHour))
-            }
       ,
       label = label,
       name = name,
@@ -905,8 +895,7 @@ class F5TimeOfDayField(
       additionalAttrs = additionalAttrs,
     ):
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   def withLabel(label: String) = copy(label = Some(buildText(label)))
@@ -991,8 +980,7 @@ class F5DoubleField(
       additionalAttrs = additionalAttrs,
     ):
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.isEmpty then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   def withLabel(label: String) = copy(label = Some(buildText(label)))
@@ -1089,31 +1077,30 @@ class F5CheckboxField(
   def render()(implicit form: Form5, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled() then buildElem("div", "style" -> "display:none;", "id" -> aroundId)()
     else
-      withFieldRenderHints { implicit hints =>
-        renderer.render(this)(
-          label.map(lbl => <label for={elemId}>{lbl}</label>),
-          <input
+      withFieldRenderHints:
+        implicit hints =>
+          renderer.render(this)(
+            label.map(lbl => <label for={elemId}>{lbl}</label>),
+            <input
             type="checkbox"
             value=""
             id={elemId}
             name={name.getOrElse(null)}
             onchange={
-            fsc
-              .callback(
-                Js.checkboxIsChecked(elemId),
-                value =>
-                  currentValue = value.toBoolean
-                  form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then
-                                                        reRender()
-                                                      else Js.void),
-              )
-              .cmd
-          }
+              fsc
+                .callback(
+                  Js.checkboxIsChecked(elemId),
+                  value =>
+                    currentValue = value.toBoolean
+                    form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then reRender()
+                                                        else Js.void),
+                )
+                .cmd
+            }
             tabindex={tabindex.map(_ + "").getOrElse(null)}
             checked={if currentValue then "checked" else null}></input>,
-          errors().headOption.map(_._2),
-        )
-      }
+            errors().headOption.map(_._2),
+          )
 
   override def fieldsMatching(predicate: PartialFunction[FormField, Boolean]): List[FormField] =
     if predicate.applyOrElse[FormField, Boolean](this, _ => false) then List(this) else Nil
@@ -1163,9 +1150,9 @@ class F5SelectField[T](
   var currentlySelectedValue: T = get()
 
   override def loadFromString(str: String): Seq[(ValidatableField, NodeSeq)] =
-    all().zipWithIndex.find {
+    all().zipWithIndex.find:
       case (v, idx) => toId(v, idx) == str
-    } match
+    match
       case Some((v, _)) =>
         println(s"currentlySelectedValue = ${v}")
         currentlySelectedValue = v
@@ -1221,43 +1208,42 @@ class F5SelectField[T](
     val options = all()
     val ids2Option: Map[String, T] = options.map(opt => fsc.session.nextID() -> opt).toMap
     val option2Id: Map[T, String] = ids2Option.map(kv => kv._2 -> kv._1)
-    val optionsRendered = all().map { opt =>
+    val optionsRendered = all().map: opt =>
       <option selected={if currentlySelectedValue == opt then "true" else null} value={
         option2Id(opt)
       }>{toString(opt)}</option>
-    }
 
     val errorsAtRenderTime = errors()
 
     if !enabled() then buildElem("div", "style" -> "display:none;", "id" -> aroundId)()
     else
-      withFieldRenderHints { implicit hints =>
-        val onchangeJs = fsc
-          .callback(
-            Js.elementValueById(elemId),
-            {
-              case id =>
-                currentlySelectedValue = ids2Option(id)
-                form.onEvent(ChangedField(this)) &
-                  (if hints.contains(
-                         ShowValidationsHint
-                       ) || errorsAtRenderTime.nonEmpty || errors().nonEmpty
-                   then reRender()
-                   else Js.void)
-            },
-          )
-          .cmd
-        renderer.render(this)(
-          label.map(label => <label for={elemId}>{label}</label>),
-          <select
+      withFieldRenderHints:
+        implicit hints =>
+          val onchangeJs = fsc
+            .callback(
+              Js.elementValueById(elemId),
+              {
+                case id =>
+                  currentlySelectedValue = ids2Option(id)
+                  form.onEvent(ChangedField(this)) &
+                    (if hints.contains(
+                           ShowValidationsHint
+                         ) || errorsAtRenderTime.nonEmpty || errors().nonEmpty
+                     then reRender()
+                     else Js.void)
+              },
+            )
+            .cmd
+          renderer.render(this)(
+            label.map(label => <label for={elemId}>{label}</label>),
+            <select
             name={name.getOrElse(null)}
             onblur={onchangeJs}
             onchange={onchangeJs}
             id={elemId}
           >{optionsRendered}</select>,
-          errorsAtRenderTime.headOption.map(_._2),
-        )
-      }
+            errorsAtRenderTime.headOption.map(_._2),
+          )
 
   override def fieldsMatching(predicate: PartialFunction[FormField, Boolean]): List[FormField] =
     if predicate.applyOrElse[FormField, Boolean](this, _ => false) then List(this) else Nil
@@ -1285,17 +1271,17 @@ class F5MultiSelectField[T](
   override def loadFromString(str: String): Seq[(ValidatableField, NodeSeq)] =
     val selected: Set[String] = str.split(";").toSet
 
-    currentlySelectedValue = all().zipWithIndex.collect {
-      case (v, idx) if selected.contains(toId(v, idx)) => v
-    }.toSet
+    currentlySelectedValue = all().zipWithIndex
+      .collect:
+        case (v, idx) if selected.contains(toId(v, idx)) => v
+      .toSet
     set(currentlySelectedValue)
     Nil
 
   override def saveToString(): Option[String] = Some(
     currentlySelectedValue
-      .map { v =>
+      .map: v =>
         toId(v, all().indexOf(currentlySelectedValue))
-      }
       .mkString(";")
   )
 
@@ -1343,11 +1329,10 @@ class F5MultiSelectField[T](
     val options = all()
     val ids2Option: Map[String, T] = options.map(opt => fsc.session.nextID() -> opt).toMap
     val option2Id: Map[T, String] = ids2Option.map(kv => kv._2 -> kv._1)
-    val optionsRendered = all().map { opt =>
+    val optionsRendered = all().map: opt =>
       <option selected={if currentlySelectedValue.contains(opt) then "true" else null} value={
         option2Id(opt)
       }>{toString(opt)}</option>
-    }
 
     if !enabled() then buildElem("div", "style" -> "display:none;", "id" -> aroundId)()
     else
@@ -1358,8 +1343,7 @@ class F5MultiSelectField[T](
             {
               case ids =>
                 currentlySelectedValue = ids.split(",").toSet.map(id => ids2Option(id))
-                form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then
-                                                      reRender()
+                form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then reRender()
                                                     else Js.void)
             },
           )
@@ -1527,8 +1511,7 @@ class F5TextAreaField(
   )
 
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.trim == "" then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.trim == "" then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   override def focusJs: Js = Js.focus(elemId)
@@ -1542,8 +1525,7 @@ class F5TextAreaField(
             Js.elementValueById(elemId),
             value =>
               currentValue = value
-              form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then
-                                                    reRender()
+              form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then reRender()
                                                   else Js.void),
           )
           .cmd
@@ -1664,8 +1646,7 @@ class F5CodeField(
   )
 
   override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-    (if required() && currentValue.trim == "" then
-       Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+    (if required() && currentValue.trim == "" then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
   override def render()(implicit form: Form5, fsc: FSContext, hints: Seq[RenderHint]): Elem =
@@ -1677,8 +1658,7 @@ class F5CodeField(
           Js(s"window.$editorId.session.getValue()"),
           value =>
             currentValue = value
-            form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then
-                                                  reRender()
+            form.onEvent(ChangedField(this)) & (if hints.contains(ShowValidationsHint) then reRender()
                                                 else Js.void),
         )
 
@@ -1773,12 +1753,11 @@ class F5SaveButtonField[B](
   override def render()(implicit form: Form5, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled() then buildElem("div", "style" -> "display:none;", "id" -> aroundId)()
     else
-      withFieldRenderHints { implicit hints =>
-        renderer.render(this) {
-          if hints.contains(FailedSaveStateHint) then btnRenderer.render((toErrorState, form))
-          else btnRenderer.render((toInitialState, form))
-        }
-      }
+      withFieldRenderHints:
+        implicit hints =>
+          renderer.render(this):
+            if hints.contains(FailedSaveStateHint) then btnRenderer.render((toErrorState, form))
+            else btnRenderer.render((toInitialState, form))
 
 class F5FileUploadField(
   get: () => Option[(String, Array[Byte])],
@@ -1829,14 +1808,13 @@ class F5FileUploadField(
 
         val previewRenderer =
           JS.rerenderable(rerenderer => implicit fsc => renderPreview(currentValue)(fsc))
-        val actionUrl = fsc.fileUploadActionUrl {
+        val actionUrl = fsc.fileUploadActionUrl:
           case Seq(uploadedFile: FSUploadedFile, _*) =>
             currentValue = Some((uploadedFile.submittedFileName, uploadedFile.content))
             previewRenderer.rerender() &
               form.onEvent(ChangedField(this)) &
               (if hints.contains(ShowValidationsHint) then reRender() else Js.void) &
               Js.show(resetButtonId)
-        }
         <form target={targetId} action={
           actionUrl
         } method="post" encoding="multipart/form-data" enctype="multipart/form-data" id={aroundId}>
@@ -1871,13 +1849,16 @@ class F5FileUploadField(
             .map(transforResetButtonElem)
             .map(
               _.withId(resetButtonId)
-                .addOnClick(fsc.callback { () =>
-                  currentValue = None
-                  previewRenderer.rerender() &
-                    form.onEvent(ChangedField(this)) &
-                    (if hints.contains(ShowValidationsHint) then reRender() else Js.void) &
-                    Js.hide(resetButtonId)
-                }.cmd)
+                .addOnClick(
+                  fsc
+                    .callback: () =>
+                      currentValue = None
+                      previewRenderer.rerender() &
+                        form.onEvent(ChangedField(this)) &
+                        (if hints.contains(ShowValidationsHint) then reRender() else Js.void) &
+                        Js.hide(resetButtonId)
+                    .cmd
+                )
                 .withAttr("style")(cur =>
                   if currentValue.isDefined then cur.getOrElse("")
                   else cur.getOrElse("") + ";display:none;"

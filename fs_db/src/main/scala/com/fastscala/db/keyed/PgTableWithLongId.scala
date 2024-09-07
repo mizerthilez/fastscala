@@ -6,9 +6,7 @@ import scalikejdbc.*
 
 import com.fastscala.db.{ PgTable, TableWithId }
 
-trait PgTableWithLongId[R <: RowWithLongId[R]]
-    extends PgTable[R]
-       with TableWithId[R, java.lang.Long]:
+trait PgTableWithLongId[R <: RowWithLongId[R]] extends PgTable[R] with TableWithId[R, java.lang.Long]:
   override def createSampleRowInternal(): R =
     val ins = super.createSampleRowInternal()
     if ins == null then ins.id = 0

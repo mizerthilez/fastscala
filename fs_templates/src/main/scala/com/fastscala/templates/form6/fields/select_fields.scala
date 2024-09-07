@@ -28,11 +28,9 @@ trait F6FieldWithOptionsNsLabel[T] extends F6FieldMixin:
     _option2NodeSeq = opt => buildText(f(opt))
 
 trait F6FieldWithOptionIds[T] extends F6FieldMixin:
-  var _option2Id: (T, Seq[T]) => String = (opt, options) =>
-    "%X".formatted(options.indexOf(opt).toString)
+  var _option2Id: (T, Seq[T]) => String = (opt, options) => "%X".formatted(options.indexOf(opt).toString)
 
-  var _id2Option: (String, Seq[T]) => Option[T] = (id, options) =>
-    id.toIntOption.map(idx => options(idx))
+  var _id2Option: (String, Seq[T]) => Option[T] = (id, options) => id.toIntOption.map(idx => options(idx))
 
   def option2Id(f: (T, Seq[T]) => String): this.type = mutate:
     _option2Id = f
@@ -64,9 +62,9 @@ abstract class F6SelectFieldBase[T]()(implicit renderer: SelectF6FieldRenderer)
        with F6FieldWithOptionsNsLabel[T]:
   override def loadFromString(str: String): Seq[(ValidatableF6Field, NodeSeq)] =
     val all = options()
-    all.find {
+    all.find:
       case opt => _option2Id(opt, all) == str
-    } match
+    match
       case Some(v) =>
         currentValue = v
         _setter(v)
@@ -96,9 +94,8 @@ abstract class F6SelectFieldBase[T]()(implicit renderer: SelectF6FieldRenderer)
     val renderedOptions = options()
     val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
     val option2Id: Map[T, String] = ids2Option.map(_.swap)
-    val optionsRendered = renderedOptions.map { opt =>
+    val optionsRendered = renderedOptions.map: opt =>
       renderer.renderOption(this)(currentValue == opt, option2Id(opt), _option2NodeSeq(opt))
-    }
 
     val errorsAtRenderTime = errors()
 
@@ -112,10 +109,9 @@ abstract class F6SelectFieldBase[T]()(implicit renderer: SelectF6FieldRenderer)
               case id =>
                 ids2Option
                   .get(id)
-                  .map { value =>
+                  .map: value =>
                     currentValue = value
                     form.onEvent(ChangedField(this)(hints))(form, fsc)
-                  }
                   .getOrElse(Js.void) &
                   (if hints.contains(
                          ShowValidationsHint
@@ -140,8 +136,7 @@ abstract class F6SelectFieldBase[T]()(implicit renderer: SelectF6FieldRenderer)
   override def fieldsMatching(predicate: PartialFunction[F6Field, Boolean]): List[F6Field] =
     if predicate.applyOrElse[F6Field, Boolean](this, _ => false) then List(this) else Nil
 
-class F6SelectOptField[T]()(implicit renderer: SelectF6FieldRenderer)
-    extends F6SelectFieldBase[Option[T]]:
+class F6SelectOptField[T]()(implicit renderer: SelectF6FieldRenderer) extends F6SelectFieldBase[Option[T]]:
   override def defaultValue: Option[T] = None
 
   def optionsNonEmpty(v: Seq[T]): F6SelectOptField.this.type = options(None +: v.map(Some(_)))
@@ -177,9 +172,11 @@ abstract class F6MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF6Field
   override def loadFromString(str: String): Seq[(ValidatableF6Field, NodeSeq)] =
     val all = options()
     val id2Option: Map[String, T] = all.map(opt => _option2Id(opt, all) -> opt).toMap
-    val selected: Seq[T] = str.split(";").toList.flatMap { id =>
-      id2Option.get(id)
-    }
+    val selected: Seq[T] = str
+      .split(";")
+      .toList
+      .flatMap: id =>
+        id2Option.get(id)
     currentValue = selected.toSet
     _setter(currentValue)
     Nil
@@ -207,9 +204,8 @@ abstract class F6MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF6Field
     val renderedOptions = options()
     val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
     val option2Id: Map[T, String] = ids2Option.map(_.swap)
-    val optionsRendered = renderedOptions.map { opt =>
+    val optionsRendered = renderedOptions.map: opt =>
       renderer.renderOption(this)(currentValue == opt, option2Id(opt), _option2NodeSeq(opt))
-    }
 
     val errorsAtRenderTime = errors()
 

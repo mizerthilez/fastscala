@@ -21,9 +21,8 @@ object ImmediateInputFields:
   ): Elem =
     val inputId = "input" + fsc.session.nextID()
     val submit = JS
-      .withVarStmt("value", JS.checkboxIsChecked(inputId)) { value =>
+      .withVarStmt("value", JS.checkboxIsChecked(inputId)): value =>
         onSubmitClientSide(value) & fsc.callback(value, v => set(v.toBoolean))
-      }
       .cmd
     <div class="form-check form-check-custom form-check-solid">
       <input class={"form-check-input " + classes}
@@ -58,7 +57,7 @@ object ImmediateInputFields:
     val initialValue = get()
 
     val submit = JS
-      .withVarStmt("value", JS.elementValueById(inputId)) { value =>
+      .withVarStmt("value", JS.elementValueById(inputId)): value =>
         JS._if(
           if ignoreUnchangedValue then
             value `_!=` JS
@@ -67,11 +66,11 @@ object ImmediateInputFields:
           _then = JS.consoleLog(value) &
             onSubmitClientSide(value) & fsc.callback(value, str => set(str.trim)),
         )
-      }
       .cmd
-    val onkeypress = if changeOnEnter then
-      s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13) {${JS.blur(inputId).cmd}}"
-    else null
+    val onkeypress =
+      if changeOnEnter then
+        s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13) {${JS.blur(inputId).cmd}}"
+      else null
     val onblur = if btn.isEmpty then submit else null
 
     val inputNS = <input id={inputId} type={`type`} value={initialValue} onblur={
@@ -82,12 +81,11 @@ object ImmediateInputFields:
       />
 
     btn
-      .map { btn =>
+      .map: btn =>
         <div class="input-group ">
         {inputNS}
         {btn.withClass("input-group-text").onclick(Js(submit)).btn}
       </div>
-      }
       .getOrElse(inputNS)
 
   def range(
@@ -110,7 +108,7 @@ object ImmediateInputFields:
     val initialValue = get()
 
     val submit = JS
-      .withVarStmt("value", JS.elementValueById(inputId)) { value =>
+      .withVarStmt("value", JS.elementValueById(inputId)): value =>
         Js(
           s"""try {
            |  window.clearTimeout(window.timeout$inputId);
@@ -127,7 +125,6 @@ object ImmediateInputFields:
             )
             .cmd + s"}, $timeBeforeChangeMs);"
         )
-      }
       .cmd
 
     val inputNS = <input min={min.toString} max={max.toString} id={inputId} type={`type`} value={
@@ -152,18 +149,16 @@ object ImmediateInputFields:
     val values = all()
 
     val submit = JS
-      .withVarStmt("value", JS.elementValueById(elemId)) { value =>
+      .withVarStmt("value", JS.elementValueById(elemId)): value =>
         onSubmitClientSide(value) & fsc.callback(value, idxStr => set(values(idxStr.toInt)))
-      }
       .cmd
 
     <select id={elemId} class={classes} style={style} onchange={submit}>
       {
-      values.zipWithIndex.map {
+      values.zipWithIndex.map:
         case (value, idx) if value == get() =>
           <option value={idx.toString} selected="selected">{toString(value)}</option>
         case (value, idx) => <option value={idx.toString}>{toString(value)}</option>
-      }
     }
     </select>
 
@@ -181,9 +176,8 @@ object ImmediateInputFields:
     val inputId = "input" + fsc.session.nextID()
 
     val submit = JS
-      .withVarStmt("value", JS.elementValueById(inputId)) { value =>
+      .withVarStmt("value", JS.elementValueById(inputId)): value =>
         onSubmitClientSide(value) & fsc.callback(value, str => set(str.trim))
-      }
       .cmd
 
     val inputNS = <textarea

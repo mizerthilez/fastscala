@@ -52,10 +52,11 @@ object ClickToEditFields:
               <div>
           <select id={inputId} class="form-select" onchange={submit} onblur={submit}>
             {
-                valuesAndIndexes.map {
-                  case (v, idx) =>
-                    <option value={idx + ""}>{toString(v)}</option>
-                }.mkNS
+                valuesAndIndexes
+                  .map:
+                    case (v, idx) =>
+                      <option value={idx + ""}>{toString(v)}</option>
+                  .mkNS
               }
           </select>
         </div>
@@ -90,9 +91,8 @@ object ClickToEditFields:
                     fsc.callback(() => set(str.trim) & JS.replace(elemId, displaying)),
                   )
                 )
-                .getOrElse {
+                .getOrElse:
                   set(str.trim) & JS.replace(elemId, displaying)
-                }
             else JS.replace(elemId, displaying),
         )
         .cmd
@@ -234,8 +234,7 @@ object ClickToEditFields:
       transformDisplayElem = transformDisplayElem,
       transformEditElem = transformEditElem,
       confirm = confirm.map(origFunc =>
-        dateStr =>
-          origFunc(fromStr(dateStr).map(date => mainDateFormat.format(date)).getOrElse(emptyString))
+        dateStr => origFunc(fromStr(dateStr).map(date => mainDateFormat.format(date)).getOrElse(emptyString))
       ),
       tabindex = tabindex,
     )

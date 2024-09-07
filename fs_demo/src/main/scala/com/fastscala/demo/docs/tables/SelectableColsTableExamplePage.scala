@@ -45,9 +45,8 @@ class SelectableColsTableExamplePage extends SingleCodeExamplePage():
         row =>
           BSBtn().BtnPrimary.sm
             .lbl("Time?")
-            .ajax { implicit fsc =>
-              Js.alert(s"Time on server is: ${new Date().toGMTString}")
-            }
+            .ajax:
+              implicit fsc => Js.alert(s"Time on server is: ${new Date().toGMTString}")
             .btn,
     )
     val ColName = ColStr("Name", _.name.common)
@@ -68,8 +67,7 @@ class SelectableColsTableExamplePage extends SingleCodeExamplePage():
     val ColCallingCodes = ColStr("Calling Codes", _.callingCodes.mkString(", "))
     val ColFlag = ColStr("Flag", _.flag)
 
-    override def rowsSorter
-      : PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
+    override def rowsSorter: PartialFunction[Table5StandardColumn[Country], Seq[Country] => Seq[Country]] =
       case ColName => _.sortBy(_.name.common)
       case ColCCA2 => _.sortBy(_.cca2)
       case ColCCN3 => _.sortBy(_.ccn3)

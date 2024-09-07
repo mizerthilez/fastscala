@@ -60,14 +60,13 @@ abstract class Table5Base() extends Table5ColsRenderable:
     )
   )
 
-  def transformTableElem(elem: Elem)(implicit columns: Seq[(String, C)], rows: Seq[(String, R)])
-    : Elem = elem
+  def transformTableElem(elem: Elem)(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): Elem = elem
 
-  def transformTableHeadElem(elem: Elem)(implicit columns: Seq[(String, C)], rows: Seq[(String, R)])
-    : Elem = elem
+  def transformTableHeadElem(elem: Elem)(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): Elem =
+    elem
 
-  def transformTableBodyElem(elem: Elem)(implicit columns: Seq[(String, C)], rows: Seq[(String, R)])
-    : Elem = elem
+  def transformTableBodyElem(elem: Elem)(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): Elem =
+    elem
 
   def transformTableHeadTRElem(
     elem: Elem
@@ -121,9 +120,8 @@ abstract class Table5Base() extends Table5ColsRenderable:
 
   def renderTable()(implicit fsc: FSContext): Elem =
 
-    implicit val rowsWithIds: Seq[(String, R)] = rows().zipWithIndex.map {
+    implicit val rowsWithIds: Seq[(String, R)] = rows().zipWithIndex.map:
       case (row, rowIdx) => (idForRow(row, rowIdx), row)
-    }
     implicit val columnsWithIds: Seq[(String, C)] = columns().map(col => (idForColumn(col), col))
 
     val classes = tableClasses()
@@ -174,21 +172,22 @@ abstract class Table5Base() extends Table5ColsRenderable:
     columns: Seq[(String, C)],
     fsc: FSContext,
   ): NodeSeq =
-    rowsWithIds.zipWithIndex.map {
-      case ((rowId, value), rowIdx) =>
-        implicit val _rowId = rowId
-        implicit val _value = value
-        implicit val _rowIdx = new TableRowIdx(rowIdx)
-        JS.rerenderable(
-          implicit rerenderer =>
-            implicit fsc =>
-              implicit val trRerenderer: TRRerenderer = TRRerenderer(rerenderer)
-              renderTR().pipe(transformTRElem)
-          ,
-          idOpt = Some(rowId),
-          debugLabel = Some(s"table_row_${rowIdx}"),
-        ).render()
-    }.mkNS
+    rowsWithIds.zipWithIndex
+      .map:
+        case ((rowId, value), rowIdx) =>
+          implicit val _rowId = rowId
+          implicit val _value = value
+          implicit val _rowIdx = new TableRowIdx(rowIdx)
+          JS.rerenderable(
+            implicit rerenderer =>
+              implicit fsc =>
+                implicit val trRerenderer: TRRerenderer = TRRerenderer(rerenderer)
+                renderTR().pipe(transformTRElem)
+            ,
+            idOpt = Some(rowId),
+            debugLabel = Some(s"table_row_${rowIdx}"),
+          ).render()
+      .mkNS
 
   def trClasses(
   )(implicit
@@ -233,20 +232,21 @@ abstract class Table5Base() extends Table5ColsRenderable:
     rows: Seq[(String, R)],
     fsc: FSContext,
   ): NodeSeq =
-    columns.zipWithIndex.map {
-      case ((colThId, col), colIdx) =>
-        JS.rerenderable(
-          implicit rerenderer =>
-            implicit fsc =>
-              implicit val tdRerenderer: TDRerenderer = TDRerenderer(rerenderer)
-              implicit val _colThId: String = colThId
-              implicit val _col: C = col
-              implicit val _tableColIdx: TableColIdx = new TableColIdx(colIdx)
-              renderTRTD().pipe(transformTRTDElem)
-          ,
-          debugLabel = Some(s"table_row_${rowIdx.idx}_col_${colIdx}"),
-        ).render()
-    }.mkNS
+    columns.zipWithIndex
+      .map:
+        case ((colThId, col), colIdx) =>
+          JS.rerenderable(
+            implicit rerenderer =>
+              implicit fsc =>
+                implicit val tdRerenderer: TDRerenderer = TDRerenderer(rerenderer)
+                implicit val _colThId: String = colThId
+                implicit val _col: C = col
+                implicit val _tableColIdx: TableColIdx = new TableColIdx(colIdx)
+                renderTRTD().pipe(transformTRTDElem)
+            ,
+            debugLabel = Some(s"table_row_${rowIdx.idx}_col_${colIdx}"),
+          ).render()
+      .mkNS
 
   // ### Table head: ###
   def tableHeadClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
@@ -315,17 +315,18 @@ abstract class Table5Base() extends Table5ColsRenderable:
     rows: Seq[(String, R)],
     fsc: FSContext,
   ): NodeSeq =
-    columns.zipWithIndex.map {
-      case ((colThId, col), colIdx) =>
-        JS.rerenderable(
-          implicit rerenderer =>
-            implicit fsc =>
-              implicit val thRerenderer: THRerenderer = THRerenderer(rerenderer)
-              implicit val _colThId: String = colThId
-              implicit val _col: C = col
-              implicit val _tableColIdx: TableColIdx = new TableColIdx(colIdx)
-              renderTableHeadTRTH().pipe(transformTableHeadTRTDElem)
-          ,
-          debugLabel = Some(s"table_head_row_col_${colIdx}"),
-        ).render()
-    }.mkNS
+    columns.zipWithIndex
+      .map:
+        case ((colThId, col), colIdx) =>
+          JS.rerenderable(
+            implicit rerenderer =>
+              implicit fsc =>
+                implicit val thRerenderer: THRerenderer = THRerenderer(rerenderer)
+                implicit val _colThId: String = colThId
+                implicit val _col: C = col
+                implicit val _tableColIdx: TableColIdx = new TableColIdx(colIdx)
+                renderTableHeadTRTH().pipe(transformTableHeadTRTDElem)
+            ,
+            debugLabel = Some(s"table_head_row_col_${colIdx}"),
+          ).render()
+      .mkNS

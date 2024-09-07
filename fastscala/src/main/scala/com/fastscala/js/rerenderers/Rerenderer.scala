@@ -20,11 +20,9 @@ class Rerenderer[Env <: FSXmlEnv](
 
   def render()(implicit fsc: FSContext): env.Elem =
     rootRenderContext = Some(fsc)
-    val rendered = renderFunc(this) {
-      if gcOldFSContext then
-        fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
+    val rendered = renderFunc(this):
+      if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
       else fsc
-    }
     rendered.getId() match
       case Some(id) =>
         aroundId = id

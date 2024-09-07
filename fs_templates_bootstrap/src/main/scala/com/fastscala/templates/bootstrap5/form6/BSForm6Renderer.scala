@@ -212,8 +212,7 @@ abstract class BSForm6Renderer:
   //  }
 
   implicit def buttonFieldRenderer: ButtonF6FieldRenderer = new ButtonF6FieldRenderer:
-    override def render(field: F6SaveButtonField[?])(btn: Elem)(implicit hints: Seq[RenderHint])
-      : Elem =
+    override def render(field: F6SaveButtonField[?])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem =
       if !field.enabled then div.withId(field.aroundId).withStyle(";display:none;")
       else
         div.mb_3

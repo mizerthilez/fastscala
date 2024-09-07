@@ -17,9 +17,10 @@ class CallbacksPage extends MultipleCodeExamples2Page():
       <button
         class="btn btn-primary d-block mx-auto"
         onclick={
-        fsc.callback { () =>
-          Js.alert(s"Current date/time on server: ${new Date().toString}")
-        }.cmd
+        fsc
+          .callback: () =>
+            Js.alert(s"Current date/time on server: ${new Date().toString}")
+          .cmd
       }
       >Check time on server</button>
     renderSnippet("Callback with args"):

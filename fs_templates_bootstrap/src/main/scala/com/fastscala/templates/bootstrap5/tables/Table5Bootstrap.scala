@@ -64,13 +64,11 @@ trait Table5BaseBootrapSupport extends Table5Base:
       tableStyle.map(" " + _ + " ").getOrElse("") +
       tableBorderStyle.map(" " + _ + " ").getOrElse("")
 
-  override def tableHeadClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)])
-    : String =
+  override def tableHeadClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String =
     super.tableHeadClasses() + " table " +
       tableHeadStyle.map(" " + _ + " ").getOrElse("")
 
   override def renderTable()(implicit fsc: FSContext): Elem = tableResponsive
-    .map { size =>
+    .map: size =>
       <div class={size.toString}>{super.renderTable()}</div>
-    }
     .getOrElse(super.renderTable())

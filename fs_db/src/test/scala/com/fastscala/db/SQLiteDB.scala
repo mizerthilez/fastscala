@@ -12,10 +12,9 @@ trait SQLiteDB:
   //  ConnectionPool.add("db", "jdbc:sqlite:fastscala_db_test.db", "fastscala_db_test", "")
 
   scalikejdbc.GlobalSettings.jtaDataSourceCompatible = true
-  ConnectionPool.singleton {
+  ConnectionPool.singleton:
     val conf = new SQLiteConfig()
     conf.setReadOnly(false)
     val source = new SQLiteDataSource(conf)
     source.setUrl(s"jdbc:sqlite:fastscala_db_test.db")
     new DataSourceConnectionPool(source)
-  }

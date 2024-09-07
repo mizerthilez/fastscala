@@ -89,7 +89,7 @@ abstract class MultipleCodeExamples2Page() extends LoggedInPage():
 
   def collectSection(thisSectionStartsAt: Int): Unit =
     import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
-    lastSection.foreach {
+    lastSection.foreach:
       case (lastSectionStartedAt, title, contents) =>
         val code =
           lines.drop(lastSectionStartedAt).take(thisSectionStartsAt - lastSectionStartedAt - 1)
@@ -97,13 +97,11 @@ abstract class MultipleCodeExamples2Page() extends LoggedInPage():
         val leftPadding: Int =
           code.iterator.map(_.takeWhile(_ == ' ').size).filter(_ > 0).minOption.getOrElse(0)
         val withoutPadding = code.map(_.drop(leftPadding)).mkString("\n")
-        val rendered = div.apply {
+        val rendered = div.apply:
           <pre><code style="background-color: #eee;" class="language-scala">{
             withoutPadding
           }</code></pre>.m_0
-        }
         sections ::= renderCodeSnippet(title, rendered, contents)
-    }
 
   def closeSnippet(): Unit = renderSnippet(
     "",
