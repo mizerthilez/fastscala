@@ -40,18 +40,18 @@ lazy val fastscala = (project in file(FSRoot + "fastscala"))
   .settings(
     name := "fastscala",
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % "1.5.6",
+      "ch.qos.logback" % "logback-classic" % "1.5.8",
       // "net.logstash.logback" % "logstash-logback-encoder" % "8.0",
       "org.slf4j" % "slf4j-api" % "2.0.16",
       "com.github.loki4j" % "loki-logback-appender" % "1.5.2",
       "io.prometheus" % "prometheus-metrics-core" % "1.3.1",
       "com.typesafe" % "config" % "1.4.3",
       "org.apache.commons" % "commons-text" % "1.12.0",
-      "org.eclipse.jetty" % "jetty-server" % "12.0.12",
-      "org.eclipse.jetty.websocket" % "jetty-websocket-jetty-server" % "12.0.12",
-      "io.circe" %% "circe-core" % "0.14.9",
-      "io.circe" %% "circe-generic" % "0.14.9",
-      "io.circe" %% "circe-parser" % "0.14.9",
+      "org.eclipse.jetty" % "jetty-server" % "12.0.13",
+      "org.eclipse.jetty.websocket" % "jetty-websocket-jetty-server" % "12.0.13",
+      "io.circe" %% "circe-core" % "0.14.10",
+      "io.circe" %% "circe-generic" % "0.14.10",
+      "io.circe" %% "circe-parser" % "0.14.10",
     ),
   )
 
@@ -68,10 +68,10 @@ lazy val fs_db = (project in file(FSRoot + "fs_db"))
   .settings(
     name := "fs_db",
     libraryDependencies ++= Seq(
-      "org.postgresql" % "postgresql" % "42.7.3",
-      "org.xerial" % "sqlite-jdbc" % "3.46.0.1",
+      "org.postgresql" % "postgresql" % "42.7.4",
+      "org.xerial" % "sqlite-jdbc" % "3.46.1.0",
       "org.scalikejdbc" %% "scalikejdbc" % "4.3.1",
-      "com.google.guava" % "guava" % "33.2.1-jre",
+      "com.google.guava" % "guava" % "33.3.0-jre",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
     ),
     Test / parallelExecution := false,
