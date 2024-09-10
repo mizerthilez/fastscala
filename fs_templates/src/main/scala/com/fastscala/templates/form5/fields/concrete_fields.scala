@@ -1366,6 +1366,9 @@ class F5MultiSelectField[T](
     if predicate.applyOrElse[FormField, Boolean](this, _ => false) then List(this) else Nil
 
 object EnumField:
+  import com.fastscala.utils.ReflectUtils.valuesFor
+  import scala.deriving.Mirror
+
   def NonNullable[T <: Enumeration](
     e: T,
     get: () => e.Value,
@@ -1375,10 +1378,31 @@ object EnumField:
     name: Option[String] = None,
     enabled: () => Boolean = () => true,
     deps: Set[FormField] = Set(),
-  )(implicit renderer: SelectFieldRenderer
+  )(using SelectFieldRenderer
   ) =
-    new F5SelectField[e.Value](
+    F5SelectField(
       all = () => e.values.toList.sortBy(_.id),
+      get = get,
+      set = set,
+      toString = toString,
+      label = label,
+      name = name,
+      enabled = enabled,
+      deps = deps,
+    )
+
+  inline def NonNullable2[T: Mirror.SumOf](
+    get: () => T,
+    set: T => Js,
+    toString: T => String = (v: AnyRef) => v.toString,
+    label: Option[NodeSeq] = None,
+    name: Option[String] = None,
+    enabled: () => Boolean = () => true,
+    deps: Set[FormField] = Set(),
+  )(using SelectFieldRenderer
+  ) =
+    F5SelectField(
+      all = () => valuesFor.sortBy(_.toString()),
       get = get,
       set = set,
       toString = toString,
@@ -1398,10 +1422,33 @@ object EnumField:
     enabled: () => Boolean = () => true,
     deps: Set[FormField] = Set(),
     size: Option[Int] = None,
-  )(implicit renderer: MultiSelectFieldRenderer
+  )(using MultiSelectFieldRenderer
   ) =
-    new F5MultiSelectField[e.Value](
+    F5MultiSelectField(
       all = () => e.values.toList.sortBy(_.id),
+      get = get,
+      set = set,
+      toString = toString,
+      label = label,
+      name = name,
+      enabled = enabled,
+      deps = deps,
+      size = size,
+    )
+
+  inline def Multi2[T: Mirror.SumOf](
+    get: () => Set[T],
+    set: Set[T] => Js,
+    toString: T => String = (v: AnyRef) => v.toString,
+    label: Option[NodeSeq] = None,
+    name: Option[String] = None,
+    enabled: () => Boolean = () => true,
+    deps: Set[FormField] = Set(),
+    size: Option[Int] = None,
+  )(using MultiSelectFieldRenderer
+  ) =
+    F5MultiSelectField(
+      all = () => valuesFor.sortBy(_.toString()),
       get = get,
       set = set,
       toString = toString,
@@ -1422,9 +1469,10 @@ object EnumField:
     required: () => Boolean = () => false,
     enabled: () => Boolean = () => true,
     deps: Set[FormField] = Set(),
-  )(implicit renderer: SelectFieldRenderer
+  )(using SelectFieldRenderer
   ) =
-    new F5SelectField[Option[e.Value]](
+    F5SelectFieldForEnum(
+      required,
       all = () => None :: e.values.toList.sortBy(_.id).map(Some(_)),
       get = get,
       set = set,
@@ -1433,11 +1481,56 @@ object EnumField:
       name = name,
       enabled = enabled,
       deps = deps,
-    ):
-      override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
-        (if required() && currentlySelectedValue.isEmpty then
-           Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
-         else Seq())
+    )
+
+  inline def Nullable2[T: Mirror.SumOf](
+    get: () => Option[T],
+    set: Option[T] => Js,
+    toString: Option[T] => String = (v: Option[AnyRef]) => v.map(_.toString).getOrElse("--"),
+    label: Option[NodeSeq] = None,
+    name: Option[String] = None,
+    required: () => Boolean = () => false,
+    enabled: () => Boolean = () => true,
+    deps: Set[FormField] = Set(),
+  )(using SelectFieldRenderer
+  ) =
+    F5SelectFieldForEnum(
+      required,
+      all = () => None :: valuesFor.sortBy(_.toString).map(Some(_)),
+      get = get,
+      set = set,
+      toString = toString,
+      label = label,
+      name = name,
+      enabled = enabled,
+      deps = deps,
+    )
+
+  class F5SelectFieldForEnum[T](
+    required: () => Boolean,
+    all: () => Seq[Option[T]],
+    get: () => Option[T],
+    set: Option[T] => Js,
+    toString: Option[T] => String,
+    label: Option[NodeSeq],
+    name: Option[String],
+    enabled: () => Boolean,
+    deps: Set[FormField],
+  )(using renderer: SelectFieldRenderer
+  ) extends F5SelectField[Option[T]](
+        all = all,
+        get = get,
+        set = set,
+        toString = toString,
+        label = label,
+        name = name,
+        enabled = enabled,
+        deps = deps,
+      ):
+    override def errors(): Seq[(ValidatableField, NodeSeq)] = super.errors() ++
+      (if required() && currentlySelectedValue.isEmpty then
+         Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+       else Seq())
 
 class F5TextAreaField(
   get: () => String,

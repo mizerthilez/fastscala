@@ -290,4 +290,44 @@ class FormInputTypesPage extends MultipleCodeExamples2Page():
             new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
         .render()
+    renderSnippet("New Enum-based"):
+
+      sealed trait Family
+      case class House(name: String) extends Family
+      case object Dad extends Family
+      case object Mum extends Family
+      case object Baby extends Family
+
+      val inputField = EnumField
+        .NonNullable[Family]
+        .label("Family")
+        .option2String(_.toString)
+
+      enum Color(val rgb: Int):
+        case Custom(c: Int) extends Color(c)
+        case Red extends Color(0xff0000)
+        case Green extends Color(0x00ff00)
+        case Blue extends Color(0x0000ff)
+
+      val inputField2 = EnumField
+        .Nullable[Color]
+        .label("Color")
+        .option2String(_.map(_.toString).getOrElse("--"))
+
+      div.border.p_2.rounded.apply:
+        new DefaultForm6():
+          override def postSave()(implicit fsc: FSContext): Js =
+            BSModal5.verySimple("Your input", "Done")(modal =>
+              implicit fsc =>
+                fs_4.apply(s"Your selection:") ++
+                  pre.apply(inputField.currentValue.toString) ++
+                  pre.apply(inputField2.currentValue.toString)
+            )
+
+          override lazy val rootField: F6Field = F6VerticalField()(
+            inputField,
+            inputField2,
+            new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+          )
+        .render()
     closeSnippet()
