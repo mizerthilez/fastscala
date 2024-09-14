@@ -7,73 +7,73 @@ import com.fastscala.demo.docs.forms.FormInputTypesPage
 import com.fastscala.demo.docs.html.{ HtmlTagsPage, HtmlUtilsPage, ScalaTagsPage }
 import com.fastscala.demo.docs.js.JsUtilsPage
 import com.fastscala.demo.docs.navigation.*
-import com.fastscala.demo.docs.navigation.DefaultBSMenuRenderer.given
+import com.fastscala.demo.docs.navigation.DefaultBSMenuRenderers.given
 
 object FSDemoMainMenu
     extends BSMenu(
       MenuSection("About FastScala")(
-        new RoutingMenuItem()("About", () => new AboutPage()),
-        new RoutingMenuItem("getting_started")("Getting Started", () => new GettingStartedPage()),
-        new RoutingMenuItem("author")("Author", () => new AuthorPage()),
+        RoutingMenuItem()("About", AboutPage()),
+        RoutingMenuItem("getting_started")("Getting Started", GettingStartedPage()),
+        RoutingMenuItem("author")("Author", AuthorPage()),
       ),
       MenuSection("FastScala Basics")(
-        new RoutingMenuItem("demo", "fastscala", "callbacks")(
+        RoutingMenuItem("demo", "fastscala", "callbacks")(
           "Callbacks",
-          () => new CallbacksPage(),
+          CallbacksPage(),
         ),
-        new RoutingMenuItem("demo", "fastscala", "rerenderable")(
+        RoutingMenuItem("demo", "fastscala", "rerenderable")(
           "Rerenderable",
-          () => new RerenderablePage(),
+          RerenderablePage(),
         ),
-        new RoutingMenuItem("demo", "fastscala", "file_upload")(
+        RoutingMenuItem("demo", "fastscala", "file_upload")(
           "File Upload",
-          () => new FileUploadPage(),
+          FileUploadPage(),
         ),
-        new RoutingMenuItem("demo", "fastscala", "anon_page")(
+        RoutingMenuItem("demo", "fastscala", "anon_page")(
           "Anonymous Page",
-          () => new AnonymousPage(),
+          AnonymousPage(),
         ),
-        new RoutingMenuItem("demo", "fastscala", "file_download")(
+        RoutingMenuItem("demo", "fastscala", "file_download")(
           "File Download",
-          () => new FileDownloadPage(),
+          FileDownloadPage(),
         ),
-        new RoutingMenuItem("demo", "fastscala", "server_side_push")(
+        RoutingMenuItem("demo", "fastscala", "server_side_push")(
           "Server Side Push",
-          () => new ServerSidePushPage(),
+          ServerSidePushPage(),
         ),
       ),
       MenuSection("HTML utils")(
-        new RoutingMenuItem("demo", "html", "tags")("tags", () => new HtmlTagsPage()),
-        new RoutingMenuItem("demo", "html", "utils")("utils", () => new HtmlUtilsPage()),
-        new RoutingMenuItem("demo", "html", "scala-tags")(
+        RoutingMenuItem("demo", "html", "tags")("tags", HtmlTagsPage()),
+        RoutingMenuItem("demo", "html", "utils")("utils", HtmlUtilsPage()),
+        RoutingMenuItem("demo", "html", "scala-tags")(
           "Integrating ScalaTags",
-          () => new ScalaTagsPage(),
+          ScalaTagsPage(),
         ),
       ),
       MenuSection("Js utils")(
-        new RoutingMenuItem("demo", "js", "overview")("Overview", () => new JsUtilsPage()),
+        RoutingMenuItem("demo", "js", "overview")("Overview", JsUtilsPage()),
         SimpleMenuItem("BarChart", "/demo/chartjs/simple"),
       ),
       MenuSection("Bootstrap utils")(
-        new RoutingMenuItem("demo", "bootstrap", "buttons")(
+        RoutingMenuItem("demo", "bootstrap", "buttons")(
           "Buttons",
-          () => new BootstrapButtonsPage(),
+          BootstrapButtonsPage(),
         ),
-        new RoutingMenuItem("demo", "bootstrap", "typography")(
+        RoutingMenuItem("demo", "bootstrap", "typography")(
           "Typography",
-          () => new BootstrapTypographyPage(),
+          BootstrapTypographyPage(),
         ),
-        new RoutingMenuItem("demo", "bootstrap", "images")(
+        RoutingMenuItem("demo", "bootstrap", "images")(
           "Images",
-          () => new BootstrapImagesPage(),
+          BootstrapImagesPage(),
         ),
-        new RoutingMenuItem("demo", "bootstrap", "modal")("Modal", () => new BootstrapModalPage()),
+        RoutingMenuItem("demo", "bootstrap", "modal")("Modal", BootstrapModalPage()),
       ),
       MenuSection("Forms Lib")(
         SimpleMenuItem("Simple", "/demo/simple_form"),
-        new RoutingMenuItem("demo", "forms", "input_types")(
+        RoutingMenuItem("demo", "forms", "input_types")(
           "Input Types",
-          () => new FormInputTypesPage(),
+          FormInputTypesPage(),
         ),
       ),
       MenuSection("Table Lib")(

@@ -71,17 +71,17 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
         .map(servePage[FSScalaXmlEnv.type](_))
         .orElse {
           Some(req).collect {
-            case Get("demo") => servePage(new SimpleTableExamplePage())
-            case Get("demo", "simple_tables") => servePage(new SimpleTableExamplePage())
-            case Get("demo", "sortable_tables") => servePage(new SortableTableExamplePage())
-            case Get("demo", "paginated_tables") => servePage(new PaginatedTableExamplePage())
+            case Get("demo") => servePage(SimpleTableExamplePage())
+            case Get("demo", "simple_tables") => servePage(SimpleTableExamplePage())
+            case Get("demo", "sortable_tables") => servePage(SortableTableExamplePage())
+            case Get("demo", "paginated_tables") => servePage(PaginatedTableExamplePage())
             case Get("demo", "selectable_rows_tables") =>
-              servePage(new SelectableRowsTableExamplePage())
-            case Get("demo", "tables_sel_cols") => servePage(new SelectableColsTableExamplePage())
-            case Get("demo", "simple_form") => servePage(new BasicFormExamplePage())
-            case Get("demo", "simple_modal") => servePage(new BootstrapModalPage())
+              servePage(SelectableRowsTableExamplePage())
+            case Get("demo", "tables_sel_cols") => servePage(SelectableColsTableExamplePage())
+            case Get("demo", "simple_form") => servePage(BasicFormExamplePage())
+            case Get("demo", "simple_modal") => servePage(BootstrapModalPage())
 
-            case Get("demo", "chartjs", "simple") => servePage(new SimpleChartjsPage())
+            case Get("demo", "chartjs", "simple") => servePage(SimpleChartjsPage())
           }
         }
         .orElse(

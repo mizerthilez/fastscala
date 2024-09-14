@@ -51,12 +51,12 @@ class RoutingMenuItem(
   matching: String*
 )(
   val name: String,
-  page: () => ScalaXmlRenderableWithFSContext,
+  page: => ScalaXmlRenderableWithFSContext,
 )(implicit renderer: RoutingMenuItemRenderer
 ) extends MenuItem:
   def matches(uri: String): Boolean = href == uri
 
-  def href: String = matching.mkString("/", "/", "")
+  val href: String = matching.mkString("/", "/", "")
 
   def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
 
@@ -64,7 +64,7 @@ class RoutingMenuItem(
 
   def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] =
     Some(req).collect:
-      case Get(path*) if path == matching => page()
+      case Get(path*) if path == matching => page
 
 class HeaderMenuItem(val title: String)(implicit renderer: HeaderMenuItemRenderer) extends MenuItem:
   override def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
