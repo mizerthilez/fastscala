@@ -11,7 +11,7 @@ class SimpleChartjsPage extends SingleCodeExamplePage():
   override def pageTitle: String = "Simple chart.js Example"
 
   override def append2Body(): NodeSeq = super.append2Body() ++
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://fastly.jsdelivr.net/npm/chart.js"></script>
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===

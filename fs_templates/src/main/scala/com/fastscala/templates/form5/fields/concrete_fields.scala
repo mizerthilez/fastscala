@@ -1645,18 +1645,18 @@ class F5TextAreaField(
 object F5CodeField:
   def cssImports: NodeSeq =
     <link href={
-      "https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/css/ace.min.css"
+      "https://fastly.jsdelivr.net/npm/ace-builds@1.31.1/css/ace.min.css"
     } rel="stylesheet"></link>
 
   def jsImports: NodeSeq =
     <script src={
-      "https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/ace.min.js"
+      "https://fastly.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/ace.min.js"
     }></script> ++
       <script src={
-        "https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/mode-html.js"
+        "https://fastly.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/mode-html.js"
       }></script> ++
       <script src={
-        "https://cdn.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/theme-textmate.js"
+        "https://fastly.jsdelivr.net/npm/ace-builds@1.31.1/src-min-noconflict/theme-textmate.js"
       }></script>
 
 class F5CodeField(
