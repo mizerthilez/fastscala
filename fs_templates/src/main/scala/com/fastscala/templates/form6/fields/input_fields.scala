@@ -78,6 +78,8 @@ trait F6FieldWithDisabled extends F6FieldInputFieldMixin:
 
   def isDisabled: this.type = disabled(true)
 
+  def isNotDisabled: this.type = disabled(false)
+
   def disabled(v: Boolean): this.type = mutate:
     _disabled = () => v
 
@@ -97,6 +99,8 @@ trait F6FieldWithRequired extends F6FieldInputFieldMixin:
 
   def isRequired: this.type = required(true)
 
+  def isNotRequired: this.type = required(false)
+
   def required(v: Boolean): this.type = mutate:
     _required = () => v
 
@@ -115,6 +119,8 @@ trait F6FieldWithReadOnly extends F6FieldInputFieldMixin:
 
   def isReadOnly: this.type = readOnly(true)
 
+  def isNotReadOnly: this.type = readOnly(false)
+
   def readOnly(v: Boolean): this.type = mutate:
     _readOnly = () => v
 
@@ -132,6 +138,8 @@ trait F6FieldWithEnabled extends F6FieldInputFieldMixin:
   def enabled: Boolean = _enabled()
 
   def isEnabled: this.type = enabled(true)
+
+  def isNotEnabled: this.type = enabled(false)
 
   def enabled(v: Boolean): this.type = mutate:
     _enabled = () => v
@@ -293,6 +301,8 @@ trait F6FieldWithDependencies extends F6FieldInputFieldMixin:
 
   def deps: Set[F6Field] = _deps()
 
+  def deps(v: F6Field*): this.type = deps(v.toSet)
+
   def deps(v: Set[F6Field]): this.type = mutate:
     _deps = () => v
 
@@ -418,7 +428,7 @@ abstract class F6TextField[T]()(implicit renderer: TextF6FieldRenderer)
     fsc: FSContext,
     hints: Seq[RenderHint],
   ): Js = super.onEvent(event) & (event match
-    case PerformSave => _setter(currentValue)
+    case Save => _setter(currentValue)
     case _ => Js.void
   )
 

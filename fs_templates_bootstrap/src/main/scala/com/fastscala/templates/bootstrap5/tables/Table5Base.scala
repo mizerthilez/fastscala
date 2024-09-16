@@ -9,7 +9,7 @@ import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
-import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
+import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.{ MkNSFromElems, MkNSFromNodeSeq }
 
 abstract class Table5Base() extends Table5ColsRenderable:
   type R
@@ -178,7 +178,7 @@ abstract class Table5Base() extends Table5ColsRenderable:
           implicit val _rowId = rowId
           implicit val _value = value
           implicit val _rowIdx = new TableRowIdx(rowIdx)
-          JS.rerenderable(
+          val rerenderable = JS.rerenderable(
             implicit rerenderer =>
               implicit fsc =>
                 implicit val trRerenderer: TRRerenderer = TRRerenderer(rerenderer)
@@ -186,7 +186,10 @@ abstract class Table5Base() extends Table5ColsRenderable:
             ,
             idOpt = Some(rowId),
             debugLabel = Some(s"table_row_${rowIdx}"),
-          ).render()
+          )
+          renderTRPrepend() ++
+            rerenderable.render() ++
+            renderTRAppend()
       .mkNS
 
   def trClasses(
@@ -205,6 +208,16 @@ abstract class Table5Base() extends Table5ColsRenderable:
     rows: Seq[(String, R)],
   ): String = ""
 
+  def renderTRPrepend(
+  )(implicit
+    tableBodyRerenderer: TableBodyRerenderer,
+    value: R,
+    rowIdx: TableRowIdx,
+    columns: Seq[(String, C)],
+    rows: Seq[(String, R)],
+    fsc: FSContext,
+  ): NodeSeq = NodeSeq.Empty
+
   def renderTR(
   )(implicit
     tableBodyRerenderer: TableBodyRerenderer,
@@ -221,6 +234,16 @@ abstract class Table5Base() extends Table5ColsRenderable:
 
     val trContents = renderTRContents()
     <tr class={classes} style={style}>{trContents}</tr>
+
+  def renderTRAppend(
+  )(implicit
+    tableBodyRerenderer: TableBodyRerenderer,
+    value: R,
+    rowIdx: TableRowIdx,
+    columns: Seq[(String, C)],
+    rows: Seq[(String, R)],
+    fsc: FSContext,
+  ): NodeSeq = NodeSeq.Empty
 
   def renderTRContents(
   )(implicit
@@ -279,18 +302,29 @@ abstract class Table5Base() extends Table5ColsRenderable:
     columns: Seq[(String, C)],
     fsc: FSContext,
   ): NodeSeq =
-    JS.rerenderable(
+    val rerenderer = JS.rerenderable(
       implicit rerenderer =>
         implicit fsc =>
           implicit val trRerenderer: TRRerenderer = TRRerenderer(rerenderer)
           renderTableHeadTR().pipe(transformTableHeadTRElem)
       ,
       debugLabel = Some(s"table_head_row"),
-    ).render()
+    )
+    renderTableHeadTRPrepend() ++
+      rerenderer.render() ++
+      renderTableHeadTRAppend()
 
   def theadTRClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
 
   def theadTRStyle()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String = ""
+
+  def renderTableHeadTRPrepend(
+  )(implicit
+    tableHeadRerenderer: TableHeadRerenderer,
+    columns: Seq[(String, C)],
+    rows: Seq[(String, R)],
+    fsc: FSContext,
+  ): NodeSeq = NodeSeq.Empty
 
   def renderTableHeadTR(
   )(implicit
@@ -306,6 +340,14 @@ abstract class Table5Base() extends Table5ColsRenderable:
 
     val trContents = renderTableHeadTRContents()
     <tr class={classes} style={style}>{trContents}</tr>
+
+  def renderTableHeadTRAppend(
+  )(implicit
+    tableHeadRerenderer: TableHeadRerenderer,
+    columns: Seq[(String, C)],
+    rows: Seq[(String, R)],
+    fsc: FSContext,
+  ): NodeSeq = NodeSeq.Empty
 
   def renderTableHeadTRContents(
   )(implicit

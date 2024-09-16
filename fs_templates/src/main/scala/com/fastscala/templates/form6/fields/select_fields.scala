@@ -82,7 +82,7 @@ abstract class F6SelectFieldBase[T]()(implicit renderer: SelectF6FieldRenderer)
     fsc: FSContext,
     hints: Seq[RenderHint],
   ): Js = super.onEvent(event) & (event match
-    case PerformSave => _setter(currentValue)
+    case Save => _setter(currentValue)
     case _ => Js.void
   )
 
@@ -192,7 +192,7 @@ abstract class F6MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF6Field
     fsc: FSContext,
     hints: Seq[RenderHint],
   ): Js = super.onEvent(event) & (event match
-    case PerformSave => _setter(currentValue)
+    case Save => _setter(currentValue)
     case _ => Js.void
   )
 

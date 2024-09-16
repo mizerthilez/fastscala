@@ -264,17 +264,17 @@ class F6SaveButtonField[B](
     fsc: FSContext,
     hints: Seq[RenderHint],
   ): Js = super.onEvent(event) & (event match
-    case AfterSave =>
+    case PostSave =>
       // btnRenderer.rerender((toInitialState, form)).printToConsoleBefore()
       Js.void
-    case BeforeSave => Js.void
-    case ErrorsOnSave =>
+    case PreSave => Js.void
+    case FailedSave =>
       // btnRenderer.rerender((toErrorState, form)).printToConsoleBefore()
       Js.void
     case ChangedField(_) =>
       // btnRenderer.rerender((toChangedState, form)).printToConsoleBefore()
       Js.void
-    case PerformSave => Js.void
+    case Save => Js.void
     case _ => Js.void
   )
 

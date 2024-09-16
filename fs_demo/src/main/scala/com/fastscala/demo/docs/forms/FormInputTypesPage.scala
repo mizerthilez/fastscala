@@ -271,7 +271,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page():
       object OutputState extends Enumeration:
         val High, Low, HighZ = Value
 
-      val inputField = EnumField
+      val inputField = F6EnumField
         .Nullable(OutputState)
         .label("Output State")
         .option2String(_.map(_.toString).getOrElse("--"))
@@ -298,7 +298,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page():
       case object Mum extends Family
       case object Baby extends Family
 
-      val inputField = EnumField
+      val inputField = F6EnumField
         .NonNullable[Family]
         .label("Family")
         .option2String(_.toString)
@@ -309,7 +309,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page():
         case Green extends Color(0x00ff00)
         case Blue extends Color(0x0000ff)
 
-      val inputField2 = EnumField
+      val inputField2 = F6EnumField
         .Nullable[Color]
         .label("Color")
         .option2String(_.map(_.toString).getOrElse("--"))

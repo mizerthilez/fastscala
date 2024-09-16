@@ -69,7 +69,7 @@ abstract class F6TextareaField[T]()(implicit renderer: TextareaF6FieldRenderer)
     fsc: FSContext,
     hints: Seq[RenderHint],
   ): Js = super.onEvent(event) & (event match
-    case PerformSave => _setter(currentValue)
+    case Save => _setter(currentValue)
     case _ => Js.void
   )
 
