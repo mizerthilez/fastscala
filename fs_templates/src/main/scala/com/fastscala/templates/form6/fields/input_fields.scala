@@ -20,15 +20,10 @@ import com.fastscala.utils.Lazy
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
-trait F6FieldMixin extends F6Field:
-  def mutate(code: => Unit): this.type =
-    code
-    this
-
-trait F6FieldInputFieldMixin extends F6FieldWithValidations with F6FieldMixin:
+trait F6FieldInputFieldMixin extends F6FieldWithValidations with F6DefaultField:
   def processInputElem(input: Elem): Elem = input
 
-trait F6FieldWithValue[T] extends F6FieldMixin:
+trait F6FieldWithValue[T] extends F6DefaultField:
   def defaultValue: T
 
   private lazy val currentValueHolder: Lazy[T] = Lazy(_getter())
@@ -237,11 +232,17 @@ trait F6FieldWithLabel extends F6FieldInputFieldMixin:
   def label(v: String): this.type = mutate:
     _label = () => Some(buildText(v))
 
-  def label(f: () => Option[NodeSeq]): this.type = mutate:
+  def labelNodeSeqF(f: () => Option[NodeSeq]): this.type = mutate:
     _label = f
+
+  def labelStrF(f: () => String): this.type = mutate:
+    _label = () => Some(<span>{f()}</span>)
 
   def withLabel(label: String): this.type = mutate:
     _label = () => Some(<span>{label}</span>)
+
+  def withLabel(label: Elem): this.type = mutate:
+    _label = () => Some(label)
 
 trait F6FieldWithMaxlength extends F6FieldInputFieldMixin:
   var _maxlength: () => Option[Int] = () => None
@@ -309,7 +310,7 @@ trait F6FieldWithDependencies extends F6FieldInputFieldMixin:
   def deps(f: () => Set[F6Field]): this.type = mutate:
     _deps = f
 
-trait F6FieldWithPrefix extends F6FieldMixin:
+trait F6FieldWithPrefix extends F6DefaultField:
   var _prefix: () => String = () => ""
 
   def prefix: String = _prefix()
@@ -320,7 +321,7 @@ trait F6FieldWithPrefix extends F6FieldMixin:
   def prefix(f: () => String): this.type = mutate:
     _prefix = f
 
-trait F6FieldWithSuffix extends F6FieldMixin:
+trait F6FieldWithSuffix extends F6DefaultField:
   var _suffix: () => String = () => ""
 
   def suffix: String = _suffix()

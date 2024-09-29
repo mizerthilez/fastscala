@@ -495,7 +495,7 @@ class FSSession(
     fsSystem.stats.event(StatEvent.CREATE_PAGE)
     this.synchronized:
       pages += (page.id -> page)
-    // FSSession.logger.trace(s"Created page: page_id=${page.id}, evt_type=create_page")
+    FSSession.logger.trace(s"Created page: page_id=${page.id}")
     code(page.rootFSContext)
   catch
     case ex: Exception =>
@@ -627,9 +627,10 @@ class FSSystem(
                           case None =>
                             try fsFunc.func(arg)
                             catch case ex: Exception => handleCallbackException(ex)
-                        logger.trace(
-                          s"Invoke func: session_id=${session.id}, page_id=$pageId, func_id=$funcId, took_ms=${System.currentTimeMillis() - start}, response_size_bytes=${rslt.cmd.getBytes.size}, evt_type=invk_func"
-                        )
+                        if logger.isTraceEnabled then
+                          logger.trace(
+                            s"Invoke func: session_id=${session.id}, page_id=$pageId, func_id=$funcId, took_ms=${System.currentTimeMillis() - start}, response_size_bytes=${rslt.cmd.getBytes.size}, evt_type=invk_func"
+                          )
                         stats.event(
                           StatEvent.USE_CALLBACK,
                           additionalFields = Seq("func_name" -> fsFunc.fullPath),
@@ -869,21 +870,22 @@ class FSSystem(
     if Runtime.getRuntime.totalMemory() > 1000 * 1024 * 1024 &&
         Runtime.getRuntime.freeMemory() < 50 * 1024 * 1024
     then
-      logger.info("Less than 50MB available")
-      logger.info(
-        s"#Sessions: ${sessions.size} #Pages: ${sessions.map(_._2.pages.size).sum} #Funcs: ${sessions.map(_._2.pages.map(_._2.functions.size).sum).sum}"
-      )
+      if logger.isTraceEnabled then
+        logger.trace("Less than 50MB available")
+        logger.trace(
+          s"#Sessions: ${sessions.size} #Pages: ${sessions.map(_._2.pages.size).sum} #Funcs: ${sessions.map(_._2.pages.map(_._2.functions.size).sum).sum}"
+        )
       val allKeepAlives = allKeepAlivesIterable.toVector.sorted
-      logger.info(s"Found ${allKeepAlives.size} keep alives")
+      logger.trace(s"Found ${allKeepAlives.size} keep alives")
       val deleteOlderThan: Long =
         allKeepAlives.drop(allKeepAlives.size / 2).headOption.getOrElse(0L)
-      logger.info(
+      logger.trace(
         s"Removing everything with keepalive older than ${System.currentTimeMillis() - deleteOlderThan}ms"
       )
       gc(deleteOlderThan)
       val start = System.currentTimeMillis()
       System.gc()
-      println(s"Run GC in ${System.currentTimeMillis() - start}ms")
+      logger.trace(s"Run GC in ${System.currentTimeMillis() - start}ms")
       checkSpace()
 
   def gc(keepAliveOlderThan: Long): Unit =
@@ -891,5 +893,6 @@ class FSSystem(
     val toRemove = current.filter(_._2.keepAliveAt < keepAliveOlderThan)
     sessions --= toRemove.map(_._1)
     stats.event(StatEvent.GC_SESSION, n = toRemove.size)
-    logger.info(s"Removed ${toRemove.size} sessions")
+    if logger.isTraceEnabled then
+      logger.trace(s"Removed ${toRemove.size} sessions: ${toRemove.map(_._1).mkString(", ")}")
     sessions.values.foreach(_.gc(keepAliveOlderThan))

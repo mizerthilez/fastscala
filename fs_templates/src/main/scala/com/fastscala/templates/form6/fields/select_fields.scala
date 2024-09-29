@@ -7,7 +7,7 @@ import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.*
 
-trait F6FieldWithOptions[T] extends F6FieldMixin:
+trait F6FieldWithOptions[T] extends F6DefaultField:
   var _options: () => Seq[T] = () => Nil
 
   def options() = _options()
@@ -18,7 +18,7 @@ trait F6FieldWithOptions[T] extends F6FieldMixin:
   def options(f: () => Seq[T]): this.type = mutate:
     _options = f
 
-trait F6FieldWithOptionsNsLabel[T] extends F6FieldMixin:
+trait F6FieldWithOptionsNsLabel[T] extends F6DefaultField:
   var _option2NodeSeq: T => NodeSeq = opt => buildText(opt.toString)
 
   def option2NodeSeq(f: T => NodeSeq): this.type = mutate:
@@ -27,7 +27,7 @@ trait F6FieldWithOptionsNsLabel[T] extends F6FieldMixin:
   def option2String(f: T => String): this.type = mutate:
     _option2NodeSeq = opt => buildText(f(opt))
 
-trait F6FieldWithOptionIds[T] extends F6FieldMixin:
+trait F6FieldWithOptionIds[T] extends F6DefaultField:
   var _option2Id: (T, Seq[T]) => String = (opt, options) => "%X".formatted(options.indexOf(opt).toString)
 
   var _id2Option: (String, Seq[T]) => Option[T] = (id, options) => id.toIntOption.map(idx => options(idx))
