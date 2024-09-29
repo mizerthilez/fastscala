@@ -34,6 +34,7 @@ lazy val root = (project in file(".")).aggregate(
   fs_templates,
   fs_templates_bootstrap,
   fs_demo,
+  fs_working,
 )
 
 lazy val fastscala = (project in file(FSRoot + "fastscala"))
@@ -123,6 +124,26 @@ lazy val fs_demo = (project in file(FSRoot + "fs_demo"))
     Compile / run / connectInput := true,
     javaOptions += "-Xmx2G",
     javaOptions += "-Xms400M",
+  )
+  .dependsOn(fs_templates_bootstrap)
+  .dependsOn(fs_chartjs)
+
+lazy val fs_working = (project in file(FSRoot + "fs_working"))
+  .settings(
+    name := "fs_working",
+    Compile / packageBin / mainClass := Some("dev.ironduck.working.server.JettyServer"),
+    Compile / mainClass := Some("dev.ironduck.working.server.JettyServer"),
+    libraryDependencies ++= Seq(
+      "at.favre.lib" % "bcrypt" % "0.10.2"
+    ),
+    Compile / run / fork := true,
+    Compile / run / connectInput := true,
+    javaOptions += "-Xmx2G",
+    javaOptions += "-Xms400M",
+    reStart / javaOptions += "-Xmx2G",
+    reStart / javaOptions += "-Xms400M",
+    reStart / mainClass := Some("dev.ironduck.working.server.JettyServer"),
+    reColors := Revolver.basicColors,
   )
   .dependsOn(fs_templates_bootstrap)
   .dependsOn(fs_chartjs)
