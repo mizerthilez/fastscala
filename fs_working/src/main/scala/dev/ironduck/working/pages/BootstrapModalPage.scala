@@ -11,7 +11,7 @@ class BootstrapModalPage extends PageWithTopTitle:
   override def pageTitle: String = "Simple Modal Example"
 
   override def renderStandardPageContents()(implicit fsc: FSContext): NodeSeq =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     div.d_grid.mx_auto.col_8.my_5.apply:
       BSBtn().BtnPrimary
         .lbl("Open Modal")

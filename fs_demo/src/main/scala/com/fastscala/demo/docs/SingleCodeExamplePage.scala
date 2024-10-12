@@ -30,7 +30,7 @@ abstract class SingleCodeExamplePage() extends PageWithTopTitle:
         .toList
         .collect:
           case (code, idx) if (idx + 1) % 2 == 0 => code
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     div.border.border_secondary.rounded.apply:
       h3.apply("Source Code").bg_secondary.text_white.px_3.py_2.m_0.border_bottom.border_secondary ++
         div.apply:
@@ -41,7 +41,7 @@ abstract class SingleCodeExamplePage() extends PageWithTopTitle:
   def renderExampleContents()(implicit fsc: FSContext): NodeSeq
 
   override def renderStandardPageContents()(implicit fsc: FSContext): NodeSeq =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     row:
       col_xl_6.mb_3:
         codeSnippet(file)

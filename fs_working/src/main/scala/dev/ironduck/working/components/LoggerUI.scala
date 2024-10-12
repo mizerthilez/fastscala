@@ -46,7 +46,7 @@ class LoggerUISysoutOnly(val title: String) extends LoggerUI:
   def finished(): Unit = JS.void
 
 class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI:
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   val loggerOutputId = IdGen.id
   private var continue: Boolean = true

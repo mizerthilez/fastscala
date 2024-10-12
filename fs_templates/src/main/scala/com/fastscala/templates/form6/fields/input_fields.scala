@@ -490,18 +490,18 @@ class F6StringOptField()(implicit renderer: TextF6FieldRenderer) extends F6TextF
     (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
-object F6DateOptField:
+object F6LocalDateOptField:
   def apply(
     get: => Option[String],
     set: Option[String] => Unit,
     pattern: String = "yyyy-MM-dd",
   )(implicit renderer: TextF6FieldRenderer
-  ): F6DateOptField = new F6DateOptField().rw(
+  ): F6LocalDateOptField = new F6LocalDateOptField().rw(
     get.map(date => java.time.LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern))),
     dateOpt => set(dateOpt.map(_.format(DateTimeFormatter.ofPattern(pattern)))),
   )
 
-class F6DateOptField()(implicit renderer: TextF6FieldRenderer)
+class F6LocalDateOptField()(implicit renderer: TextF6FieldRenderer)
     extends F6TextField[Option[java.time.LocalDate]]:
   override def _inputTypeDefault: String = "date"
 
@@ -520,7 +520,7 @@ class F6DateOptField()(implicit renderer: TextF6FieldRenderer)
     (if required && currentValue.isEmpty then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
      else Seq())
 
-class F6DateField(
+class F6LocalDateField(
   dflt: time.LocalDate = time.LocalDate.now()
 )(implicit renderer: TextF6FieldRenderer
 ) extends F6TextField[java.time.LocalDate]:
@@ -537,7 +537,7 @@ class F6DateField(
     .left
     .map(_ => "Invalid input")
 
-class F6DateTimeOptField()(implicit renderer: TextF6FieldRenderer)
+class F6LocalDateTimeOptField()(implicit renderer: TextF6FieldRenderer)
     extends F6TextField[Option[java.time.LocalDateTime]]:
   override def _inputTypeDefault: String = "datetime-local"
 

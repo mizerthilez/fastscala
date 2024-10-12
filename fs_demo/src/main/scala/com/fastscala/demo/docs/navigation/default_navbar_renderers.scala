@@ -24,7 +24,7 @@ object DefaultBSNavBarRenderers:
 
     def renderRightContents(elem: BSNav): NodeSeq = NodeSeq.Empty
 
-    def render(elem: BSNav)(implicit fsc: FSContext): NodeSeq =
+    def render(elem: BSNav)(implicit fsc: FSContext): Elem =
       <nav class="navbar navbar-expand-lg bg-primary-subtle">
         <div class="container-fluid">
           {renderHeader(elem)}

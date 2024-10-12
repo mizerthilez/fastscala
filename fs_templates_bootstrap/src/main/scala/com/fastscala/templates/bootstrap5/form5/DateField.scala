@@ -26,7 +26,7 @@ trait DateFieldOptRenderer:
     error: Option[NodeSeq],
   )(implicit hints: Seq[RenderHint]
   ): Elem =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     div
       .withId(field.aroundId)
       .apply:

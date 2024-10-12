@@ -8,7 +8,7 @@ import com.fastscala.utils.Lazy
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 
 trait Table5Paginated extends Table5SeqDataSource:
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   def defaultNumberOfAdditionalPagesEachSide = 3
 

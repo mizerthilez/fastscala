@@ -30,7 +30,7 @@ abstract class MultipleCodeExamplesPage(val file: String)(implicit val user: Use
       code.split("\n").iterator.map(_.takeWhile(_ == ' ').size).filter(_ > 0).minOption.getOrElse(0)
     val withoutPadding = code.split("\n").map(_.drop(leftPadding)).mkString("\n")
 
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     div.apply:
       <pre><code style="background-color: #eee;" class="language-scala">{
         withoutPadding

@@ -7,7 +7,7 @@ import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 
 object BSBtnDropdown:
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   def apply(btn: BSBtn, rightAlignedMenu: Boolean = false)(btns: BSBtn*)(implicit fsc: FSContext): Elem =
     custom(btn, rightAlignedMenu)(btns.map(btn => btn.btnLink.withClass("dropdown-item"))*)

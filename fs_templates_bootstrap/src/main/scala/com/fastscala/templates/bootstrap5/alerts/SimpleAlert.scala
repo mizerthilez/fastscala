@@ -6,7 +6,7 @@ import com.fastscala.js.rerenderers.Rerenderer
 import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS }
 
 object SimpleAlert:
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   def apply(
     contents: NodeSeq,

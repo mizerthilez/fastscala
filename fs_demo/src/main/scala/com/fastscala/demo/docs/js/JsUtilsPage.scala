@@ -12,7 +12,7 @@ class JsUtilsPage extends MultipleCodeExamples2Page():
 
   override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
 
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
     renderSnippet("Create Js"):
       button.btn.btn_success.apply("click me").addOnClick(Js("alert('clicked')"))
@@ -45,5 +45,5 @@ class JsUtilsPage extends MultipleCodeExamples2Page():
     renderSnippet("Copy to clipboard"):
       button.btn.btn_success
         .apply("Copy UUID")
-        .addOnClick(JS.toClipboard(UUID.randomUUID().toString))
+        .addOnClick(JS.copy2Clipboard(UUID.randomUUID().toString))
     closeSnippet()

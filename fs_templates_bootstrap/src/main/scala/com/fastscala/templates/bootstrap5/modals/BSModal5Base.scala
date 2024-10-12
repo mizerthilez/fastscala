@@ -4,7 +4,8 @@ import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
-import com.fastscala.templates.bootstrap5.utils.BSBtn
+import com.fastscala.templates.bootstrap5.helpers.ClassEnrichable
+import com.fastscala.templates.bootstrap5.utils.{ BSBtn, Mutable }
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer
@@ -15,13 +16,19 @@ object BSModal5Size extends Enumeration:
   val LG = Value("modal-lg")
   val XL = Value("modal-xl")
 
-abstract class BSModal5Base:
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+abstract class BSModal5Base extends ClassEnrichable with Mutable:
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   val modalId = IdGen.id("modal")
   val modalContentId = IdGen.id("modal-content")
 
   def modalSize: BSModal5Size.Value = BSModal5Size.NORMAL
+
+  var modalClasses = ""
+
+  override def setClass(clas: String): this.type =
+    modalClasses += s" $clas"
+    this
 
   def transformModalElem(elem: Elem): Elem =
     elem.modal.fade.withId(modalId).withClass(modalSize.toString)
@@ -143,8 +150,10 @@ abstract class BSModal5Base:
     transformModalElem:
       div.withAttr("tabindex" -> "-1"):
         transformModalDialogElem:
-          div.apply:
-            modalContentsRenderer.render()
+          div
+            .withClass(modalClasses)
+            .apply:
+              modalContentsRenderer.render()
 
 object BSModal5:
   def verySimple(
@@ -176,7 +185,7 @@ object BSModal5:
     contents: BSModal5Base => FSContext => NodeSeq
   )(implicit fsc: FSContext
   ): Js =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     val modal = new BSModal5Base:
       override def modalHeaderTitle: String = title
 

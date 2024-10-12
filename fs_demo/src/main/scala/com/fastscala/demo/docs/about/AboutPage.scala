@@ -24,7 +24,7 @@ import com.fastscala.xml.scala_xml.JS
 class AboutPage extends MultipleCodeExamples2Page:
   override def pageTitle: String = "FastScala | About"
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
     renderHtml():

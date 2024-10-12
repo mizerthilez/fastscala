@@ -27,6 +27,10 @@ trait PgRowWithUUID[R <: PgRowWithUUID[R]: Typeable]
     DB.localTx(implicit session => saveSQL().update())
     this
 
+  def save(session: DBSession): R =
+    saveSQL().update()(session)
+    this
+
   def update(func: R => Unit): R =
     val inDB = reload()
     func(inDB)

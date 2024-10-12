@@ -38,7 +38,7 @@ class User(
     JS.deleteCookie("user_token", "/") & JS.redirectTo("/login")
 
   def miniHeadshotOrPlaceholderRendered: Elem =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     photo
       .map:
         case (photoFileName, photoBytes) =>

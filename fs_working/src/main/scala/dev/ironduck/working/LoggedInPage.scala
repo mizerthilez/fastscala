@@ -14,7 +14,7 @@ abstract class LoggedInPage() extends BasePage:
   implicit val atTime: LocalDate = LocalDate.now()
 
   override def navBarTopRight()(implicit fsc: FSContext): NodeSeq =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     <div class="dropdown mb-3 me-3 bd-mode-toggle">
       <button class="btn btn-link nav-link py-2 px-0 px-lg-2 dropdown-toggle d-flex align-items-center"
               id="bd-theme"

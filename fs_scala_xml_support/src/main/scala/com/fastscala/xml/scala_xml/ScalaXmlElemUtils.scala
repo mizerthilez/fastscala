@@ -1,5 +1,6 @@
 package com.fastscala.xml.scala_xml
 
+import java.util.regex.Pattern
 import scala.xml.*
 
 import com.fastscala.js.Js
@@ -46,8 +47,10 @@ trait ScalaXmlElemUtils:
 
   def addClass(`class`: String): Elem = attributeTransform("class", _.getOrElse("") + " " + `class`)
 
-  def withClass(`class`: String): Elem =
-    attributeTransform("class", _.getOrElse("") + " " + `class`)
+  def withClass(`class`: String): Elem = attributeTransform("class", _.getOrElse("") + " " + `class`)
+
+  def removeClass(`class`: String): Elem =
+    attributeTransform("class", _.getOrElse("").replaceAll("(?i)" + Pattern.quote(`class`), ""))
 
   def addOnClick(js: String): Elem = attributeTransform("onclick", _.getOrElse("") + ";" + js)
 
@@ -57,8 +60,7 @@ trait ScalaXmlElemUtils:
 
   def withAttrIf(bool: Boolean, kv: (String, String)): Elem = if bool then withAttr(kv) else elem
 
-  def withStyle(style: String): Elem =
-    attributeTransform("style", _.map(_ + ";").getOrElse("") + style)
+  def withStyle(style: String): Elem = attributeTransform("style", _.map(_ + ";").getOrElse("") + style)
 
   def withFor(`for`: String): Elem = attributeTransform("for", _ => `for`)
 
@@ -72,8 +74,7 @@ trait ScalaXmlElemUtils:
 
   def withTypeSubmit(): Elem = attributeTransform("type", _ => "submit")
 
-  def withAttr(name: String)(value: Option[String] => String): Elem =
-    attributeTransform(name, value)
+  def withAttr(name: String)(value: Option[String] => String): Elem = attributeTransform(name, value)
 
   def withAttr(kv: (String, String)): Elem = withAttr(kv._1)(_ => kv._2)
 

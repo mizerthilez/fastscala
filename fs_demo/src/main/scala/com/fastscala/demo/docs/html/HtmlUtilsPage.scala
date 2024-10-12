@@ -10,7 +10,7 @@ class HtmlUtilsPage extends MultipleCodeExamples2Page():
   override def pageTitle: String = "HTML Basics"
 
   override def renderExplanation()(implicit fsc: FSContext): NodeSeq =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     <p>
       Remember you need the import: {
       span
@@ -21,7 +21,7 @@ class HtmlUtilsPage extends MultipleCodeExamples2Page():
     </p>
 
   override def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     renderSnippet("Adding a class"):
       span
         .apply("Lorem ipsum dolor sit amet, consectetur adipiscing elit.")

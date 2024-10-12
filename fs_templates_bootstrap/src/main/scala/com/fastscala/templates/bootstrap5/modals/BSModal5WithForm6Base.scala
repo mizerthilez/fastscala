@@ -12,7 +12,7 @@ abstract class BSModal5WithForm6Base(
 )(implicit val formRenderer: F6FormRenderer
 ) extends BSModal5Base
        with Form6:
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   def saveBtnLbl = "Save"
 

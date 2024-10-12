@@ -18,7 +18,7 @@ class FileUploadPage extends SingleCodeExamplePage():
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     JS.rerenderable(rerenderer =>
       implicit fsc =>
         div.border.p_2.rounded.apply:

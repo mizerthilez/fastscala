@@ -84,7 +84,7 @@ object ImmediateInputFields:
       .map: btn =>
         <div class="input-group ">
         {inputNS}
-        {btn.withClass("input-group-text").onclick(Js(submit)).btn}
+        {btn.addClass("input-group-text").onclick(Js(submit)).btn}
       </div>
       .getOrElse(inputNS)
 

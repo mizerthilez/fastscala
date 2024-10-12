@@ -60,9 +60,7 @@ trait Table5BaseBootrapSupport extends Table5Base:
       (if tableHoverable then " table-hover " else "") +
       (if tableBordered then " table-bordered " else "") +
       (if tableBorderless then " table-borderless " else "") +
-      (if tableSmall then " table-sm " else "") +
-      tableStyle.map(" " + _ + " ").getOrElse("") +
-      tableBorderStyle.map(" " + _ + " ").getOrElse("")
+      (if tableSmall then " table-sm " else "")
 
   override def tableHeadClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String =
     super.tableHeadClasses() + " table " +

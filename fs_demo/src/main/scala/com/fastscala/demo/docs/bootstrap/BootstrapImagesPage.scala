@@ -6,7 +6,7 @@ import com.fastscala.demo.docs.MultipleCodeExamples2Page
 class BootstrapImagesPage extends MultipleCodeExamples2Page():
   override def pageTitle: String = "Bootstrap Images"
 
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   val image = img.withAttr("src" -> "/static/images/pexels-souvenirpixels-414612.jpg")
 

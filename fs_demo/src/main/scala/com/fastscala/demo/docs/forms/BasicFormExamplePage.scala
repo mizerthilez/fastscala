@@ -71,7 +71,7 @@ class BasicFormExamplePage extends SingleCodeExamplePage():
 
   override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
     // === code snippet ===
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     var editing = new User1(
       firstName = "",
       lastName = "",
@@ -137,7 +137,7 @@ class BasicFormExamplePage extends SingleCodeExamplePage():
           new F6IntOptField()
             .label("Security Level")
             .rw(Some(editing.securityLevel), oi => editing.securityLevel = oi.getOrElse(0)),
-          F6DateOptField(editing.birthDay, editing.birthDay = _).label("BirthDay"),
+          F6LocalDateOptField(editing.birthDay, editing.birthDay = _).label("BirthDay"),
           _provField,
           new F6SelectField[City](() => CitiesData.data(_provField.currentValue))
             .label("City")

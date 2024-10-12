@@ -141,6 +141,11 @@ class F6SelectOptField[T]()(implicit renderer: SelectF6FieldRenderer) extends F6
 
   def optionsNonEmpty(v: Seq[T]): F6SelectOptField.this.type = options(None +: v.map(Some(_)))
 
+  override def errors(): Seq[(ValidatableF6Field, NodeSeq)] = super.errors() ++
+    (if required && currentValue.isEmpty
+     then Seq((this, buildText(renderer.defaultRequiredFieldLabel)))
+     else Seq())
+
 class F6SelectField[T](opts: () => Seq[T])(implicit renderer: SelectF6FieldRenderer)
     extends F6SelectFieldBase[T]
        with F6FieldWithValidations:
@@ -205,7 +210,7 @@ abstract class F6MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF6Field
     val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
     val option2Id: Map[T, String] = ids2Option.map(_.swap)
     val optionsRendered = renderedOptions.map: opt =>
-      renderer.renderOption(this)(currentValue == opt, option2Id(opt), _option2NodeSeq(opt))
+      renderer.renderOption(this)(currentValue.contains(opt), option2Id(opt), _option2NodeSeq(opt))
 
     val errorsAtRenderTime = errors()
 
@@ -217,12 +222,10 @@ abstract class F6MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF6Field
             Js.selectedValues(Js.elementById(elemId)),
             {
               case ids =>
-                currentValue = ids.split(",").toSet.map(id => ids2Option(id))
+                currentValue = ids.split(",").filter(_.trim != "").toSet[String].map(id => ids2Option(id))
                 form.onEvent(ChangedField(this)(hints)) &
-                  (if hints.contains(
-                         ShowValidationsHint
-                       ) || errorsAtRenderTime.nonEmpty || errors().nonEmpty
-                   then reRender()(form, fsc, hints)
+                  (if hints.contains(ShowValidationsHint) || errorsAtRenderTime.nonEmpty || errors().nonEmpty
+                   then reRender()(form, fsc, hints) & Js.focus(elemId)
                    else Js.void)
             },
           )

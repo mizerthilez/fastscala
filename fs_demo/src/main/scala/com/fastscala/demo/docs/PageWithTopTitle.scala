@@ -12,7 +12,7 @@ trait PageWithTopTitle extends LoggedInPage:
   def renderStandardPageContents()(implicit fsc: FSContext): NodeSeq
 
   override def renderPageContents()(implicit fsc: FSContext): NodeSeq =
-    import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     div
       .withStyle("background('#f8fafd'); border-style: solid; border-color: #b3c7de;")
       .border_1

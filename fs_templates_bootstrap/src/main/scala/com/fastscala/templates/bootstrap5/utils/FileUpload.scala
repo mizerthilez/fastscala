@@ -13,7 +13,7 @@ import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.{ JS, ScalaXmlElemUtils }
 
 object FileUpload:
-  import com.fastscala.templates.bootstrap5.classes.BSHelpers.{ given, * }
+  import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   def apply(
     processUpload: Seq[FSUploadedFile] => Js,

@@ -3,6 +3,8 @@ package com.fastscala.templates.bootstrap5.tables
 import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
+import com.fastscala.templates.bootstrap5.helpers.BSHelpers.given
+import com.fastscala.templates.bootstrap5.helpers.ClassEnrichable
 
 trait Table5StandardColumns extends Table5ColsRenderable with Table5ColsLabeled with Table5StdColsHelper:
   type C = Table5StandardColumn[R]
@@ -37,7 +39,13 @@ trait Table5StandardColumns extends Table5ColsRenderable with Table5ColsLabeled 
 
   override def colLabel(col: C): String = col.label
 
-trait Table5StandardColumn[R]:
+trait Table5StandardColumn[R] extends ClassEnrichable:
+  var additionalClasses = ""
+
+  override def setClass(clas: String): this.type =
+    additionalClasses += s" $clas"
+    this
+
   def label: String
 
   def renderTH(
@@ -91,7 +99,7 @@ trait Table5StdColsHelper:
       rows: Seq[(String, R)],
       fsc: FSContext,
     ): Elem =
-      <td>{render(value)}</td>
+      <td class={additionalClasses}>{render(value)}</td>
 
   def ColNs(title: String, render: FSContext => R => NodeSeq) = new Table5StandardColumn[R]:
 
@@ -119,7 +127,7 @@ trait Table5StdColsHelper:
       rows: Seq[(String, R)],
       fsc: FSContext,
     ): Elem =
-      <td>{render(fsc)(value)}</td>
+      <td class={additionalClasses}>{render(fsc)(value)}</td>
 
   def ColNsFull(
     title: String,
@@ -158,7 +166,7 @@ trait Table5StdColsHelper:
       rows: Seq[(String, R)],
       fsc: FSContext,
     ): Elem =
-      <td>{
+      <td class={additionalClasses}>{
         render(fsc)(tableBodyRerenderer, trRerenderer, tdRerenderer, value, rowIdx, colIdx, rows)
       }</td>
 
@@ -199,4 +207,6 @@ trait Table5StdColsHelper:
       rows: Seq[(String, R)],
       fsc: FSContext,
     ): Elem =
-      render(fsc)(tableBodyRerenderer, trRerenderer, tdRerenderer, value, rowIdx, colIdx, rows)
+      render(fsc)(tableBodyRerenderer, trRerenderer, tdRerenderer, value, rowIdx, colIdx, rows).withClass(
+        additionalClasses
+      )

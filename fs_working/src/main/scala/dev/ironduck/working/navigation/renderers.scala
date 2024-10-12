@@ -1,5 +1,6 @@
 package dev.ironduck.working.navigation
 
+import scala.xml.Elem
 import scala.xml.NodeSeq
 
 import com.fastscala.core.FSContext
@@ -8,7 +9,7 @@ trait BSMenuRenderer:
   def render(elem: BSMenu)(implicit fsc: FSContext): NodeSeq
 
 trait BSNavBarRenderer:
-  def render(elem: BSNav)(implicit fsc: FSContext): NodeSeq
+  def render(elem: BSNav)(implicit fsc: FSContext): Elem
 
 trait MenuSectionRenderer:
   def render(elem: MenuSection)(implicit fsc: FSContext): NodeSeq
