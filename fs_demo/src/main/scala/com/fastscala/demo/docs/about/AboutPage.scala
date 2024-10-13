@@ -12,12 +12,14 @@ import io.circe.generic.semiauto
 
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
-import com.fastscala.demo.docs.forms.DefaultBSForm6Renderer
+import com.fastscala.demo.docs.forms.DefaultBSForm7Renderer
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.modals.BSModal5
 import com.fastscala.templates.bootstrap5.utils.BSBtn
-import com.fastscala.templates.form6.DefaultForm6
-import com.fastscala.templates.form6.fields.*
+import com.fastscala.templates.form7.fields.F7SaveButtonField
+import com.fastscala.templates.form7.fields.layout.F7VerticalField
+import com.fastscala.templates.form7.fields.text.F7StringField
+import com.fastscala.templates.form7.{ DefaultForm7, F7Field }
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv.given
 import com.fastscala.xml.scala_xml.JS
 
@@ -177,12 +179,12 @@ class AboutPage extends MultipleCodeExamples2Page:
         We continously build on top of abstractions to create even more complex experiences, that are really simple and low-code to develop:
       </p>
     renderSnippet("Easily create advanced forms"):
-      import DefaultBSForm6Renderer.*
-      val nameField = new F6StringField().label("Name").required(true)
-      val emailField = new F6StringField().label("Email").inputType("email").required(true)
+      import DefaultBSForm7Renderer.*
+      val nameField = new F7StringField().label("Name").required(true)
+      val emailField = new F7StringField().label("Email").inputType("email").required(true)
 
-      new DefaultForm6():
-        override def postSave()(implicit fsc: FSContext): Js =
+      new DefaultForm7():
+        override def postSubmitForm()(implicit fsc: FSContext): Js =
           BSModal5.verySimple("Your input data", "Done")(modal =>
             implicit fsc =>
               fs_4.apply(
@@ -190,14 +192,14 @@ class AboutPage extends MultipleCodeExamples2Page:
               )
           )
 
-        override lazy val rootField: F6Field = F6VerticalField()(
+        override lazy val rootField: F7Field = F7VerticalField()(
           nameField,
           emailField,
-          new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+          new F7SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
         )
       .render()
     renderSnippet("Support advanced interactions with a few lines of code"):
-      import DefaultBSForm6Renderer.*
+      import DefaultBSForm7Renderer.*
       case class Definition(
         definition: Option[String],
         example: Option[String],
@@ -258,16 +260,16 @@ class AboutPage extends MultipleCodeExamples2Page:
               case None => div.apply("...").text_center
       )
 
-      val queryField = new F6StringField().label("Search query").required(true)
+      val queryField = new F7StringField().label("Search query").required(true)
 
       resultsRenderer.render(None) ++
-        new DefaultForm6():
-          override def postSave()(implicit fsc: FSContext): Js =
+        new DefaultForm7():
+          override def postSubmitForm()(implicit fsc: FSContext): Js =
             resultsRenderer.rerender(Some(queryField.currentValue))
 
-          override lazy val rootField: F6Field = F6VerticalField()(
+          override lazy val rootField: F7Field = F7VerticalField()(
             queryField,
-            new F6SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+            new F7SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
         .render()
     closeSnippet()

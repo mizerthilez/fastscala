@@ -3,7 +3,7 @@ package com.fastscala.demo.docs
 import com.fastscala.demo.docs.about.{ AboutPage, AuthorPage, GettingStartedPage }
 import com.fastscala.demo.docs.bootstrap.*
 import com.fastscala.demo.docs.fastscala.*
-import com.fastscala.demo.docs.forms.FormInputTypesPage
+import com.fastscala.demo.docs.forms.{ FormInputTypesPage, FormValidationPage, ValidationStrategiesPage }
 import com.fastscala.demo.docs.html.{ HtmlTagsPage, HtmlUtilsPage, ScalaTagsPage }
 import com.fastscala.demo.docs.js.JsUtilsPage
 import com.fastscala.demo.docs.navigation.*
@@ -72,9 +72,11 @@ object FSDemoMainMenu
       ),
       MenuSection("Forms Lib")(
         SimpleMenuItem("Simple", "/demo/simple_form"),
-        RoutingMenuItem("demo", "forms", "input_types")(
-          "Input Types",
-          FormInputTypesPage(),
+        RoutingMenuItem("demo", "forms", "input_types")("Input Types", FormInputTypesPage()),
+        RoutingMenuItem("demo", "forms", "validation")("Validation", FormValidationPage()),
+        RoutingMenuItem("demo", "forms", "validation-strategies")(
+          "Validation Strategies",
+          ValidationStrategiesPage(),
         ),
       ),
       MenuSection("Table Lib")(

@@ -5,7 +5,8 @@ import scala.xml.{ Elem, NodeSeq }
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.helpers.ClassEnrichable
-import com.fastscala.templates.bootstrap5.utils.{ BSBtn, Mutable }
+import com.fastscala.templates.bootstrap5.utils.BSBtn
+import com.fastscala.templates.utils.Mutable
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer

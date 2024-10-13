@@ -1,7 +1,8 @@
 package com.fastscala.templates.form6.fields
 
-import com.fastscala.utils.ReflectUtils.valuesFor
 import scala.deriving.Mirror
+
+import com.fastscala.utils.ReflectUtils.valuesFor
 
 object F6EnumField:
   def NonNullable[T <: Enumeration](e: T)(using SelectF6FieldRenderer): F6SelectField[e.Value] =

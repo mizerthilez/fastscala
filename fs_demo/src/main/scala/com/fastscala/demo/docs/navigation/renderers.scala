@@ -1,7 +1,6 @@
 package com.fastscala.demo.docs.navigation
 
-import scala.xml.Elem
-import scala.xml.NodeSeq
+import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
 

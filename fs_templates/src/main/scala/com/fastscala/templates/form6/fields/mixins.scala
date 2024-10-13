@@ -1,8 +1,9 @@
 package com.fastscala.templates.form6.fields
 
 import scala.xml.NodeSeq
-import com.fastscala.js.Js
+
 import com.fastscala.core.FSContext
+import com.fastscala.js.Js
 import com.fastscala.templates.form6.Form6
 
 trait F6FieldWithValidations extends ValidatableF6Field with F6FieldMixin:
