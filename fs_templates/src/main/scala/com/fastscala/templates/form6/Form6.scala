@@ -5,8 +5,8 @@ import com.fastscala.js.Js
 import com.fastscala.templates.form6.fields._
 import com.fastscala.templates.utils.ElemWithRandomId
 import com.fastscala.utils.RenderableWithFSContext
-import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
+import com.fastscala.xml.scala_xml.{FSScalaXmlEnv, JS}
 
 import scala.xml.{Elem, NodeSeq}
 

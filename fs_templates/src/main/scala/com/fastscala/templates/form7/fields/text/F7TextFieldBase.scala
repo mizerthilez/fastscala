@@ -6,12 +6,11 @@ import com.fastscala.templates.form7._
 import com.fastscala.templates.form7.mixins._
 import com.fastscala.templates.form7.renderers._
 import com.fastscala.xml.scala_xml.FSScalaXmlSupport
-import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
 import scala.xml.{Elem, NodeSeq}
 
 
-abstract class F7TextField[T]()(implicit renderer: TextF7FieldRenderer) extends StandardF7Field
+abstract class F7TextFieldBase[T]()(implicit val renderer: TextF7FieldRenderer) extends StandardOneInputElemF7Field
   with StringSerializableF7Field
   with FocusableF7Field
   with F7FieldWithDisabled
@@ -25,12 +24,11 @@ abstract class F7TextField[T]()(implicit renderer: TextF7FieldRenderer) extends 
   with F7FieldWithValidFeedback
   with F7FieldWithHelp
   with F7FieldWithMaxlength
+  with F7FieldWithOnChangedField
   with F7FieldWithInputType
   with F7FieldWithAdditionalAttrs
   with F7FieldWithDependencies
   with F7FieldWithValue[T] {
-
-  var showingValidation = false
 
   def toString(value: T): String
 
@@ -53,63 +51,8 @@ abstract class F7TextField[T]()(implicit renderer: TextF7FieldRenderer) extends 
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
-  def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
-
-  override def postValidation(errors: Seq[(F7Field, NodeSeq)])(implicit form: Form7, fsc: FSContext): Js = {
-    implicit val renderHints: Seq[RenderHint] = form.formRenderHits()
-    updateValidation()
-  }
-
-  def shouldShowValidation_?(implicit form: Form7): Boolean = {
-    import F7FormValidationStrategy._
-    import Form7State._
-    def aux(validationStrategy: F7FormValidationStrategy.Value): Boolean = {
-      validationStrategy match {
-        case ValidateBeforeUserInput => true
-        case ValidateEachFieldAfterUserInput => state match {
-          case F7FieldState.Filled => true
-          case F7FieldState.AwaitingInput => aux(ValidateOnAttemptSubmitOnly)
-        }
-        case ValidateOnAttemptSubmitOnly => form.state match {
-          case Filling => false
-          case ValidationFailed => true
-          case Saved => false
-        }
-      }
-    }
-
-    aux(form.validationStrategy)
-  }
-
-  def updateValidation()(implicit form7: Form7): Js = {
-    lazy val errors = this.validate()
-    val shouldShowValidation = shouldShowValidation_? && errors.nonEmpty
-    if (shouldShowValidation != showingValidation) {
-      if (shouldShowValidation) {
-        val validation = errors.headOption.map(error => <div>{error._2}</div>).getOrElse(<div></div>)
-        showingValidation = true
-        renderer.showValidation(this)(validation)
-      } else {
-        showingValidation = false
-        renderer.hideValidation(this)()
-      }
-    } else {
-      Js.void
-    }
-  }
-
-  override def postSubmit()(implicit form: Form7, fsc: FSContext): Js = super.postSubmit() & {
-    setFilled()
-    Js.void
-  }
-
-  override def onEvent(event: F7Event)(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js = event match {
-    case ChangedField(f) if f == this => updateValidation()
-    case _ => Js.void
-  }
-
   def render()(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem = {
-    if (!enabled()) <div style="display:none;" id={aroundId}></div>
+    if (!enabled()) renderer.renderDisabled(this)
     else {
       withFieldRenderHints { implicit hints =>
 
@@ -120,7 +63,6 @@ abstract class F7TextField[T]()(implicit renderer: TextF7FieldRenderer) extends 
           inputElem = processInputElem(
             <input
               type={inputType}
-              id={elemId}
               onblur={
                      fsc.callback(Js.elementValueById(elemId), str => {
                        if (currentValue != str) {
@@ -135,7 +77,7 @@ abstract class F7TextField[T]()(implicit renderer: TextF7FieldRenderer) extends 
               onkeypress={s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13) {${Js.evalIf(hints.contains(SaveOnEnterHint))(Js.blur(elemId) & form.submitFormClientSide())}}"}
               value={this.toString(currentValue)}
             />
-          ).withAttrs(finalAdditionalAttrs: _*),
+          ),
           label = _label(),
           invalidFeedback = errorsToShow.headOption.map(error => <div>{error._2}</div>),
           validFeedback = if (errorsToShow.isEmpty) validFeedback() else None,
@@ -144,6 +86,4 @@ abstract class F7TextField[T]()(implicit renderer: TextF7FieldRenderer) extends 
       }
     }
   }
-
-  override def fieldAndChildreenMatchingPredicate(predicate: PartialFunction[F7Field, Boolean]): List[F7Field] = if (predicate.applyOrElse[F7Field, Boolean](this, _ => false)) List(this) else Nil
 }
