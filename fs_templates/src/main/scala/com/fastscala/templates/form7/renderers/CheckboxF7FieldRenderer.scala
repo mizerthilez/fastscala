@@ -12,5 +12,5 @@ trait CheckboxF7FieldRenderer:
     label: Option[Elem],
     elem: Elem,
     error: Option[NodeSeq],
-  )(implicit hints: Seq[RenderHint]
+  )(using Seq[RenderHint]
   ): Elem

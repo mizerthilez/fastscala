@@ -11,9 +11,8 @@ import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
-class F7CheckboxField()(implicit renderer: CheckboxF7FieldRenderer)
+class F7CheckboxField(using renderer: CheckboxF7FieldRenderer)
     extends StandardF7Field
-       with F7Field
        with StringSerializableF7Field
        with FocusableF7Field
        with F7FieldWithDisabled
@@ -25,9 +24,9 @@ class F7CheckboxField()(implicit renderer: CheckboxF7FieldRenderer)
        with F7FieldWithAdditionalAttrs
        with F7FieldWithDependencies
        with F7FieldWithValue[Boolean]:
-  override def defaultValue: Boolean = false
+  def defaultValue: Boolean = false
 
-  override def loadFromString(str: String): Seq[(F7Field, NodeSeq)] = str.toBooleanOption match
+  def loadFromString(str: String): Seq[(F7Field, NodeSeq)] = str.toBooleanOption match
     case Some(value) =>
       currentValue = value
       _setter(currentValue)
@@ -35,38 +34,36 @@ class F7CheckboxField()(implicit renderer: CheckboxF7FieldRenderer)
     case None =>
       List((this, FSScalaXmlEnv.buildText(s"Could not parse value '$str' as boolean")))
 
-  override def saveToString(): Option[String] = Some(currentValue.toString).filter(_ != "")
+  def saveToString(): Option[String] = Some(currentValue.toString).filter(_ != "")
 
-  override def submit()(implicit form: Form7, fsc: FSContext): Js = super.submit() & _setter(currentValue)
+  override def submit()(using Form7, FSContext): Js = super.submit() & _setter(currentValue)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
   def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
 
-  def render()(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
+  def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then <div style="display:none;" id={aroundId}></div>
     else
-      withFieldRenderHints { implicit hints =>
+      withFieldRenderHints: hints ?=>
+        val onchangeJs = fsc
+          .callback(
+            Js.checkboxIsCheckedById(elemId),
+            str =>
+              str.toBooleanOption.foreach(currentValue = _)
+              form.onEvent(ChangedField(this)) &
+                Js.evalIf(hints.contains(RenderHint.ShowValidationsHint))(reRender()), // TODO: is this wrong? (running on the client side, but should be server?)
+          )
+          .cmd
         renderer.render(this)(
           _label().map(lbl => <label for={elemId}>{lbl}</label>),
           processInputElem(<input type="checkbox"
-                      id={elemId}
-                      onchange={
-            fsc
-              .callback(
-                Js.checkboxIsCheckedById(elemId),
-                str =>
-                  str.toBooleanOption.foreach(currentValue = _)
-                  form.onEvent(ChangedField(this)) &
-                    Js.evalIf(hints.contains(ShowValidationsHint))(reRender()), // TODO: is this wrong? (running on the client side, but should be server?)
-              )
-              .cmd
-          }
-                      checked={if currentValue then "true" else null}
-          ></input>).withAttrs(finalAdditionalAttrs*),
+              id={elemId}
+              onchange={onchangeJs}
+              checked={if currentValue then "true" else null}
+            ></input>).withAttrs(finalAdditionalAttrs*),
           validate().headOption.map(_._2),
         )
-      }
 
-  override def fieldAndChildreenMatchingPredicate(predicate: PartialFunction[F7Field, Boolean])
-    : List[F7Field] = if predicate.applyOrElse[F7Field, Boolean](this, _ => false) then List(this) else Nil
+  def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
+    if pf.applyOrElse(this, _ => false) then List(this) else Nil

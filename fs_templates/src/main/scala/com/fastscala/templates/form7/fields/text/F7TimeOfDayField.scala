@@ -14,24 +14,22 @@ import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
-class F7TimeOfDayField()(implicit renderer: TextF7FieldRenderer)
+class F7TimeOfDayField(using renderer: TextF7FieldRenderer)
     extends F7TextField[Option[Int]]
        with F7FieldWithPrefix
        with F7FieldWithSuffix
        with F7FieldWithMin
        with F7FieldWithStep
        with F7FieldWithMax:
-  override def defaultValue: Option[Int] = None
+  def defaultValue: Option[Int] = None
 
-  override def validate(): Seq[(F7Field, NodeSeq)] = super.validate() ++
-    (if required && currentValue.isEmpty then
-       Seq((this, FSScalaXmlEnv.buildText(renderer.defaultRequiredFieldLabel)))
-     else Seq())
+  override def validate(): Seq[(F7Field, NodeSeq)] = super.validate() `++`:
+    if required && currentValue.isEmpty then
+      Seq((this, FSScalaXmlEnv.buildText(renderer.defaultRequiredFieldLabel)))
+    else Seq()
 
   def toString(value: Option[Int]): String = value
-    .map(value =>
-      DateTimeFormat.forPattern("HH:mm").print(new DateTime().withTime(value / 60, value % 60, 0, 0))
-    )
+    .map(value => DateTimeFormat.forPattern("HH:mm").print(DateTime().withTime(value / 60, value % 60, 0, 0)))
     .map(_.trim)
     .getOrElse("")
 

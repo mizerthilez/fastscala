@@ -11,17 +11,14 @@ trait F7FieldWithMin extends F7FieldInputFieldMixin:
 
   def min = _min()
 
-  def min(v: Option[String]): this.type = mutate {
+  def min(v: Option[String]): this.type = mutate:
     _min = () => v
-  }
 
-  def min(v: String): this.type = mutate {
+  def min(v: String): this.type = mutate:
     _min = () => Some(v)
-  }
 
-  def min(f: () => Option[String]): this.type = mutate {
+  def min(f: () => Option[String]): this.type = mutate:
     _min = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

@@ -11,17 +11,14 @@ trait F7FieldWithName extends F7FieldInputFieldMixin:
 
   def name: Option[String] = _name()
 
-  def name(v: String): this.type = mutate {
+  def name(v: String): this.type = mutate:
     _name = () => Some(v)
-  }
 
-  def name(v: Option[String]): this.type = mutate {
+  def name(v: Option[String]): this.type = mutate:
     _name = () => v
-  }
 
-  def name(f: () => Option[String]): this.type = mutate {
+  def name(f: () => Option[String]): this.type = mutate:
     _name = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

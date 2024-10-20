@@ -11,17 +11,14 @@ trait F7FieldWithMax extends F7FieldInputFieldMixin:
 
   def max = _max()
 
-  def max(v: Option[String]): this.type = mutate {
+  def max(v: Option[String]): this.type = mutate:
     _max = () => v
-  }
 
-  def max(v: String): this.type = mutate {
+  def max(v: String): this.type = mutate:
     _max = () => Some(v)
-  }
 
-  def max(f: () => Option[String]): this.type = mutate {
+  def max(f: () => Option[String]): this.type = mutate:
     _max = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

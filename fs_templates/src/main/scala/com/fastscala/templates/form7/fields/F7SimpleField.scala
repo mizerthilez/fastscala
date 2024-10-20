@@ -2,16 +2,15 @@ package com.fastscala.templates.form7.fields
 
 import com.fastscala.templates.form7.F7Field
 import com.fastscala.templates.form7.mixins.*
-import com.fastscala.templates.utils.Mutable
 
-trait F7SimpleField extends StandardF7Field with Mutable with F7FieldWithOnChangedField:
-  override def disabled: Boolean = false
+trait F7SimpleField extends F7DefaultField:
+  def disabled: Boolean = false
 
-  override def readOnly: Boolean = false
+  def readOnly: Boolean = false
 
-  override def fieldAndChildreenMatchingPredicate(predicate: PartialFunction[F7Field, Boolean])
-    : List[F7Field] = if predicate.applyOrElse[F7Field, Boolean](this, _ => false) then List(this) else Nil
+  def deps: Set[F7Field] = Set()
 
-  override def deps: Set[F7Field] = Set()
+  def enabled: Boolean = true
 
-  override def enabled: Boolean = true
+  def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
+    if pf.applyOrElse(this, _ => false) then List(this) else Nil

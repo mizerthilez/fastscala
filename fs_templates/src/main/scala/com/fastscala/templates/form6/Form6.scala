@@ -16,7 +16,7 @@ trait F6FormRenderer:
 abstract class DefaultForm6()(implicit val formRenderer: F6FormRenderer) extends Form6
 
 trait Form6 extends RenderableWithFSContext[FSScalaXmlEnv.type] with ElemWithRandomId:
-  given form: Form6 = this
+  given form: this.type = this
 
   lazy val rootField: F6Field
 

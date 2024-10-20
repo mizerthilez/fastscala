@@ -13,9 +13,8 @@ trait F7FieldWithAdditionalAttrs extends F7FieldInputFieldMixin:
   def additionalAttrs(v: Seq[(String, String)]): this.type = mutate:
     _additionalAttrs = () => v
 
-  def additionalAttrs(f: () => Seq[(String, String)]): this.type = mutate {
+  def additionalAttrs(f: () => Seq[(String, String)]): this.type = mutate:
     _additionalAttrs = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

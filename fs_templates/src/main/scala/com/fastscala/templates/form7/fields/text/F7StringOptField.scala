@@ -6,14 +6,14 @@ import com.fastscala.templates.form7.F7Field
 import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
-class F7StringOptField()(implicit renderer: TextF7FieldRenderer) extends F7TextField[Option[String]]:
-  override def defaultValue: Option[String] = None
+class F7StringOptField(using renderer: TextF7FieldRenderer) extends F7TextField[Option[String]]:
+  def defaultValue: Option[String] = None
 
   def toString(value: Option[String]): String = value.getOrElse("")
 
   def fromString(str: String): Either[String, Option[String]] = Right(Some(str).filter(_ != ""))
 
-  override def validate(): Seq[(F7Field, NodeSeq)] = super.validate() ++
-    (if required && currentValue.isEmpty then
-       Seq((this, FSScalaXmlEnv.buildText(renderer.defaultRequiredFieldLabel)))
-     else Seq())
+  override def validate(): Seq[(F7Field, NodeSeq)] = super.validate() `++`:
+    if required && currentValue.isEmpty then
+      Seq((this, FSScalaXmlEnv.buildText(renderer.defaultRequiredFieldLabel)))
+    else Seq()

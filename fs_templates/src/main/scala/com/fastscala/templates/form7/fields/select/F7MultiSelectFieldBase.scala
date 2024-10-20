@@ -9,11 +9,11 @@ import com.fastscala.templates.form7.fields.text.F7FieldWithAdditionalAttrs
 import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 
-abstract class F7MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF7FieldRenderer)
+abstract class F7MultiSelectFieldBase[T](using renderer: MultiSelectF7FieldRenderer)
     extends StandardF7Field
        with F7FieldWithOptions[T]
        with F7FieldWithOptionIds[T]
-       with F7Field
+       with F7FieldWithOptionsNsLabel[T]
        with StringSerializableF7Field
        with FocusableF7Field
        with F7FieldWithDisabled
@@ -26,9 +26,8 @@ abstract class F7MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF7Field
        with F7FieldWithLabel
        with F7FieldWithAdditionalAttrs
        with F7FieldWithDependencies
-       with F7FieldWithValue[Set[T]]
-       with F7FieldWithOptionsNsLabel[T]:
-  override def loadFromString(str: String): Seq[(F7Field, NodeSeq)] =
+       with F7FieldWithValue[Set[T]]:
+  def loadFromString(str: String): Seq[(F7Field, NodeSeq)] =
     val all = options()
     val id2Option: Map[String, T] = all.map(opt => _option2Id(opt, all) -> opt).toMap
     val selected: Seq[T] = str
@@ -40,17 +39,17 @@ abstract class F7MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF7Field
     _setter(currentValue)
     Nil
 
-  override def saveToString(): Option[String] = Some(
+  def saveToString(): Option[String] = Some(
     currentValue.map(opt => _option2Id(opt, options())).mkString(";")
   )
 
-  override def submit()(implicit form: Form7, fsc: FSContext): Js = super.submit() & _setter(currentValue)
+  override def submit()(using Form7, FSContext): Js = super.submit() & _setter(currentValue)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
   def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
 
-  override def render()(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
+  def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     val renderedOptions = options()
     val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
     val option2Id: Map[T, String] = ids2Option.map(_.swap)
@@ -61,19 +60,17 @@ abstract class F7MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF7Field
 
     if !enabled then <div style="display:none;" id={aroundId}></div>
     else
-      withFieldRenderHints { hints =>
+      withFieldRenderHints: hints ?=>
+        import RenderHint.*
         val onchangeJs = fsc
           .callback(
             Js.selectedValues(Js.elementById(elemId)),
-            {
-              case ids =>
-                currentValue = ids.split(",").filter(_.trim != "").toSet[String].map(id => ids2Option(id))
-                form.onEvent(ChangedField(this)(hints)) &
-                  (if hints
-                         .contains(ShowValidationsHint) || errorsAtRenderTime.nonEmpty || validate().nonEmpty
-                   then reRender()(form, fsc, hints) & Js.focus(elemId)
-                   else Js.void)
-            },
+            ids =>
+              currentValue = ids.split(",").filter(_.trim != "").toSet[String].map(id => ids2Option(id))
+              form.onEvent(ChangedField(this)) `&`:
+                if hints.contains(ShowValidationsHint) || errorsAtRenderTime.nonEmpty || validate().nonEmpty
+                then reRender() & Js.focus(elemId)
+                else Js.void,
           )
           .cmd
         renderer.render(this)(
@@ -86,8 +83,7 @@ abstract class F7MultiSelectFieldBase[T]()(implicit renderer: MultiSelectF7Field
               id={elemId}
             >{optionsRendered}</select>),
           errorsAtRenderTime.headOption.map(_._2),
-        )(hints)
-      }
+        )
 
-  override def fieldAndChildreenMatchingPredicate(predicate: PartialFunction[F7Field, Boolean])
-    : List[F7Field] = if predicate.applyOrElse[F7Field, Boolean](this, _ => false) then List(this) else Nil
+  def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
+    if pf.applyOrElse(this, _ => false) then List(this) else Nil

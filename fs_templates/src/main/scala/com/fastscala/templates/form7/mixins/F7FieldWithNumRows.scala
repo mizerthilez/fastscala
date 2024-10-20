@@ -11,17 +11,14 @@ trait F7FieldWithNumRows extends F7FieldInputFieldMixin:
 
   def rows = _rows()
 
-  def rows(v: Option[Int]): this.type = mutate {
+  def rows(v: Option[Int]): this.type = mutate:
     _rows = () => v
-  }
 
-  def rows(v: Int): this.type = mutate {
+  def rows(v: Int): this.type = mutate:
     _rows = () => Some(v)
-  }
 
-  def rows(f: () => Option[Int]): this.type = mutate {
+  def rows(f: () => Option[Int]): this.type = mutate:
     _rows = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

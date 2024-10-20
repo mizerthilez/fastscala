@@ -7,11 +7,9 @@ import scala.util.Try
 
 import com.fastscala.templates.form7.renderers.*
 
-class F7LocalDateField(dflt: LocalDate = LocalDate.now())(implicit renderer: TextF7FieldRenderer)
+class F7LocalDateField(val defaultValue: LocalDate = LocalDate.now())(using TextF7FieldRenderer)
     extends F7TextField[LocalDate]:
   override def _inputTypeDefault: String = "date"
-
-  override def defaultValue: LocalDate = dflt
 
   def toString(value: LocalDate): String = value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
 

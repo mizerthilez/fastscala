@@ -7,10 +7,8 @@ trait F7FieldWithOptions[T] extends F7DefaultField:
 
   def options() = _options()
 
-  def options(v: Seq[T]): this.type = mutate {
+  def options(v: Seq[T]): this.type = mutate:
     _options = () => v
-  }
 
-  def options(f: () => Seq[T]): this.type = mutate {
+  def options(f: () => Seq[T]): this.type = mutate:
     _options = f
-  }

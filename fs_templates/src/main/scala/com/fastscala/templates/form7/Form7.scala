@@ -15,29 +15,27 @@ import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS, given }
 trait F7FormRenderer:
   def render(form: Elem): NodeSeq
 
-abstract class DefaultForm7()(implicit val formRenderer: F7FormRenderer) extends Form7
+abstract class DefaultForm7(using val formRenderer: F7FormRenderer) extends Form7
 
-object Form7State extends Enumeration:
-  val Filling = Value
-  val ValidationFailed = Value
-  val Saved = Value
+enum Form7State:
+  case Filling, ValidationFailed, Saved
 
 trait Form7
     extends RenderableWithFSContext[FSScalaXmlEnv.type]
        with ElemWithRandomId
        with F7FormWithValidationStrategy:
-  implicit def form: this.type = this
+  given form: this.type = this
 
   var state = Form7State.Filling
 
   lazy val rootField: F7Field
 
-  def initForm()(implicit fsc: FSContext): Unit = ()
+  def initForm()(using FSContext): Unit = ()
 
-  def formRenderHits(): Seq[RenderHint] = Nil
+  def formRenderHints(): Seq[RenderHint] = Nil
 
-  def onEvent(event: F7Event)(implicit form: Form7, fsc: FSContext): Js =
-    implicit val renderHints = formRenderHits()
+  def onEvent(event: F7Event)(using Form7, FSContext): Js =
+    given Seq[RenderHint] = formRenderHints()
     event match
       case RequestedSubmit(_) => submitFormServerSide()
       case ChangedField(_) =>
@@ -49,15 +47,15 @@ trait Form7
 
   def focusFirstFocusableFieldJs(): Js =
     rootField
-      .fieldAndChildreenMatchingPredicate:
+      .fieldAndChildrenMatchingPredicate:
         case _: FocusableF7Field => true
       .collectFirst:
         case fff: FocusableF7Field => fff
       .map(_.focusJs)
       .getOrElse(Js.void)
 
-  def render()(implicit fsc: FSContext): Elem =
-    implicit val renderHints = formRenderHits()
+  def render()(using FSContext): Elem =
+    given Seq[RenderHint] = formRenderHints()
     val rendered = rootField.render()
     if postRenderSetupJs() != Js.void then
       rendered.withAppendedToContents(JS.inScriptTag(postRenderSetupJs().onDOMContentLoaded))
@@ -65,31 +63,32 @@ trait Form7
 
   /** Used to run JS to initialize the form after it is rendered or re-rendered.
     */
-  def postRenderSetupJs()(implicit fsc: FSContext): Js = rootField
-    .fieldAndChildreenMatchingPredicate(_.enabled)
-    .map(_.postRenderSetupJs())
-    .reduceOption(_ & _)
-    .getOrElse(Js.void)
+  def postRenderSetupJs()(using FSContext): Js =
+    rootField
+      .fieldAndChildrenMatchingPredicate(_.enabled)
+      .map(_.postRenderSetupJs())
+      .reduceOption(_ & _)
+      .getOrElse(Js.void)
 
-  def reRender()(implicit fsc: FSContext): Js =
-    implicit val renderHints = formRenderHits()
+  def reRender()(using FSContext): Js =
+    given Seq[RenderHint] = formRenderHints()
     rootField.reRender() & postRenderSetupJs()
 
-  def preValidateForm()(implicit fsc: FSContext): Js = Js.void
+  def preValidateForm()(using FSContext): Js = Js.void
 
-  def postValidateForm(errors: List[(F7Field, NodeSeq)])(implicit fsc: FSContext): Js = Js.void
+  def postValidateForm(errors: List[(F7Field, NodeSeq)])(using FSContext): Js = Js.void
 
-  def preSubmitForm()(implicit fsc: FSContext): Js = Js.void
+  def preSubmitForm()(using FSContext): Js = Js.void
 
-  def postSubmitForm()(implicit fsc: FSContext): Js = Js.void
+  def postSubmitForm()(using FSContext): Js = Js.void
 
-  def submitFormClientSide()(implicit fsc: FSContext): Js =
+  def submitFormClientSide()(using fsc: FSContext): Js =
     fsc.page.rootFSContext.callback(() => submitFormServerSide())
 
-  def submitFormServerSide()(implicit fsc: FSContext): Js =
-    if fsc != fsc.page.rootFSContext then submitFormServerSide()(fsc.page.rootFSContext)
+  def submitFormServerSide()(using fsc: FSContext): Js =
+    if fsc != fsc.page.rootFSContext then submitFormServerSide()(using fsc.page.rootFSContext)
     else
-      val enabledFields = rootField.fieldAndChildreenMatchingPredicate(_.enabled)
+      val enabledFields = rootField.fieldAndChildrenMatchingPredicate(_.enabled)
       preValidateForm() &
         enabledFields.map(_.preValidation()).reduceOption(_ & _).getOrElse(Js.void) &
         enabledFields
@@ -106,7 +105,7 @@ trait Form7
                    state = Form7State.Saved
                else Js.void)
 
-  private def savePipeline(enabledFields: List[F7Field])(implicit fsc: FSContext): Js =
+  private def savePipeline(enabledFields: List[F7Field])(using FSContext): Js =
     preSubmitForm() &
       enabledFields.map(_.preSubmit()).reduceOption(_ & _).getOrElse(Js.void) &
       enabledFields.map(_.submit()).reduceOption(_ & _).getOrElse(Js.void) &

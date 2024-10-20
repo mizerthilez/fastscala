@@ -5,16 +5,19 @@ import java.util.regex.Pattern
 import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 
-class F7DoubleField()(implicit renderer: TextF7FieldRenderer)
+class F7DoubleField(using TextF7FieldRenderer)
     extends F7TextField[Double]
        with F7FieldWithPrefix
        with F7FieldWithSuffix
        with F7FieldWithMin
        with F7FieldWithStep
        with F7FieldWithMax:
-  override def defaultValue: Double = 0
+  override def _inputTypeDefault: String = "number"
 
-  def toString(value: Double): String = (prefix + " " + value.formatted("%.2f") + " " + suffix).trim
+  def defaultValue: Double = 0
+
+  def toString(value: Double): String =
+    (prefix + " " + value.formatted("%.2f") + " " + suffix).trim
 
   def fromString(str: String): Either[String, Double] =
     str.toLowerCase.trim

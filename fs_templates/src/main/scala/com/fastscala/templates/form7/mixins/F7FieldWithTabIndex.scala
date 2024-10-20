@@ -11,16 +11,14 @@ trait F7FieldWithTabIndex extends F7FieldInputFieldMixin:
 
   def tabIndex = _tabIndex()
 
-  def tabIndex(v: Option[Int]): this.type = mutate {
+  def tabIndex(v: Option[Int]): this.type = mutate:
     _tabIndex = () => v
-  }
 
   def tabIndex(v: Int): this.type = mutate:
     _tabIndex = () => Some(v)
 
-  def tabIndex(f: () => Option[Int]): this.type = mutate {
+  def tabIndex(f: () => Option[Int]): this.type = mutate:
     _tabIndex = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

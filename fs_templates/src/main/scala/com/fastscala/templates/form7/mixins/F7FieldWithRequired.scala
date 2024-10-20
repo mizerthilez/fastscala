@@ -15,13 +15,11 @@ trait F7FieldWithRequired extends F7FieldInputFieldMixin:
 
   def isNotRequired: this.type = required(false)
 
-  def required(v: Boolean): this.type = mutate {
+  def required(v: Boolean): this.type = mutate:
     _required = () => v
-  }
 
-  def required(f: () => Boolean): this.type = mutate {
+  def required(f: () => Boolean): this.type = mutate:
     _required = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

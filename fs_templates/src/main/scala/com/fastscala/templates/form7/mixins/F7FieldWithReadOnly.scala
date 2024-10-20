@@ -15,13 +15,11 @@ trait F7FieldWithReadOnly extends F7FieldInputFieldMixin:
 
   def isNotReadOnly: this.type = readOnly(false)
 
-  def readOnly(v: Boolean): this.type = mutate {
+  def readOnly(v: Boolean): this.type = mutate:
     _readOnly = () => v
-  }
 
-  def readOnly(f: () => Boolean): this.type = mutate {
+  def readOnly(f: () => Boolean): this.type = mutate:
     _readOnly = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

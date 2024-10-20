@@ -11,17 +11,14 @@ trait F7FieldWithStep extends F7FieldInputFieldMixin:
 
   def step: Option[Int] = _step()
 
-  def step(v: Option[Int]): this.type = mutate {
+  def step(v: Option[Int]): this.type = mutate:
     _step = () => v
-  }
 
-  def step(v: Int): this.type = mutate {
+  def step(v: Int): this.type = mutate:
     _step = () => Some(v)
-  }
 
-  def step(f: () => Option[Int]): this.type = mutate {
+  def step(f: () => Option[Int]): this.type = mutate:
     _step = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

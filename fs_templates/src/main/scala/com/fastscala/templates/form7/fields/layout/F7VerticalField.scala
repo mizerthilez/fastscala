@@ -9,7 +9,7 @@ import com.fastscala.templates.form7.mixins.*
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS }
 
-class F7VerticalField()(children: F7Field*)
+class F7VerticalField(children: F7Field*)
     extends StandardF7Field
        with F7FieldWithEnabled
        with F7FieldWithDependencies
@@ -17,22 +17,21 @@ class F7VerticalField()(children: F7Field*)
        with F7FieldWithReadOnly:
   var currentlyEnabled = enabled
 
-  override def render()(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
+  def render()(using Form7, FSContext, Seq[RenderHint]): Elem =
     currentlyEnabled = enabled
     if !currentlyEnabled then <div style="display:none;" id={aroundId}></div>
     else FSScalaXmlEnv.buildElem("div", "id" -> aroundId)(children.map(_.render()).mkNS)
 
-  override def reRender()(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
+  override def reRender()(using Form7, FSContext, Seq[RenderHint]): Js =
     if enabled != currentlyEnabled then JS.replace(aroundId, render())
     else children.map(_.reRender()).reduceOption[Js](_ & _).getOrElse(Js.void)
 
-  override def fieldAndChildreenMatchingPredicate(predicate: PartialFunction[F7Field, Boolean])
-    : List[F7Field] =
-    List(this).filter(_ => predicate.applyOrElse[F7Field, Boolean](this, _ => false)) :::
-      children.toList.flatMap(_.fieldAndChildreenMatchingPredicate(predicate))
+  def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
+    List(this).filter(_ => pf.applyOrElse(this, _ => false)) :::
+      children.toList.flatMap(_.fieldAndChildrenMatchingPredicate(pf))
 
-  override def onEvent(event: F7Event)(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
+  override def onEvent(event: F7Event)(using Form7, FSContext, Seq[RenderHint]): Js =
     super.onEvent(event) & children.map(_.onEvent(event)).reduceOption(_ & _).getOrElse(Js.void)
 
 object F7VerticalField:
-  def apply()(children: F7Field*) = new F7VerticalField()(children*)
+  def apply(children: F7Field*) = new F7VerticalField(children*)

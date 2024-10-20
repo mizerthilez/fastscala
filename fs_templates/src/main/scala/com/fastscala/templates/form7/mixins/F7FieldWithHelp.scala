@@ -9,13 +9,11 @@ trait F7FieldWithHelp extends F7FieldInputFieldMixin:
 
   def help = _help()
 
-  def help(v: Option[Elem]): this.type = mutate {
+  def help(v: Option[Elem]): this.type = mutate:
     _help = () => v
-  }
 
-  def help(v: Elem): this.type = mutate {
+  def help(v: Elem): this.type = mutate:
     _help = () => Some(v)
-  }
 
   def help(v: String): this.type = mutate:
     _help = () => Some(<div>{v}</div>)

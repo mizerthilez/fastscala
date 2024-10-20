@@ -10,11 +10,11 @@ import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
-abstract class F7SelectFieldBase[T]()(implicit renderer: SelectF7FieldRenderer)
+abstract class F7SelectFieldBase[T](using renderer: SelectF7FieldRenderer)
     extends StandardF7Field
        with F7FieldWithOptions[T]
        with F7FieldWithOptionIds[T]
-       with F7Field
+       with F7FieldWithOptionsNsLabel[T]
        with StringSerializableF7Field
        with FocusableF7Field
        with F7FieldWithDisabled
@@ -26,9 +26,8 @@ abstract class F7SelectFieldBase[T]()(implicit renderer: SelectF7FieldRenderer)
        with F7FieldWithLabel
        with F7FieldWithAdditionalAttrs
        with F7FieldWithDependencies
-       with F7FieldWithValue[T]
-       with F7FieldWithOptionsNsLabel[T]:
-  override def loadFromString(str: String): Seq[(F7Field, NodeSeq)] =
+       with F7FieldWithValue[T]:
+  def loadFromString(str: String): Seq[(F7Field, NodeSeq)] =
     val all = options()
     all.find:
       case opt => _option2Id(opt, all) == str
@@ -40,7 +39,7 @@ abstract class F7SelectFieldBase[T]()(implicit renderer: SelectF7FieldRenderer)
       case None =>
         List((this, FSScalaXmlEnv.buildText(s"Not found id: '$str'")))
 
-  override def saveToString(): Option[String] = Some(_option2Id(currentValue, options())).filter(_ != "")
+  def saveToString(): Option[String] = Some(_option2Id(currentValue, options())).filter(_ != "")
 
   override def submit()(implicit form: Form7, fsc: FSContext): Js = super.submit() & _setter(currentValue)
 
@@ -48,7 +47,7 @@ abstract class F7SelectFieldBase[T]()(implicit renderer: SelectF7FieldRenderer)
 
   def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
 
-  def render()(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
+  def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     val renderedOptions = options()
     val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
     val option2Id: Map[T, String] = ids2Option.map(_.swap)
@@ -59,23 +58,21 @@ abstract class F7SelectFieldBase[T]()(implicit renderer: SelectF7FieldRenderer)
 
     if !enabled then <div style="display:none;" id={aroundId}></div>
     else
-      withFieldRenderHints { hints =>
+      withFieldRenderHints: hints ?=>
+        import RenderHint.*
         val onchangeJs = fsc
           .callback(
             Js.elementValueById(elemId),
-            {
-              case id =>
-                ids2Option
-                  .get(id)
-                  .map: value =>
-                    currentValue = value
-                    form.onEvent(ChangedField(this)(hints))(form, fsc)
-                  .getOrElse(Js.void) &
-                  (if hints
-                         .contains(ShowValidationsHint) || errorsAtRenderTime.nonEmpty || validate().nonEmpty
-                   then reRender()(form, fsc, hints)
-                   else Js.void)
-            },
+            ids2Option
+              .get(_)
+              .map: value =>
+                currentValue = value
+                form.onEvent(ChangedField(this))
+              .getOrElse(Js.void)
+              `&`:
+                if hints.contains(ShowValidationsHint) || errorsAtRenderTime.nonEmpty || validate().nonEmpty
+                then reRender()
+                else Js.void,
           )
           .cmd
         renderer.render(this)(
@@ -87,8 +84,7 @@ abstract class F7SelectFieldBase[T]()(implicit renderer: SelectF7FieldRenderer)
               id={elemId}
             >{optionsRendered}</select>),
           errorsAtRenderTime.headOption.map(_._2),
-        )(hints)
-      }
+        )
 
-  override def fieldAndChildreenMatchingPredicate(predicate: PartialFunction[F7Field, Boolean])
-    : List[F7Field] = if predicate.applyOrElse[F7Field, Boolean](this, _ => false) then List(this) else Nil
+  def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
+    if pf.applyOrElse(this, _ => false) then List(this) else Nil

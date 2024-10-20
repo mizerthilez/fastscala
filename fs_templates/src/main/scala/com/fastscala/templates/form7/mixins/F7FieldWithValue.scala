@@ -16,9 +16,7 @@ trait F7FieldWithValue[T] extends F7DefaultField:
 
   var _getter: () => T = () => internalValue()
 
-  def getter = _getter
-
-  def get(): T = getter()
+  def get(): T = _getter()
 
   def getInternalValue(): T = internalValue()
 
@@ -26,20 +24,16 @@ trait F7FieldWithValue[T] extends F7DefaultField:
     Js.void: () =>
       internalValue() = v
 
-  def setter = _setter
-
   def setInternalValue(value: T): this.type = mutate:
     internalValue() = value
 
-  def set(value: T): Js = setter(value)
+  def set(value: T): Js = _setter(value)
 
-  def setter(setter: T => Js): this.type = mutate {
+  def setter(setter: T => Js): this.type = mutate:
     _setter = setter
-  }
 
-  def getter(getter: () => T): this.type = mutate {
+  def getter(getter: () => T): this.type = mutate:
     _getter = getter
-  }
 
   def rw(get: => T, set: T => Unit): this.type = mutate:
     _getter = () => get

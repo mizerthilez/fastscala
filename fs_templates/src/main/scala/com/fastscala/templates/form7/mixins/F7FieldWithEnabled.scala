@@ -11,10 +11,8 @@ trait F7FieldWithEnabled extends Mutable:
 
   def isNotEnabled: this.type = enabled(false)
 
-  def enabled(v: Boolean): this.type = mutate {
+  def enabled(v: Boolean): this.type = mutate:
     _enabled = () => v
-  }
 
-  def enabled(f: () => Boolean): this.type = mutate {
+  def enabled(f: () => Boolean): this.type = mutate:
     _enabled = f
-  }

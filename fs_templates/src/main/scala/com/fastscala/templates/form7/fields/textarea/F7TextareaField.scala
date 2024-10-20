@@ -10,7 +10,7 @@ import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
-abstract class F7TextareaField[T]()(implicit renderer: TextareaF7FieldRenderer)
+abstract class F7TextareaField[T](using renderer: TextareaF7FieldRenderer)
     extends StandardF7Field
        with F7Field
        with StringSerializableF7Field
@@ -33,7 +33,7 @@ abstract class F7TextareaField[T]()(implicit renderer: TextareaF7FieldRenderer)
 
   def fromString(str: String): Either[String, T]
 
-  override def loadFromString(str: String): Seq[(F7Field, NodeSeq)] =
+  def loadFromString(str: String): Seq[(F7Field, NodeSeq)] =
     fromString(str) match
       case Right(value) =>
         currentValue = value
@@ -42,41 +42,41 @@ abstract class F7TextareaField[T]()(implicit renderer: TextareaF7FieldRenderer)
       case Left(error) =>
         List((this, FSScalaXmlEnv.buildText(s"Could not parse value '$str': $error")))
 
-  override def saveToString(): Option[String] = Some(toString(currentValue)).filter(_ != "")
+  def saveToString(): Option[String] = Some(toString(currentValue)).filter(_ != "")
 
-  override def submit()(implicit form: Form7, fsc: FSContext): Js = super.submit() & _setter(currentValue)
+  override def submit()(using Form7, FSContext): Js = super.submit() & _setter(currentValue)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
   def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
 
-  def render()(implicit form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
+  def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then <div style="display:none;" id={aroundId}></div>
     else
-      withFieldRenderHints { implicit hints =>
+      withFieldRenderHints: hints ?=>
+        import RenderHint.*
+        val onblusJs = fsc
+          .callback(
+            Js.elementValueById(elemId),
+            str =>
+              fromString(str).foreach(currentValue = _)
+              form.onEvent(ChangedField(this)) &
+                Js.evalIf(hints.contains(ShowValidationsHint))(reRender()), // TODO: is this wrong? (running on the client side, but should be server?)
+          )
+          .cmd
+        val onkeypressJs =
+          s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13 && event.ctrlKey) {${Js.evalIf(hints.contains(SaveOnEnterHint))(Js.blur(elemId) & form.submitFormClientSide())}}"
+
         renderer.render(this)(
           _label().map(lbl => <label for={elemId}>{lbl}</label>),
           processInputElem(<textarea
                       type="text"
                       id={elemId}
-                      onblur={
-            fsc
-              .callback(
-                Js.elementValueById(elemId),
-                str =>
-                  fromString(str).foreach(currentValue = _)
-                  form.onEvent(ChangedField(this)) &
-                    Js.evalIf(hints.contains(ShowValidationsHint))(reRender()), // TODO: is this wrong? (running on the client side, but should be server?)
-              )
-              .cmd
-          }
-                      onkeypress={
-            s"event = event || window.event; if ((event.keyCode ? event.keyCode : event.which) == 13 && event.ctrlKey) {${Js.evalIf(hints.contains(SaveOnEnterHint))(Js.blur(elemId) & form.submitFormClientSide())}}"
-          }
-          >{this.toString(currentValue)}</textarea>).withAttrs(finalAdditionalAttrs*),
+                      onblur={onblusJs}
+                      onkeypress={onkeypressJs}
+            >{this.toString(currentValue)}</textarea>).withAttrs(finalAdditionalAttrs*),
           validate().headOption.map(_._2),
         )
-      }
 
-  override def fieldAndChildreenMatchingPredicate(predicate: PartialFunction[F7Field, Boolean])
-    : List[F7Field] = if predicate.applyOrElse[F7Field, Boolean](this, _ => false) then List(this) else Nil
+  def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
+    if pf.applyOrElse(this, _ => false) then List(this) else Nil

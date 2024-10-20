@@ -11,17 +11,14 @@ trait F7FieldWithSize extends F7FieldInputFieldMixin:
 
   def size: Option[Int] = _size()
 
-  def size(v: Int): this.type = mutate {
+  def size(v: Int): this.type = mutate:
     _size = () => Some(v)
-  }
 
-  def size(v: Option[Int]): this.type = mutate {
+  def size(v: Option[Int]): this.type = mutate:
     _size = () => v
-  }
 
-  def size(f: () => Option[Int]): this.type = mutate {
+  def size(f: () => Option[Int]): this.type = mutate:
     _size = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

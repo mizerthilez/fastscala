@@ -13,13 +13,11 @@ trait F7FieldWithInputType extends F7FieldInputFieldMixin:
 
   def inputType = _inputType()
 
-  def inputType(v: String): this.type = mutate {
+  def inputType(v: String): this.type = mutate:
     _inputType = () => v
-  }
 
-  def inputType(f: () => String): this.type = mutate {
+  def inputType(f: () => String): this.type = mutate:
     _inputType = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

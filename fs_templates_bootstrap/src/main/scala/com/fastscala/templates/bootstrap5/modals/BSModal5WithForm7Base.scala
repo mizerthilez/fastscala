@@ -9,7 +9,7 @@ import com.fastscala.xml.scala_xml.{ ScalaXmlElemUtils, given }
 
 abstract class BSModal5WithForm7Base(
   val modalHeaderTitle: String
-)(implicit val formRenderer: F7FormRenderer
+)(using val formRenderer: F7FormRenderer
 ) extends BSModal5Base
        with Form7:
   import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
@@ -20,12 +20,13 @@ abstract class BSModal5WithForm7Base(
 
   def cancelBtnEnabled: Boolean = false
 
-  def saveBtn(implicit fsc: FSContext) =
+  def saveBtn(using FSContext) =
     BSBtn().BtnPrimary.lbl(saveBtnLbl).onclick(form.submitFormClientSide())
 
-  def cancelBtn(implicit fsc: FSContext) = BSBtn().BtnSecondary.lbl(cancelBtnLbl).onclick(hideAndRemove())
+  def cancelBtn(using FSContext) =
+    BSBtn().BtnSecondary.lbl(cancelBtnLbl).onclick(hideAndRemove())
 
-  override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = form.render()
+  def modalBodyContents()(using FSContext): NodeSeq = form.render()
 
-  override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some:
+  def modalFooterContents()(using FSContext): Option[NodeSeq] = Some:
     ScalaXmlElemUtils.showIf(cancelBtnEnabled)(cancelBtn.btn.me_2) ++ saveBtn.btn

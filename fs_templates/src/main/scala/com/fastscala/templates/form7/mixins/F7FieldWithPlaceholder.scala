@@ -11,16 +11,14 @@ trait F7FieldWithPlaceholder extends F7FieldInputFieldMixin:
 
   def placeholder = _placeholder()
 
-  def placeholder(v: Option[String]): this.type = mutate {
+  def placeholder(v: Option[String]): this.type = mutate:
     _placeholder = () => v
-  }
 
   def placeholder(v: String): this.type = mutate:
     _placeholder = () => Some(v)
 
-  def placeholder(f: () => Option[String]): this.type = mutate {
+  def placeholder(f: () => Option[String]): this.type = mutate:
     _placeholder = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

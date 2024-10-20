@@ -15,13 +15,11 @@ trait F7FieldWithDisabled extends F7FieldInputFieldMixin:
 
   def isNotDisabled: this.type = disabled(false)
 
-  def disabled(v: Boolean): this.type = mutate {
+  def disabled(v: Boolean): this.type = mutate:
     _disabled = () => v
-  }
 
-  def disabled(f: () => Boolean): this.type = mutate {
+  def disabled(f: () => Boolean): this.type = mutate:
     _disabled = f
-  }
 
   override def processInputElem(input: Elem): Elem = super
     .processInputElem(input)

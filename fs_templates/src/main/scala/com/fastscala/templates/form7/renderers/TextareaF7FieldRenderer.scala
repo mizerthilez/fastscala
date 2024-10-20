@@ -14,5 +14,5 @@ trait TextareaF7FieldRenderer:
     label: Option[NodeSeq],
     inputElem: Elem,
     error: Option[NodeSeq],
-  )(implicit hints: Seq[RenderHint]
+  )(using Seq[RenderHint]
   ): Elem
