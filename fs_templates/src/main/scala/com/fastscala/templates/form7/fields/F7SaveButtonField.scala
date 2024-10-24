@@ -18,7 +18,7 @@ class F7SaveButtonField[B](
 )(using
   renderer: ButtonF7FieldRenderer,
   conv: Conversion[B, Elem],
-) extends StandardF7Field
+) extends F7FieldWithValidations
        with F7FieldWithReadOnly
        with F7FieldWithDependencies
        with F7FieldWithDisabled

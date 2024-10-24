@@ -10,7 +10,7 @@ import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.given
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 
-abstract class LoggedInPage() extends BasePage:
+abstract class LoggedInPage extends BasePage:
   implicit val atTime: LocalDate = LocalDate.now()
 
   override def navBarTopRight()(implicit fsc: FSContext): NodeSeq =

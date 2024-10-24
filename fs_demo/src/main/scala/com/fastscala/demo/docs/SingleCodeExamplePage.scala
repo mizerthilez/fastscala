@@ -10,7 +10,7 @@ import org.eclipse.jetty.util.IO
 
 import com.fastscala.core.FSContext
 
-abstract class SingleCodeExamplePage() extends PageWithTopTitle:
+abstract class SingleCodeExamplePage extends PageWithTopTitle:
   def file = getClass.getName.split("\\.").mkString("/", "/", ".scala")
 
   override def append2Head(): NodeSeq = super.append2Head() ++

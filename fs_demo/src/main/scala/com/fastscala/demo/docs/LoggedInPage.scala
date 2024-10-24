@@ -9,7 +9,7 @@ import com.fastscala.js.Js
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.given
 
-abstract class LoggedInPage() extends BasePage:
+abstract class LoggedInPage extends BasePage:
   implicit val atTime: LocalDate = LocalDate.now()
 
   override def navBarTopRight()(implicit fsc: FSContext): NodeSeq =

@@ -11,7 +11,7 @@ import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 class F7DoubleOptField(using renderer: TextF7FieldRenderer)
-    extends F7TextField[Option[Double]]
+    extends F7TextFieldBase[Option[Double]]
        with F7FieldWithPrefix
        with F7FieldWithSuffix
        with F7FieldWithMin

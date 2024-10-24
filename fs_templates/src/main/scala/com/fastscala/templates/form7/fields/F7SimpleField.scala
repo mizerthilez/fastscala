@@ -1,9 +1,8 @@
 package com.fastscala.templates.form7.fields
 
 import com.fastscala.templates.form7.F7Field
-import com.fastscala.templates.form7.mixins.*
 
-trait F7SimpleField extends F7DefaultField:
+trait F7SimpleField extends F7Field:
   def disabled: Boolean = false
 
   def readOnly: Boolean = false

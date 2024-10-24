@@ -6,7 +6,7 @@ import com.fastscala.templates.form7.F7Field
 import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
-class F7StringField(using renderer: TextF7FieldRenderer) extends F7TextField[String]:
+class F7StringField(using renderer: TextF7FieldRenderer) extends F7TextFieldBase[String]:
   def defaultValue: String = ""
 
   def toString(value: String): String = value

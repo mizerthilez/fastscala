@@ -9,7 +9,7 @@ import com.fastscala.templates.form7.mixins.*
 import com.fastscala.xml.scala_xml.JS
 
 abstract class F7ContainerFieldBase
-    extends StandardF7Field
+    extends F7FieldWithValidations
        with F7FieldWithEnabled
        with F7FieldWithDependencies
        with F7FieldWithDisabled

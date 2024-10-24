@@ -6,7 +6,7 @@ import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 
 class F7DoubleField(using TextF7FieldRenderer)
-    extends F7TextField[Double]
+    extends F7TextFieldBase[Double]
        with F7FieldWithPrefix
        with F7FieldWithSuffix
        with F7FieldWithMin

@@ -12,7 +12,7 @@ import io.circe.generic.semiauto
 
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
-import com.fastscala.demo.docs.forms.DefaultBSForm7Renderer.given
+import com.fastscala.demo.docs.forms.DefaultFSDemoBSForm7Renderers.given
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.modals.BSModal5
 import com.fastscala.templates.bootstrap5.utils.BSBtn

@@ -7,7 +7,7 @@ import com.fastscala.templates.form7.*
 trait F7OnChangedFieldHandler:
   def onChanged(field: F7Field)(using Form7, FSContext, Seq[RenderHint]): Js
 
-trait F7FieldWithOnChangedField extends StandardF7Field:
+trait F7FieldWithOnChangedField extends F7Field:
   var _onChangedField = collection.mutable.ListBuffer[F7OnChangedFieldHandler]()
 
   def onChangedField: Seq[F7OnChangedFieldHandler] = _onChangedField.toSeq

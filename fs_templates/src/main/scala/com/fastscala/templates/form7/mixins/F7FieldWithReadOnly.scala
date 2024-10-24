@@ -3,7 +3,6 @@ package com.fastscala.templates.form7.mixins
 import scala.util.chaining.scalaUtilChainingOps
 import scala.xml.Elem
 
-import com.fastscala.templates.form7.fields.text.F7FieldInputFieldMixin
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
 trait F7FieldWithReadOnly extends F7FieldInputFieldMixin:

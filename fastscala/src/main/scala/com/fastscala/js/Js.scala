@@ -180,19 +180,27 @@ trait JsUtils:
   def blur(id: String): Js = Js(s"""document.getElementById("${escapeStr(id)}").blur();""")
 
   def setAttr(id: String)(name: String, value: String): Js = Js(
-    s"""document.getElementById("${escapeStr(id)}").setAttribute(${this.asJsStr(name)}, ${this.asJsStr(value)})"""
+    s"""document.getElementById("${escapeStr(id)}").setAttribute(${asJsStr(name)}, ${asJsStr(value)})"""
   )
 
   def removeAttr(id: String, name: String): Js = Js(
-    s"""document.getElementById("${escapeStr(id)}").removeAttribute(${this.asJsStr(name)})"""
+    s"""document.getElementById("${escapeStr(id)}").removeAttribute(${asJsStr(name)})"""
   )
 
   def addClass(id: String, clas: String): Js = Js(
-    s"""document.getElementById("${escapeStr(id)}").classList.add(${this.asJsStr(clas)})"""
+    s"""document.getElementById("${escapeStr(id)}").classList.add(${asJsStr(clas)})"""
+  )
+
+  def addClassToElemsMatchingSelector(selector: String, clas: String): Js = Js(
+    s"""document.querySelectorAll(${asJsStr(selector)}).forEach(el=>el.classList.add(${asJsStr(clas)}))"""
   )
 
   def removeClass(id: String, clas: String): Js = Js(
-    s"""document.getElementById("${escapeStr(id)}").classList.remove(${this.asJsStr(clas)})"""
+    s"""document.getElementById("${escapeStr(id)}").classList.remove(${asJsStr(clas)})"""
+  )
+
+  def removeClassFromElemsMatchingSelector(selector: String, clas: String): Js = Js(
+    s"""document.querySelectorAll(${asJsStr(selector)}).forEach(el=>el.classList.remove(${asJsStr(clas)}))"""
   )
 
   def setCookie(

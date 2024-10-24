@@ -2,9 +2,9 @@ package com.fastscala.templates.form7.mixins
 
 import scala.xml.Elem
 
-import com.fastscala.templates.form7.fields.text.F7FieldInputFieldMixin
+import com.fastscala.templates.utils.Mutable
 
-trait F7FieldWithLabel extends F7FieldInputFieldMixin:
+trait F7FieldWithLabel extends Mutable:
   var _label: () => Option[Elem] = () => None
 
   def label = _label()

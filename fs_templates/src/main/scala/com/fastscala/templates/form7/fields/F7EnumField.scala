@@ -2,7 +2,8 @@ package com.fastscala.templates.form7.fields
 
 import scala.deriving.Mirror
 
-import com.fastscala.templates.form7.fields.select.*
+import com.fastscala.templates.form7.fields.multiselect.F7MultiSelectField
+import com.fastscala.templates.form7.fields.select.{ F7SelectField, F7SelectOptField }
 import com.fastscala.templates.form7.renderers.{ MultiSelectF7FieldRenderer, SelectF7FieldRenderer }
 import com.fastscala.utils.ReflectUtils.valuesFor
 

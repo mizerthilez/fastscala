@@ -2,9 +2,9 @@ package com.fastscala.templates.form7.mixins
 
 import scala.xml.Elem
 
-import com.fastscala.templates.form7.fields.text.F7FieldInputFieldMixin
+import com.fastscala.templates.utils.Mutable
 
-trait F7FieldWithValidFeedback extends F7FieldInputFieldMixin:
+trait F7FieldWithValidFeedback extends Mutable:
   var _validFeedback: () => Option[Elem] = () => None
 
   def validFeedback = _validFeedback()

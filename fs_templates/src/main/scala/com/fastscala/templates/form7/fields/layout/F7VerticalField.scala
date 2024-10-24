@@ -10,7 +10,7 @@ import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS }
 
 class F7VerticalField(children: F7Field*)
-    extends StandardF7Field
+    extends F7FieldWithValidations
        with F7FieldWithEnabled
        with F7FieldWithDependencies
        with F7FieldWithDisabled
@@ -24,7 +24,7 @@ class F7VerticalField(children: F7Field*)
 
   override def reRender()(using Form7, FSContext, Seq[RenderHint]): Js =
     if enabled != currentlyEnabled then JS.replace(aroundId, render())
-    else children.map(_.reRender()).reduceOption[Js](_ & _).getOrElse(Js.void)
+    else children.map(_.reRender()).reduceOption(_ & _).getOrElse(Js.void)
 
   def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
     List(this).filter(_ => pf.applyOrElse(this, _ => false)) :::

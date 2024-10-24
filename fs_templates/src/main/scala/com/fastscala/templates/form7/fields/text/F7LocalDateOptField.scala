@@ -16,11 +16,13 @@ object F7LocalDateOptField:
     pattern: String = "yyyy-MM-dd",
   )(using TextF7FieldRenderer
   ): F7LocalDateOptField = new F7LocalDateOptField().rw(
-    get.map(date => java.time.LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern))),
+    get.map(date => LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern))),
     dateOpt => set(dateOpt.map(_.format(DateTimeFormatter.ofPattern(pattern)))),
   )
 
-class F7LocalDateOptField(using renderer: TextF7FieldRenderer) extends F7TextField[Option[LocalDate]]:
+  def apply()(using TextF7FieldRenderer): F7LocalDateOptField = new F7LocalDateOptField()
+
+class F7LocalDateOptField(using renderer: TextF7FieldRenderer) extends F7TextFieldBase[Option[LocalDate]]:
   override def _inputTypeDefault: String = "date"
 
   def defaultValue: Option[LocalDate] = None

@@ -1,16 +1,15 @@
-package com.fastscala.templates.form7.fields.select
+package com.fastscala.templates.form7.fields.multiselect
 
 import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form7.*
-import com.fastscala.templates.form7.fields.text.F7FieldWithAdditionalAttrs
 import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 
-abstract class F7MultiSelectFieldBase[T](using renderer: MultiSelectF7FieldRenderer)
-    extends StandardF7Field
+abstract class F7MultiSelectFieldBase[T](using val renderer: MultiSelectF7FieldRenderer)
+    extends StandardOneInputElemF7Field
        with F7FieldWithOptions[T]
        with F7FieldWithOptionIds[T]
        with F7FieldWithOptionsNsLabel[T]
@@ -23,6 +22,8 @@ abstract class F7MultiSelectFieldBase[T](using renderer: MultiSelectF7FieldRende
        with F7FieldWithTabIndex
        with F7FieldWithName
        with F7FieldWithSize
+       with F7FieldWithValidFeedback
+       with F7FieldWithHelp
        with F7FieldWithLabel
        with F7FieldWithAdditionalAttrs
        with F7FieldWithDependencies
@@ -47,43 +48,39 @@ abstract class F7MultiSelectFieldBase[T](using renderer: MultiSelectF7FieldRende
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
-  def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
-
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
-    val renderedOptions = options()
-    val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
-    val option2Id: Map[T, String] = ids2Option.map(_.swap)
-    val optionsRendered = renderedOptions.map: opt =>
-      renderer.renderOption(this)(currentValue.contains(opt), option2Id(opt), _option2NodeSeq(opt))
-
-    val errorsAtRenderTime = validate()
-
-    if !enabled then <div style="display:none;" id={aroundId}></div>
+    if !enabled then renderer.renderDisabled(this)
     else
       withFieldRenderHints: hints ?=>
-        import RenderHint.*
+        val errorsToShow: Seq[(F7Field, NodeSeq)] = if shouldShowValidation then validate() else Nil
+        showingValidation = errorsToShow.nonEmpty
+
+        val renderedOptions = options()
+        val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
+        val option2Id: Map[T, String] = ids2Option.map(_.swap)
+        val optionsRendered = renderedOptions.map: opt =>
+          renderer.renderOption(currentValue.contains(opt), option2Id(opt), _option2NodeSeq(opt))
+
         val onchangeJs = fsc
           .callback(
             Js.selectedValues(Js.elementById(elemId)),
             ids =>
-              currentValue = ids.split(",").filter(_.trim != "").toSet[String].map(id => ids2Option(id))
-              form.onEvent(ChangedField(this)) `&`:
-                if hints.contains(ShowValidationsHint) || errorsAtRenderTime.nonEmpty || validate().nonEmpty
-                then reRender() & Js.focus(elemId)
-                else Js.void,
+              val value = ids.split(",").filter(_.trim != "").toSet.map(id => ids2Option(id))
+              if currentValue != value then
+                setFilled()
+                currentValue = value
+                form.onEvent(ChangedField(this))
+              else Js.void,
           )
           .cmd
         renderer.render(this)(
-          label.map(label => <label for={elemId}>{label}</label>),
-          processInputElem(<select
+          inputElem = processInputElem(<select
               multiple="multiple"
-              name={name.getOrElse(null)}
               onblur={onchangeJs}
               onchange={onchangeJs}
-              id={elemId}
             >{optionsRendered}</select>),
-          errorsAtRenderTime.headOption.map(_._2),
+          label = label,
+          invalidFeedback = errorsToShow.headOption.map(error => <div>{error._2}</div>),
+          validFeedback = if errorsToShow.isEmpty then validFeedback else None,
+          help = help,
         )
-
-  def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
-    if pf.applyOrElse(this, _ => false) then List(this) else Nil

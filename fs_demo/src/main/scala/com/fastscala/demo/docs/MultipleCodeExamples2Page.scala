@@ -10,7 +10,7 @@ import org.eclipse.jetty.util.{ IO, VirtualThreads }
 import com.fastscala.core.FSContext
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
 
-abstract class MultipleCodeExamples2Page() extends LoggedInPage():
+abstract class MultipleCodeExamples2Page extends LoggedInPage:
   def file = getClass.getName.split("\\.").mkString("/", "/", ".scala")
 
   override def append2Head(): NodeSeq = super.append2Head() ++
@@ -94,7 +94,7 @@ abstract class MultipleCodeExamples2Page() extends LoggedInPage():
       case (lastSectionStartedAt, title, contents) =>
         val code =
           lines.drop(lastSectionStartedAt).take(thisSectionStartsAt - lastSectionStartedAt - 1)
-        println(s"$lastSectionStartedAt:$thisSectionStartsAt: \n${code.mkString("\n")}")
+        // println(s"$lastSectionStartedAt:$thisSectionStartsAt: \n${code.mkString("\n")}")
         val leftPadding: Int =
           code.iterator.map(_.takeWhile(_ == ' ').size).filter(_ > 0).minOption.getOrElse(0)
         val withoutPadding = code.map(_.drop(leftPadding)).mkString("\n")

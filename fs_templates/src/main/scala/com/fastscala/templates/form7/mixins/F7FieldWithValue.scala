@@ -1,10 +1,10 @@
 package com.fastscala.templates.form7.mixins
 
 import com.fastscala.js.Js
-import com.fastscala.templates.form7.fields.F7DefaultField
+import com.fastscala.templates.utils.Mutable
 import com.fastscala.utils.Lazy
 
-trait F7FieldWithValue[T] extends F7DefaultField:
+trait F7FieldWithValue[T] extends Mutable:
   def defaultValue: T
 
   private lazy val currentValueHolder: Lazy[T] = Lazy(_getter())

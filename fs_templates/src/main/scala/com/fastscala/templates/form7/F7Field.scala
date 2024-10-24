@@ -5,15 +5,17 @@ import scala.xml.{ Elem, NodeSeq }
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form7.mixins.F7FieldWithState
+import com.fastscala.templates.utils.ElemWithRandomId
+import com.fastscala.xml.scala_xml.JS
 
 /** A field can contain other fields.
   */
-trait F7Field extends F7FieldWithState:
+trait F7Field extends F7FieldWithState with ElemWithRandomId:
+  val aroundId: String = randomElemId
+
   def render()(using Form7, FSContext, Seq[RenderHint]): Elem
 
   def postRenderSetupJs()(using FSContext): Js = Js.void
-
-  def reRender()(using Form7, FSContext, Seq[RenderHint]): Js
 
   def preValidation()(using Form7, FSContext): Js = Js.void
 
@@ -34,3 +36,17 @@ trait F7Field extends F7FieldWithState:
   def deps: Set[F7Field]
 
   def enabled: Boolean
+
+  def disabled: Boolean
+
+  def readOnly: Boolean
+
+  def reRender()(using Form7, FSContext, Seq[RenderHint]): Js = JS.replace(aroundId, render())
+
+  def withFieldRenderHints[T](func: Seq[RenderHint] ?=> T)(using renderHints: Seq[RenderHint]): T =
+    import RenderHint.*
+    func(
+      using List(DisableFieldsHint).filter(_ => disabled) ++
+        List(ReadOnlyFieldsHint).filter(_ => readOnly) ++
+        renderHints
+    )

@@ -1,4 +1,4 @@
-package com.fastscala.templates.form7.fields.text
+package com.fastscala.templates.form7.mixins
 
 import scala.util.chaining.scalaUtilChainingOps
 import scala.xml.Elem

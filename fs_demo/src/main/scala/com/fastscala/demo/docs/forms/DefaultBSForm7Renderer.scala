@@ -1,6 +1,13 @@
 package com.fastscala.demo.docs.forms
 
-import com.fastscala.templates.bootstrap5.form7.BSForm7Renderer
+import com.fastscala.templates.bootstrap5.form7.BSForm7Renderers
+import com.fastscala.templates.bootstrap5.form7.renderermodifiers.*
 
-object DefaultBSForm7Renderer extends BSForm7Renderer:
-  override def defaultRequiredFieldLabel: String = "Required field"
+object DefaultFSDemoBSForm7Renderers extends FSDemoBSForm7Renderers
+
+class FSDemoBSForm7Renderers(using
+  checkboxAlignment: CheckboxAlignment = CheckboxAlignment.default,
+  checkboxStyle: CheckboxStyle = CheckboxStyle.default,
+  checkboxSide: CheckboxSide = CheckboxSide.default,
+) extends BSForm7Renderers:
+  def defaultRequiredFieldLabel: String = "Required field"

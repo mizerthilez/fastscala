@@ -15,7 +15,7 @@ import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 class F7TimeOfDayField(using renderer: TextF7FieldRenderer)
-    extends F7TextField[Option[Int]]
+    extends F7TextFieldBase[Option[Int]]
        with F7FieldWithPrefix
        with F7FieldWithSuffix
        with F7FieldWithMin

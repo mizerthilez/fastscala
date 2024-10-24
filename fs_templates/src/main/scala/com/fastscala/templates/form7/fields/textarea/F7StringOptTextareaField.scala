@@ -7,7 +7,7 @@ import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 class F7StringOptTextareaField(using renderer: TextareaF7FieldRenderer)
-    extends F7TextareaField[Option[String]]:
+    extends F7TextareaFieldBase[Option[String]]:
   def defaultValue: Option[String] = None
 
   def toString(value: Option[String]): String = value.getOrElse("")

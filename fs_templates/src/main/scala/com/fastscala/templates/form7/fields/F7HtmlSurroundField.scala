@@ -11,7 +11,7 @@ class F7HtmlSurroundField[T <: F7Field](
   surround: Elem => Elem
 )(
   field: T
-) extends StandardF7Field
+) extends F7FieldWithValidations
        with F7FieldWithReadOnly
        with F7FieldWithDependencies
        with F7FieldWithDisabled

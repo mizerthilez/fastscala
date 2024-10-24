@@ -1,8 +1,8 @@
 package com.fastscala.templates.form7.mixins
 
-import com.fastscala.templates.form7.fields.F7DefaultField
+import com.fastscala.templates.utils.Mutable
 
-trait F7FieldWithPrefix extends F7DefaultField:
+trait F7FieldWithPrefix extends Mutable:
   var _prefix: () => String = () => ""
 
   def prefix = _prefix()

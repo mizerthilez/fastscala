@@ -1,8 +1,8 @@
-package com.fastscala.templates.form7.fields.text
+package com.fastscala.templates.form7.mixins
 
 import scala.xml.Elem
 
-import com.fastscala.templates.form7.F7Field
+import com.fastscala.templates.utils.Mutable
 
-trait F7FieldInputFieldMixin extends F7Field:
+trait F7FieldInputFieldMixin extends Mutable:
   def processInputElem(input: Elem): Elem = input

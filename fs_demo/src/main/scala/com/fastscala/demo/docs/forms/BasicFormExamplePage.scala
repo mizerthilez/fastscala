@@ -5,7 +5,6 @@ import scala.xml.NodeSeq
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.SingleCodeExamplePage
 import com.fastscala.demo.docs.data.{ CountriesData, Country }
-import com.fastscala.demo.docs.forms.DefaultBSForm7Renderer.given
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.modals.BSModal5
 import com.fastscala.templates.bootstrap5.utils.BSBtn
@@ -69,11 +68,12 @@ object CitiesData:
     ),
   )
 
-class BasicFormExamplePage extends SingleCodeExamplePage():
-  override def pageTitle: String = "Simple Form Example"
+class BasicFormExamplePage extends SingleCodeExamplePage:
+  def pageTitle: String = "Simple Form Example"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
+  def renderExampleContents()(using FSContext): NodeSeq =
     // === code snippet ===
+    import DefaultFSDemoBSForm7Renderers.given
     import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     var editing = new User1(
       firstName = "",

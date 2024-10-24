@@ -5,14 +5,12 @@ import scala.xml.{ Elem, NodeSeq }
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form7.*
-import com.fastscala.templates.form7.fields.text.F7FieldWithAdditionalAttrs
 import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
-import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
-class F7CheckboxField(using renderer: CheckboxF7FieldRenderer)
-    extends StandardF7Field
+class F7CheckboxField(using val renderer: CheckboxF7FieldRenderer)
+    extends StandardOneInputElemF7Field
        with StringSerializableF7Field
        with FocusableF7Field
        with F7FieldWithDisabled
@@ -20,6 +18,8 @@ class F7CheckboxField(using renderer: CheckboxF7FieldRenderer)
        with F7FieldWithEnabled
        with F7FieldWithTabIndex
        with F7FieldWithName
+       with F7FieldWithValidFeedback
+       with F7FieldWithHelp
        with F7FieldWithLabel
        with F7FieldWithAdditionalAttrs
        with F7FieldWithDependencies
@@ -40,30 +40,36 @@ class F7CheckboxField(using renderer: CheckboxF7FieldRenderer)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
-  def finalAdditionalAttrs: Seq[(String, String)] = additionalAttrs
-
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
-    if !enabled then <div style="display:none;" id={aroundId}></div>
+    if !enabled then renderer.renderDisabled(this)
     else
       withFieldRenderHints: hints ?=>
+        val errorsToShow: Seq[(F7Field, NodeSeq)] = if shouldShowValidation then validate() else Nil
+        showingValidation = errorsToShow.nonEmpty
+
         val onchangeJs = fsc
           .callback(
             Js.checkboxIsCheckedById(elemId),
             str =>
-              str.toBooleanOption.foreach(currentValue = _)
-              form.onEvent(ChangedField(this)) &
-                Js.evalIf(hints.contains(RenderHint.ShowValidationsHint))(reRender()), // TODO: is this wrong? (running on the client side, but should be server?)
+              str.toBooleanOption match
+                case Some(value) if currentValue != value =>
+                  setFilled()
+                  currentValue = value
+                  form.onEvent(ChangedField(this))
+                case Some(_) => Js.void
+                case None =>
+                  // Log error
+                  Js.void,
           )
           .cmd
         renderer.render(this)(
-          _label().map(lbl => <label for={elemId}>{lbl}</label>),
-          processInputElem(<input type="checkbox"
+          inputElem = processInputElem(<input type="checkbox"
               id={elemId}
               onchange={onchangeJs}
               checked={if currentValue then "true" else null}
-            ></input>).withAttrs(finalAdditionalAttrs*),
-          validate().headOption.map(_._2),
+            ></input>),
+          label = label,
+          invalidFeedback = errorsToShow.headOption.map(error => <div>{error._2}</div>),
+          validFeedback = if errorsToShow.isEmpty then validFeedback else None,
+          help = help,
         )
-
-  def fieldAndChildrenMatchingPredicate(pf: PartialFunction[F7Field, Boolean]): List[F7Field] =
-    if pf.applyOrElse(this, _ => false) then List(this) else Nil

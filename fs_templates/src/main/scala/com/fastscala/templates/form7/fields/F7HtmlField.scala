@@ -8,7 +8,7 @@ import com.fastscala.templates.form7.{ F7Field, Form7, RenderHint }
 
 class F7HtmlField(
   gen: => NodeSeq
-) extends StandardF7Field
+) extends F7FieldWithValidations
        with F7FieldWithDisabled
        with F7FieldWithReadOnly
        with F7FieldWithDependencies
