@@ -18,8 +18,6 @@ abstract class StandardF7Field() extends F7FieldWithValidations:
   override def onEvent(event: F7Event)(using Form7, FSContext, Seq[RenderHint]): Js =
     super.onEvent(event) `&`:
       event match
-        case ChangedField(field) if deps.contains(field) =>
-          reRender() & summon[Form7].onEvent(ChangedField(this))
         case ChangedField(f) if f == this => updateValidation()
         case _ => Js.void
 

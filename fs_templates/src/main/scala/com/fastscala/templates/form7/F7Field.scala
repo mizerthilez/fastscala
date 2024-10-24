@@ -31,7 +31,10 @@ trait F7Field extends F7FieldWithState with ElemWithRandomId:
 
   def fieldAndChildrenMatchingPredicate(predicate: PartialFunction[F7Field, Boolean]): List[F7Field]
 
-  def onEvent(event: F7Event)(using Form7, FSContext, Seq[RenderHint]): Js = Js.void
+  def onEvent(event: F7Event)(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
+    event match
+      case ChangedField(field) if deps.contains(field) => reRender() & form.onEvent(ChangedField(this))
+      case _ => Js.void
 
   def deps: Set[F7Field]
 
@@ -41,7 +44,8 @@ trait F7Field extends F7FieldWithState with ElemWithRandomId:
 
   def readOnly: Boolean
 
-  def reRender()(using Form7, FSContext, Seq[RenderHint]): Js = JS.replace(aroundId, render())
+  def reRender()(using Form7, FSContext, Seq[RenderHint]): Js =
+    JS.replace(aroundId, render()) & postRenderSetupJs()
 
   def withFieldRenderHints[T](func: Seq[RenderHint] ?=> T)(using renderHints: Seq[RenderHint]): T =
     import RenderHint.*
