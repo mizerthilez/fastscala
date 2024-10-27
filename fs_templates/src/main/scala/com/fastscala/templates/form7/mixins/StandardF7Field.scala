@@ -1,6 +1,5 @@
 package com.fastscala.templates.form7.mixins
 
-import scala.annotation.tailrec
 import scala.xml.NodeSeq
 
 import com.fastscala.core.FSContext
@@ -8,38 +7,18 @@ import com.fastscala.js.Js
 import com.fastscala.templates.form7.*
 import com.fastscala.templates.form7.renderers.StandardF7FieldRenderer
 
-abstract class StandardF7Field() extends F7FieldWithValidations:
+trait StandardF7Field extends F7FieldWithValidations:
   def renderer: StandardF7FieldRenderer
 
   var showingValidation = false
 
   def visible: () => Boolean = () => enabled
 
-  override def onEvent(event: F7Event)(using Form7, FSContext, Seq[RenderHint]): Js =
-    super.onEvent(event) `&`:
-      event match
-        case ChangedField(f) if f == this => updateValidation()
-        case _ => Js.void
+  override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
+    super.updateFieldStatus() & updateValidation()
 
   override def postValidation(errors: Seq[(F7Field, NodeSeq)])(using Form7, FSContext): Js =
     updateValidation()
-
-  def shouldShowValidation(using form: Form7): Boolean =
-    @tailrec
-    def aux(validationStrategy: F7FormValidationStrategy): Boolean =
-      import F7FormValidationStrategy.*
-      validationStrategy match
-        case ValidateBeforeUserInput => true
-        case ValidateEachFieldAfterUserInput =>
-          state match
-            case F7FieldState.Filled => true
-            case F7FieldState.AwaitingInput => aux(ValidateOnAttemptSubmitOnly)
-        case ValidateOnAttemptSubmitOnly =>
-          form.state match
-            case Form7State.ValidationFailed => true
-            case _ => false
-
-    aux(form.validationStrategy)
 
   def showOrUpdateValidation(ns: NodeSeq): Js
 

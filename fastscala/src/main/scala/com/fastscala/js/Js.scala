@@ -96,45 +96,60 @@ trait JsUtils:
 
   def asJsStr(s: String): Js = Js(s""""${escapeStr(s)}"""")
 
-  def elementById(id: String) = Js(s"""document.getElementById("${escapeStr(id)}")""")
+  def elementById(id: String): Js = Js(s"""document.getElementById("${escapeStr(id)}")""")
 
-  def elementValueById(id: String) = Js(s"""document.getElementById("${escapeStr(id)}").value""")
+  def elementValueById(id: String): Js = Js(s"""document.getElementById("${escapeStr(id)}").value""")
 
-  def checkboxIsCheckedById(id: String) = Js(
+  def setElementValue(id: String, value: String): Js = Js(
+    s"""document.getElementById("${escapeStr(id)}").value = "${escapeStr(value)}""""
+  )
+
+  def isCheckedById(id: String): Js = Js(
     s"""document.getElementById("${escapeStr(id)}").checked"""
   )
 
-  def setCheckboxAsIndeterminate(id: String) = Js(
+  def setIndeterminate(id: String): Js = Js(
     s"""document.getElementById("${escapeStr(id)}").indeterminate=true"""
   )
 
-  def selectedValues(elem: Js) = Js(
+  def setChecked(id: String, checked: Boolean): Js = Js(
+    s"""document.getElementById("${escapeStr(id)}").checked=$checked"""
+  )
+
+  def setCheckboxTo(id: String, checked: Option[Boolean]): Js =
+    checked
+      .map: checked =>
+        Js(s"""document.getElementById("${escapeStr(id)}").checked = $checked""")
+      .getOrElse(setIndeterminate(id))
+
+  def selectedValues(elem: Js): Js = Js(
     s"""Array.from(${elem.cmd}.querySelectorAll("option:checked"),e=>e.value)"""
   )
 
-  def withVarStmt(name: String, value: Js)(code: Js => Js) = Js(
+  def withVarStmt(name: String, value: Js)(code: Js => Js): Js = Js(
     s"""(function ($name) {${code(Js(name)).cmd}})(${value.cmd});"""
   )
 
-  def withVarExpr(name: String, value: Js)(code: Js => Js) = Js(
+  def withVarExpr(name: String, value: Js)(code: Js => Js): Js = Js(
     s"""(function ($name) {return ${code(Js(name)).cmd};})(${value.cmd});"""
   )
 
-  def valueOrElse(value: Js, default: Js) = withVarExpr("value", value): value =>
-    this._trenaryOp(value `_!=` _null, _then = value, _else = default)
+  def valueOrElse(value: Js, default: Js): Js =
+    withVarExpr("value", value): value =>
+      this._trenaryOp(value `_!=` _null, _then = value, _else = default)
 
-  def wrapAsExpr(stmt: Js*)(expr: Js) = Js(
+  def wrapAsExpr(stmt: Js*)(expr: Js): Js = Js(
     s"""((function () {${stmt.reduceOption(_ & _).getOrElse(this.void).cmd}; return ${expr.cmd};})())"""
   )
 
-  def varOrElseUpdate(variable: Js, defaultValue: Js) =
+  def varOrElseUpdate(variable: Js, defaultValue: Js): Js =
     this._trenaryOp(
       variable `_!=` _null,
       _then = variable,
       _else = wrapAsExpr(variable.`_=`(defaultValue))(variable),
     )
 
-  def checkboxIsChecked(id: String) = Js(s"""document.getElementById("${escapeStr(id)}").checked""")
+  def checkboxIsChecked(id: String): Js = Js(s"""document.getElementById("${escapeStr(id)}").checked""")
 
   def alert(text: String): Js = Js(s"""alert("${escapeStr(text)}");""")
 
@@ -144,7 +159,7 @@ trait JsUtils:
 
   def consoleLog(str: String): Js = this.consoleLog(this.asJsStr(str))
 
-  def confirm(text: String, js: Js) = Js(s"""if(confirm("${escapeStr(text)}")) {${js.cmd}};""")
+  def confirm(text: String, js: Js): Js = Js(s"""if(confirm("${escapeStr(text)}")) {${js.cmd}};""")
 
   def redirectTo(link: String): Js = Js(s"""window.location.href = "${escapeStr(link)}";""")
 
@@ -320,4 +335,6 @@ class JsXmlUtils[Env <: FSXmlEnv](using val env: Env) extends JsUtils:
 class RichJsXmlUtils[Env <: FSXmlEnv](using val env: Env)(js: Js, utils: JsXmlUtils[env.type]):
   def inScriptTag: env.Elem = utils.inScriptTag(js)
 
-  def printBeforeExec: Js = utils.consoleLog(js.cmd) & js
+  def printBeforeExec: Js =
+    println("> " + js.cmd)
+    utils.consoleLog(js.cmd) & js

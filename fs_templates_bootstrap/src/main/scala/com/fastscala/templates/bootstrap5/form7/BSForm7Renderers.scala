@@ -48,7 +48,6 @@ abstract class BSForm7Renderers(using CheckboxAlignment, CheckboxStyle, Checkbox
           .withId(field.aroundId):
             btn
               .withAttrIf(hints.contains(DisableFieldsHint), "disabled" -> "true")
-              .withAttrIf(hints.contains(ReadOnlyFieldsHint), "readonly" -> "true")
 
   given F7FormRenderer with
     def render(form: Elem): Elem = form.mb_5.w_100.addClass("form")

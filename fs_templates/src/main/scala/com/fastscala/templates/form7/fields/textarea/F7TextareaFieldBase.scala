@@ -9,9 +9,8 @@ import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
-abstract class F7TextareaFieldBase[T](using val renderer: TextareaF7FieldRenderer)
-    extends StandardOneInputElemF7Field
-       with F7Field
+trait F7TextareaFieldBase[T](using val renderer: TextareaF7FieldRenderer)
+    extends StandardOneInputElemF7Field[T]
        with StringSerializableF7Field
        with FocusableF7Field
        with F7FieldWithNumRows
@@ -28,8 +27,7 @@ abstract class F7TextareaFieldBase[T](using val renderer: TextareaF7FieldRendere
        with F7FieldWithMaxlength
        with F7FieldWithInputType
        with F7FieldWithAdditionalAttrs
-       with F7FieldWithDependencies
-       with F7FieldWithValue[T]:
+       with F7FieldWithDependencies:
   def toString(value: T): String
 
   def fromString(str: String): Either[String, T]
@@ -49,6 +47,15 @@ abstract class F7TextareaFieldBase[T](using val renderer: TextareaF7FieldRendere
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
+  override def updateFieldStatus()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
+    super.updateFieldStatus() &
+      currentRenderedValue
+        .filter(_ != currentValue)
+        .map: _ =>
+          currentRenderedValue = Some(currentValue)
+          Js.setElementValue(elemId, toString(currentValue))
+        .getOrElse(Js.void)
+
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)
     else
@@ -56,16 +63,23 @@ abstract class F7TextareaFieldBase[T](using val renderer: TextareaF7FieldRendere
         val errorsToShow: Seq[(F7Field, NodeSeq)] = if shouldShowValidation then validate() else Nil
         showingValidation = errorsToShow.nonEmpty
 
+        currentRenderedValue = Some(currentValue)
+
         import RenderHint.*
         val onblusJs = fsc
           .callback(
             Js.elementValueById(elemId),
             str =>
-              if currentValue != str then
-                setFilled()
-                fromString(str).foreach(currentValue = _)
-                form.onEvent(ChangedField(this))
-              else Js.void,
+              fromString(str) match
+                case Right(value) =>
+                  setFilled()
+                  currentRenderedValue = Some(value)
+                  if currentValue != value then
+                    currentValue = value
+                    form.onEvent(ChangedField(this))
+                  else Js.void
+                case Left(error) =>
+                  Js.void,
           )
           .cmd
         val onkeypressJs =
@@ -76,7 +90,7 @@ abstract class F7TextareaFieldBase[T](using val renderer: TextareaF7FieldRendere
               type="text"
               onblur={onblusJs}
               onkeypress={onkeypressJs}
-            >{this.toString(currentValue)}</textarea>),
+            >{this.toString(currentRenderedValue.get)}</textarea>),
           label = label,
           invalidFeedback = errorsToShow.headOption.map(error => <div>{error._2}</div>),
           validFeedback = if errorsToShow.isEmpty then validFeedback else None,

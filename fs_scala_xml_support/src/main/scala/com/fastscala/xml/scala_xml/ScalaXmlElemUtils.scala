@@ -112,15 +112,21 @@ trait ScalaXmlElemUtils:
   def showIf(bool: Boolean): NodeSeq = if bool then elem else NodeSeq.Empty
 
   def getAttrs: List[(String, String)] =
-    elem.attributes.toList.map(a => a.key -> a.value.map(_.toString()).mkString(" "))
+    elem.attributes.toList.map(a => a.key -> a.value.map(_.toString).mkString(" "))
 
   def getClassAttr: String =
-    elem.attributes.get("class").map(_.map(_.toString()).mkString(" ")).getOrElse("")
+    elem.attributes.get("class").map(_.map(_.toString).mkString(" ")).getOrElse("")
+
+  def hasAttribute(name: String, value: String): Boolean =
+    elem.attributes.exists(a => a.key == name && a.value.map(_.toString).mkString(" ") == value)
+
+  def attr(name: String): Option[String] =
+    elem.attributes.find(a => a.key == name).map(_.value.map(_.toString).mkString(" "))
 
   def getStyleAttr: String =
-    elem.attributes.get("style").map(_.map(_.toString()).mkString(" ")).getOrElse("")
+    elem.attributes.get("style").map(_.map(_.toString).mkString(" ")).getOrElse("")
 
-  def getId: Option[String] = elem.attributes.get("id").map(_.map(_.toString()).mkString(" "))
+  def getId: Option[String] = elem.attributes.get("id").map(_.map(_.toString).mkString(" "))
 
 object ScalaXmlElemUtils:
   implicit class RichElem(val elem: Elem) extends ScalaXmlElemUtils

@@ -8,7 +8,7 @@ import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 trait F7FieldWithMaxlength extends F7FieldInputFieldMixin:
   var _maxlength: () => Option[Int] = () => None
 
-  def maxlength = _maxlength()
+  def maxlength: Option[Int] = _maxlength()
 
   def maxlength(v: Option[Int]): this.type = mutate:
     _maxlength = () => v

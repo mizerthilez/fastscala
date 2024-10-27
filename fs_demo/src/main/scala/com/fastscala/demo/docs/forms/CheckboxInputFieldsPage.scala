@@ -57,7 +57,7 @@ class CheckboxInputFieldsPage extends MultipleCodeExamples2Page:
               "col" -> hasACar,
               "col" -> F7HtmlField(
                 span("Checkbox state: " + hasACar.currentValue.map("set to " + _).getOrElse("not set"))
-              ).deps(hasACar),
+              ).dependsOn(hasACar),
             ),
             //
             F7HtmlField(fs_5.mb_3.border_bottom("Checkboxes inline")),

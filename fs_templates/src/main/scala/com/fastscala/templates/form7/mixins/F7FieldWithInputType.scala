@@ -10,7 +10,7 @@ trait F7FieldWithInputType extends F7FieldInputFieldMixin:
 
   var _inputType: () => String = () => _inputTypeDefault
 
-  def inputType = _inputType()
+  def inputType: String = _inputType()
 
   def inputType(v: String): this.type = mutate:
     _inputType = () => v

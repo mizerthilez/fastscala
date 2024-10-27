@@ -9,8 +9,8 @@ import com.fastscala.templates.form7.mixins.*
 import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
-abstract class F7TextFieldBase[T](using val renderer: TextF7FieldRenderer)
-    extends StandardOneInputElemF7Field
+trait F7TextFieldBase[T](using val renderer: TextF7FieldRenderer)
+    extends StandardOneInputElemF7Field[T]
        with StringSerializableF7Field
        with FocusableF7Field
        with F7FieldWithDisabled
@@ -25,10 +25,10 @@ abstract class F7TextFieldBase[T](using val renderer: TextF7FieldRenderer)
        with F7FieldWithHelp
        with F7FieldWithMaxlength
        with F7FieldWithOnChangedField
+       with F7FieldWithSyncToServerOnChange
        with F7FieldWithInputType
        with F7FieldWithAdditionalAttrs
-       with F7FieldWithDependencies
-       with F7FieldWithValue[T]:
+       with F7FieldWithDependencies:
   def toString(value: T): String
 
   def fromString(str: String): Either[String, T]
@@ -48,6 +48,15 @@ abstract class F7TextFieldBase[T](using val renderer: TextF7FieldRenderer)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
+  override def updateFieldStatus()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
+    super.updateFieldStatus() &
+      currentRenderedValue
+        .filter(_ != currentValue)
+        .map: _ =>
+          currentRenderedValue = Some(currentValue)
+          Js.setElementValue(elemId, toString(currentValue))
+        .getOrElse(Js.void)
+
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)
     else
@@ -55,16 +64,23 @@ abstract class F7TextFieldBase[T](using val renderer: TextF7FieldRenderer)
         val errorsToShow: Seq[(F7Field, NodeSeq)] = if shouldShowValidation then validate() else Nil
         showingValidation = errorsToShow.nonEmpty
 
+        currentRenderedValue = Some(currentValue)
+
         import RenderHint.*
-        val onblurJs = fsc
+        val onchangeJs = fsc
           .callback(
             Js.elementValueById(elemId),
             str =>
-              if currentValue != str then
-                setFilled()
-                fromString(str).foreach(currentValue = _)
-                form.onEvent(ChangedField(this))
-              else Js.void,
+              fromString(str) match
+                case Right(value) =>
+                  setFilled()
+                  currentRenderedValue = Some(value)
+                  if currentValue != value then
+                    currentValue = value
+                    form.onEvent(ChangedField(this))
+                  else Js.void
+                case Left(error) =>
+                  Js.void,
           )
           .cmd
         val onkeypressJs =
@@ -73,9 +89,10 @@ abstract class F7TextFieldBase[T](using val renderer: TextF7FieldRenderer)
         renderer.render(this)(
           inputElem = processInputElem(<input
               type={inputType}
-              onblur={onblurJs}
+              onblur={onchangeJs}
+              onchange={if syncToServerOnChange then onchangeJs else null}
               onkeypress={onkeypressJs}
-              value={this.toString(currentValue)}
+              value={this.toString(currentRenderedValue.get)}
             />),
           label = label,
           invalidFeedback = errorsToShow.headOption.map(error => <div>{error._2}</div>),

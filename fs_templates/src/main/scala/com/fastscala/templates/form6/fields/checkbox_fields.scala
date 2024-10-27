@@ -61,7 +61,7 @@ class F6CheckboxField()(implicit renderer: CheckboxF6FieldRenderer)
                       onchange={
             fsc
               .callback(
-                Js.checkboxIsCheckedById(elemId),
+                Js.isCheckedById(elemId),
                 str =>
                   str.toBooleanOption.foreach(currentValue = _)
                   form.onEvent(ChangedField(this)) &

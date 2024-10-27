@@ -10,12 +10,10 @@ import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.JS
 
 class F7CheckboxOptField(using val renderer: CheckboxF7FieldRenderer)
-    extends StandardOneInputElemF7Field
-       with F7Field
+    extends StandardOneInputElemF7Field[Option[Boolean]]
        with StringSerializableF7Field
        with FocusableF7Field
        with F7FieldWithDisabled
-       with F7FieldWithReadOnly
        with F7FieldWithEnabled
        with F7FieldWithTabIndex
        with F7FieldWithName
@@ -24,7 +22,7 @@ class F7CheckboxOptField(using val renderer: CheckboxF7FieldRenderer)
        with F7FieldWithLabel
        with F7FieldWithAdditionalAttrs
        with F7FieldWithDependencies
-       with F7FieldWithValue[Option[Boolean]]:
+       with F7FieldWithReadOnly:
   def defaultValue: Option[Boolean] = None
 
   def loadFromString(str: String): Seq[(F7Field, NodeSeq)] =
@@ -39,8 +37,11 @@ class F7CheckboxOptField(using val renderer: CheckboxF7FieldRenderer)
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
   override def postRenderSetupJs()(using FSContext): Js =
-    if currentValue == None then JS.setCheckboxAsIndeterminate(elemId)
+    if currentValue == None then JS.setIndeterminate(elemId)
     else Js.void
+
+  override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
+    super.updateFieldStatus() & Js.setCheckboxTo(elemId, currentValue)
 
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)
@@ -56,14 +57,17 @@ class F7CheckboxOptField(using val renderer: CheckboxF7FieldRenderer)
               case Some(false) => currentValue = None
               case None => currentValue = Some(true)
               case Some(true) => currentValue = Some(false)
+            currentRenderedValue = Some(currentValue)
             form.onEvent(ChangedField(this)) & reRender()
           .cmd
+
+        currentRenderedValue = Some(currentValue)
 
         renderer.render(this)(
           inputElem = processInputElem(<input type="checkbox"
                id={elemId}
                onchange={onchangeJs}
-               checked={if currentValue == Some(true) then "true" else null}
+               checked={if currentRenderedValue.get == Some(true) then "true" else null}
             ></input>),
           label = label,
           invalidFeedback = errorsToShow.headOption.map(error => <div>{error._2}</div>),

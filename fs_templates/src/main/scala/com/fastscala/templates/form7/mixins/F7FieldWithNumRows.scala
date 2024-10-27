@@ -8,7 +8,7 @@ import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 trait F7FieldWithNumRows extends F7FieldInputFieldMixin:
   var _rows: () => Option[Int] = () => None
 
-  def rows = _rows()
+  def rows: Option[Int] = _rows()
 
   def rows(v: Option[Int]): this.type = mutate:
     _rows = () => v

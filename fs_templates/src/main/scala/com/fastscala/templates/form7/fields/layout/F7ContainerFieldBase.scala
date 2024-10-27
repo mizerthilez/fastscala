@@ -8,7 +8,7 @@ import com.fastscala.templates.form7.*
 import com.fastscala.templates.form7.mixins.*
 import com.fastscala.xml.scala_xml.JS
 
-abstract class F7ContainerFieldBase
+trait F7ContainerFieldBase
     extends F7FieldWithValidations
        with F7FieldWithEnabled
        with F7FieldWithDependencies
@@ -16,7 +16,7 @@ abstract class F7ContainerFieldBase
        with F7FieldWithReadOnly:
   def aroundClass: String
 
-  def children: Seq[(String, F7Field)]
+  def children: Seq[(Option[String], F7Field)]
 
   var currentlyEnabled = enabled
 
@@ -27,7 +27,9 @@ abstract class F7ContainerFieldBase
       withFieldRenderHints: hints ?=>
         val contents = children
           .map:
-            case (clas, field) =>
+            case (None, field) =>
+              field.render()
+            case (Some(clas), field) =>
               <div class={clas}>{field.render()}</div>
           .reduceOption[NodeSeq](_ ++ _)
           .getOrElse(NodeSeq.Empty)

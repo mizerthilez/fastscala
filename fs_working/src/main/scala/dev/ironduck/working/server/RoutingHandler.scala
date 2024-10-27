@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 import com.fastscala.core.{ FSSession, FSSystem }
 import dev.ironduck.working.db.{ CurrentUser, FakeDB }
 import dev.ironduck.working.*
-import dev.ironduck.working.bootstrap.BootstrapModalPage
+import dev.ironduck.working.pages.BootstrapModalPage
 import com.fastscala.server.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 

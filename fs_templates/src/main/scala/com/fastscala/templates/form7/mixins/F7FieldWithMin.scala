@@ -8,7 +8,7 @@ import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 trait F7FieldWithMin extends F7FieldInputFieldMixin:
   var _min: () => Option[String] = () => None
 
-  def min = _min()
+  def min: Option[String] = _min()
 
   def min(v: Option[String]): this.type = mutate:
     _min = () => v

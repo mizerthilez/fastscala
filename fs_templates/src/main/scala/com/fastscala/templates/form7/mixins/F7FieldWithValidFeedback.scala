@@ -7,7 +7,7 @@ import com.fastscala.templates.utils.Mutable
 trait F7FieldWithValidFeedback extends Mutable:
   var _validFeedback: () => Option[Elem] = () => None
 
-  def validFeedback = _validFeedback()
+  def validFeedback: Option[Elem] = _validFeedback()
 
   def validFeedback(v: Option[Elem]): this.type = mutate:
     _validFeedback = () => v

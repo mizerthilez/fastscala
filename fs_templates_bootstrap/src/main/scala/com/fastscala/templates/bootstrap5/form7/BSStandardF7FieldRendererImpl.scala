@@ -8,7 +8,7 @@ import com.fastscala.templates.form7.renderers.StandardOneInputElemF7FieldRender
 
 trait BSStandardF7FieldRendererImpl extends StandardOneInputElemF7FieldRenderer:
   import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
-  override def render(
+  def render(
     field: StandardF7Field
   )(
     inputElem: Elem,

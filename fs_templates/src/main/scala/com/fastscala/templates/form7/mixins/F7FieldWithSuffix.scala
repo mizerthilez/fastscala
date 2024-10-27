@@ -5,7 +5,7 @@ import com.fastscala.templates.utils.Mutable
 trait F7FieldWithSuffix extends Mutable:
   var _suffix: () => String = () => ""
 
-  def suffix = _suffix()
+  def suffix: String = _suffix()
 
   def suffix(v: String): this.type = mutate:
     _suffix = () => v

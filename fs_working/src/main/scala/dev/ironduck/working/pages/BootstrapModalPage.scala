@@ -1,4 +1,4 @@
-package dev.ironduck.working.bootstrap
+package dev.ironduck.working.pages
 
 import scala.xml.NodeSeq
 

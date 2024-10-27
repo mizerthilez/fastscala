@@ -8,7 +8,7 @@ import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 trait F7FieldWithRequired extends F7FieldInputFieldMixin:
   var _required: () => Boolean = () => false
 
-  def required = _required()
+  def required: Boolean = _required()
 
   def isRequired: this.type = required(true)
 

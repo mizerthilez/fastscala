@@ -89,6 +89,12 @@ object FSDemoMainMenu
           "Validation by Field Type",
           ValidationByFieldTypePage(),
         ),
+        RoutingMenuItem("demo", "forms", "input-groups")("Input Groups", FormInputGroupsPage()),
+        RoutingMenuItem("demo", "forms", "server-side-update")(
+          "Server-Side Update",
+          UpdatesFromServerSidePage(),
+        ),
+        RoutingMenuItem("demo", "forms", "field-state")("Field state", FieldStatesPage()),
       ),
       MenuSection("Table Lib")(
         SimpleMenuItem("Simple", "/demo/simple_tables"),
