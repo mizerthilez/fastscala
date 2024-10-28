@@ -6,7 +6,7 @@ import scala.concurrent.duration.*
 resolvers += Resolver.mavenLocal
 
 ThisBuild / organization := "com.fastscala"
-ThisBuild / scalaVersion := "3.5.0"
+ThisBuild / scalaVersion := "3.5.2"
 
 ThisBuild / shellPrompt := { state => Project.extract(state).currentRef.project + "> " }
 
@@ -41,15 +41,15 @@ lazy val fastscala = (project in file(FSRoot + "fastscala"))
   .settings(
     name := "fastscala",
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % "1.5.8",
+      "ch.qos.logback" % "logback-classic" % "1.5.12",
       // "net.logstash.logback" % "logstash-logback-encoder" % "8.0",
       "org.slf4j" % "slf4j-api" % "2.0.16",
       "com.github.loki4j" % "loki-logback-appender" % "1.5.2",
-      "io.prometheus" % "prometheus-metrics-core" % "1.3.1",
+      "io.prometheus" % "prometheus-metrics-core" % "1.3.2",
       "com.typesafe" % "config" % "1.4.3",
       "org.apache.commons" % "commons-text" % "1.12.0",
-      "org.eclipse.jetty" % "jetty-server" % "12.0.13",
-      "org.eclipse.jetty.websocket" % "jetty-websocket-jetty-server" % "12.0.13",
+      "org.eclipse.jetty" % "jetty-server" % "12.0.14",
+      "org.eclipse.jetty.websocket" % "jetty-websocket-jetty-server" % "12.0.14",
       "io.circe" %% "circe-core" % "0.14.10",
       "io.circe" %% "circe-generic" % "0.14.10",
       "io.circe" %% "circe-parser" % "0.14.10",
@@ -70,9 +70,9 @@ lazy val fs_db = (project in file(FSRoot + "fs_db"))
     name := "fs_db",
     libraryDependencies ++= Seq(
       "org.postgresql" % "postgresql" % "42.7.4",
-      "org.xerial" % "sqlite-jdbc" % "3.46.1.0",
-      "org.scalikejdbc" %% "scalikejdbc" % "4.3.1",
-      "com.google.guava" % "guava" % "33.3.0-jre",
+      "org.xerial" % "sqlite-jdbc" % "3.47.0.0",
+      "org.scalikejdbc" %% "scalikejdbc" % "4.3.2",
+      "com.google.guava" % "guava" % "33.3.1-jre",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
     ),
     Test / parallelExecution := false,
@@ -84,7 +84,7 @@ lazy val fs_templates = (project in file(FSRoot + "fs_templates"))
   .settings(
     name := "fs_templates",
     libraryDependencies ++= Seq(
-      "joda-time" % "joda-time" % "2.12.7"
+      "joda-time" % "joda-time" % "2.13.0"
     ),
   )
   .dependsOn(fastscala)
@@ -110,7 +110,7 @@ lazy val fs_demo = (project in file(FSRoot + "fs_demo"))
     Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "scala",
     publishArtifact := true,
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % "3.5.4",
+      "org.typelevel" %% "cats-effect" % "3.5.5",
       "at.favre.lib" % "bcrypt" % "0.10.2",
       "com.lihaoyi" %% "scalatags" % "0.13.1",
     ),
