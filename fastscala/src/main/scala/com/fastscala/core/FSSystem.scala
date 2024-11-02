@@ -3,9 +3,10 @@ package com.fastscala.core
 import com.fastscala.js.Js
 import com.fastscala.server._
 import com.fastscala.stats.{FSStats, StatEvent}
-import com.fastscala.utils.IdGen
+import com.fastscala.utils.{IdGen, Missing}
 import com.typesafe.config.ConfigFactory
 import io.circe.{Decoder, Json}
+import it.unimi.dsi.util.XoRoShiRo128PlusRandom
 import org.eclipse.jetty.http._
 import org.eclipse.jetty.io.Content
 import org.eclipse.jetty.server.{Request, Response => JettyServerResponse}
@@ -80,6 +81,8 @@ class FSContext(
 
   import FSContext.logger
 
+  def depth: Int = parentFSContext.map(_.depth + 1).getOrElse(0)
+
   implicit def fsc: FSContext = this
 
   private implicit def __fsContextOpt: Option[FSContext] = Some(this)
@@ -118,7 +121,7 @@ class FSContext(
   def createNewChildContextAndGCExistingOne(key: AnyRef, debugLabel: Option[String] = None): FSContext = {
     page.key2FSContext.get(key).foreach(existing => {
       children -= existing
-      existing.gc()
+      existing.delete()
     })
     val newContext = new FSContext(session, page, Some(this), debugLbl = debugLabel)
     page.key2FSContext(key) = newContext
@@ -127,16 +130,19 @@ class FSContext(
     page.key2FSContext(key)
   }
 
-  def gc(): Unit = {
-    logger.debug(s"GC context $fullPath")
+  def delete(): Unit = {
+    logger.debug(s"Delete context $fullPath")
     parentFSContext.foreach(_.children -= this)
-    page.functions --= functionsGenerated
+    page.callbacks --= functionsGenerated
     session.fsSystem.stats.event(StatEvent.GC_CALLBACK, n = functionsGenerated.size)
-    page.functionsFileUpload --= functionsFileUploadGenerated
+    session.fsSystem.stats.currentCallbacks.dec(functionsGenerated.size)
+    page.fileUploadCallbacks --= functionsFileUploadGenerated
     session.fsSystem.stats.event(StatEvent.GC_FILE_UPLOAD, n = functionsFileUploadGenerated.size)
-    page.functionsFileDownload --= functionsFileDownloadGenerated
+    session.fsSystem.stats.currentFileUploadCallbacks.dec(functionsFileUploadGenerated.size)
+    page.fileDownloadCallbacks --= functionsFileDownloadGenerated
     session.fsSystem.stats.event(StatEvent.GC_FILE_DOWNLOAD, n = functionsFileDownloadGenerated.size)
-    children.foreach(_.gc())
+    session.fsSystem.stats.currentFileDownloadCallbacks.dec(functionsFileDownloadGenerated.size)
+    children.foreach(_.delete())
   }
 
   def callback(func: () => Js): Js = callback(Js.void, _ => func())
@@ -148,12 +154,13 @@ class FSContext(
                 expectReturn: Boolean = true,
                 ignoreErrors: Boolean = false
               ): Js = {
-    session.fsSystem.checkSpace()
+    session.fsSystem.gc()
     val funcId = session.nextID()
     functionsGenerated += funcId
-    // FSStats.event(StatEvent.CREATE_CALLBACK, "callback_type" -> "str")
-    page.functions += funcId -> new FSFunc(funcId, str => func(str) & session.fsSystem.afterCallBackJs.map(_(this)).getOrElse(Js.void))
+    page.callbacks += funcId -> new FSFunc(funcId, str => func(str) & session.fsSystem.afterCallBackJs.map(_(this)).getOrElse(Js.void))
     session.fsSystem.stats.event(StatEvent.CREATE_CALLBACK)
+    session.fsSystem.stats.callbacksTotal.inc()
+    session.fsSystem.stats.currentCallbacks.inc()
 
     Js.fromString(
       session.fsSystem.beforeCallBackJs.map(js => s"""(function() {${js.cmd}})();""").getOrElse("") +
@@ -168,17 +175,19 @@ class FSContext(
                     expectReturn: Boolean = true,
                     ignoreErrors: Boolean = false
                   ): Js = {
-    session.fsSystem.checkSpace()
+    session.fsSystem.gc()
     val funcId = session.nextID()
     functionsGenerated += funcId
     // FSStats.event(StatEvent.CREATE_CALLBACK, "callback_type" -> "json")
-    page.functions += funcId -> new FSFunc(funcId, str => {
+    page.callbacks += funcId -> new FSFunc(funcId, str => {
       io.circe.parser.parse(str) match {
         case Left(value) => throw new Exception(s"Failed to parse JSON: ${value.getMessage()}")
         case Right(json) => func(json) & session.fsSystem.afterCallBackJs.map(_(this)).getOrElse(Js.void)
       }
     })
     session.fsSystem.stats.event(StatEvent.CREATE_CALLBACK)
+    session.fsSystem.stats.callbacksTotal.inc()
+    session.fsSystem.stats.currentCallbacks.inc()
 
     Js.fromString(
       session.fsSystem.beforeCallBackJs.map(js => s"""(function() {${js.cmd}})();""").getOrElse("") +
@@ -193,17 +202,19 @@ class FSContext(
                                        expectReturn: Boolean = true,
                                        ignoreErrors: Boolean = false
                                      ): Js = {
-    session.fsSystem.checkSpace()
+    session.fsSystem.gc()
     val funcId = session.nextID()
     functionsGenerated += funcId
     // FSStats.event(StatEvent.CREATE_CALLBACK, "callback_type" -> "json_decoded")
-    page.functions += funcId -> new FSFunc(funcId, str => {
+    page.callbacks += funcId -> new FSFunc(funcId, str => {
       io.circe.parser.decode(str) match {
         case Left(value) => throw new Exception(s"Failed to parse JSON \"$str\": ${value.getMessage()}")
         case Right(decoded) => func(decoded) & session.fsSystem.afterCallBackJs.map(_(this)).getOrElse(Js.void)
       }
     })
     session.fsSystem.stats.event(StatEvent.CREATE_CALLBACK)
+    session.fsSystem.stats.callbacksTotal.inc()
+    session.fsSystem.stats.currentCallbacks.inc()
 
     Js.fromString(
       session.fsSystem.beforeCallBackJs.map(js => s"""(function() {${js.cmd}})();""").getOrElse("") +
@@ -215,9 +226,11 @@ class FSContext(
                                                       render: FSContext => E#NodeSeq
                                                       , name: String
                                                     ): String = {
-    session.fsSystem.checkSpace()
+    session.fsSystem.gc()
     val funcId = session.nextID()
     session.fsSystem.stats.event(StatEvent.CREATE_ANON_PAGE, additionalFields = Seq("page_name" -> name))
+    session.fsSystem.stats.anonPagesTotal.inc()
+    session.fsSystem.stats.currentAnonPages.inc()
     session.anonymousPages += funcId -> new FSAnonymousPage(funcId, session, render)
 
     s"/${session.fsSystem.FSPrefix}/anon/$funcId/$name"
@@ -230,63 +243,30 @@ class FSContext(
     fileDownload(fileName, Files.probeContentType(Path.of(fileName)), download)
 
   def fileDownload(fileName: String, contentType: String, download: () => Array[Byte]): String = {
-    session.fsSystem.checkSpace()
+    session.fsSystem.gc()
     val funcId = session.nextID()
     functionsFileUploadGenerated += funcId
-    page.functionsFileDownload += funcId -> new FSFileDownload(funcId, contentType, download)
+    page.fileDownloadCallbacks += funcId -> new FSFileDownload(funcId, contentType, download)
     session.fsSystem.stats.event(StatEvent.CREATE_FILE_DOWNLOAD, additionalFields = Seq("file_name" -> fileName, "content_type" -> contentType))
+    session.fsSystem.stats.fileDownloadCallabacksTotal.inc()
+    session.fsSystem.stats.currentFileDownloadCallbacks.inc()
     s"/${session.fsSystem.FSPrefix}/file-download/${page.id}/$funcId/${URLEncoder.encode(fileName, "UTF-8")}"
   }
 
   def fileUploadActionUrl(func: Seq[FSUploadedFile] => Js): String = {
-    session.fsSystem.checkSpace()
+    session.fsSystem.gc()
     val funcId = session.nextID()
     functionsFileDownloadGenerated += funcId
-    page.functionsFileUpload += (funcId -> new FSFileUpload(funcId, func))
+    page.fileUploadCallbacks += (funcId -> new FSFileUpload(funcId, func))
     session.fsSystem.stats.event(StatEvent.CREATE_FILE_UPLOAD)
+    session.fsSystem.stats.fileUploadCallbacksTotal.inc()
+    session.fsSystem.stats.currentFileUploadCallbacks.inc()
     s"/${session.fsSystem.FSPrefix}/file-upload/${page.id}/$funcId"
   }
 
   def exec(func: () => Js, async: Boolean = true): Js = callback(Js("''"), _ => func(), async)
 
-  def fsPageScript(openWSSessionAtStart: Boolean = false)(implicit fsc: FSContext): Js = {
-    // Js(s"""window.addEventListener("beforeunload", function(evt) {${fsc.callback(Js.void, _ => session.fsSystem.onPageUnload(), expectReturn = false, ignoreErrors = true).cmd}});""") &
-    //  onPageUnload()
-
-    Js {
-      s"""window._fs = {
-         |  sessionId: ${Js.asJsStr(session.id).cmd},
-         |  pageId: ${Js.asJsStr(page.id).cmd},
-         |  callback: function(arg, pageId, funcId, ignoreErrors, async, expectReturn) {
-         |    const xhr = new XMLHttpRequest();
-         |    xhr.onload = function() { eval(this.responseText); };
-         |
-         |    xhr.open("POST", "/${session.fsSystem.FSPrefix}/cb/"+pageId+"/"+funcId+"?time=" + new Date().getTime() + (ignoreErrors ? "&ignore_errors=true" : ""), async);
-         |    xhr.setRequestHeader("Content-type", "text/plain;charset=utf-8");
-         |    if (expectReturn) {
-         |      xhr.onload = function() { try {eval(this.responseText);} catch(err) { console.log(err.message); console.log('While runnning the code:\\n' + this.responseText); } };
-         |    }
-         |    xhr.send(arg);
-         |  },
-         |  initWebSocket: function() {
-         |    if(!window._fs.ws) {
-         |      window._fs.ws = new WebSocket(location.origin.replace(/^http/, 'ws') + "/${session.fsSystem.FSPrefix}/ws?sessionId=${URLEncoder.encode(fsc.session.id, "UTF-8")}&pageId=${URLEncoder.encode(fsc.page.id, "UTF-8")}", "fs");
-         |      window._fs.ws.onmessage = function(event) {
-         |        try {eval(event.data);} catch(err) { console.log(err.message); console.log('While runnning the code:\\n' + event.data); }
-         |      };
-         |      window._fs.ws.onclose = function(){
-         |        window._fs.ws = null
-         |        setTimeout(window._fs.initWebSocket, 1000);
-         |      };
-         |    }
-         |  },
-         |};
-         |${if (openWSSessionAtStart) initWebSocket().cmd else Js.void.cmd}
-         |""".stripMargin
-    }
-  }
-
-  def initWebSocket() = Js("window._fs.initWebSocket();")
+  def fsPageScript(openWSSessionAtStart: Boolean = false)(implicit fsc: FSContext): Js = page.fsPageScript(openWSSessionAtStart)
 }
 
 class FSUploadedFile(
@@ -307,12 +287,18 @@ class FSPage(
               , val createdAt: Long = System.currentTimeMillis()
               , val onPageUnload: () => Js = () => Js.void
               , var keepAliveAt: Long = System.currentTimeMillis()
+              , var autoKeepAliveAt: Long = System.currentTimeMillis()
               , var wsSession: Option[Session] = None
               , var wsQueue: List[Js] = Nil
               , var wsLock: AnyRef = new AnyRef
               , val debugLbl: Option[String] = None
             ) extends FSHasSession {
 
+  def periodicKeepAliveEnabled: Boolean = session.fsSystem.config.getBoolean("com.fastscala.core.periodic-page-keep-alive.enabled")
+
+  def periodicKeepAlivePeriod: Long = session.fsSystem.config.getLong("com.fastscala.core.periodic-page-keep-alive.period-millis")
+
+  def periodicKeepAliveDefunctAfter: Long = session.fsSystem.config.getLong("com.fastscala.core.periodic-page-keep-alive.defunct-after-millis")
 
   private implicit def __fsContextOpt: Option[FSContext] = None
 
@@ -322,58 +308,113 @@ class FSPage(
 
   private implicit def __fsSystem: FSSystem = session.fsSystem
 
-  //  override def finalize(): Unit = {
-  //    super.finalize()
-  //    FSSession.logger.trace(s"GC PAGE ${((System.currentTimeMillis() - createdAt) / 1000d).formatted("%.2f")}s session_id=$id page_id=$id #functions=${functions.keys.size} #functions_file_upload=${functionsFileUpload.keys.size} #functions_file_download=${functionsFileDownload.keys.size}, evt_type=gc_page")
-  //  }
-
   def keepAlive(): Unit = {
     keepAliveAt = System.currentTimeMillis()
     session.keepAlive()
   }
 
   def allKeepAlivesIterable: Iterable[Long] =
-    functions.values.map(_.keepAliveAt) ++
-      functionsFileUpload.values.map(_.keepAliveAt) ++
-      functionsFileDownload.values.map(_.keepAliveAt) ++
+    callbacks.values.map(_.keepAliveAt) ++
+      fileUploadCallbacks.values.map(_.keepAliveAt) ++
+      fileDownloadCallbacks.values.map(_.keepAliveAt) ++
       Iterable(keepAliveAt)
 
   val key2FSContext = collection.mutable.Map[AnyRef, FSContext]()
 
-  val functions = collection.mutable.Map[String, FSFunc]()
-  val functionsFileUpload = collection.mutable.Map[String, FSFileUpload]()
-  val functionsFileDownload = collection.mutable.Map[String, FSFileDownload]()
+  val callbacks = collection.mutable.Map[String, FSFunc]()
+  val fileUploadCallbacks = collection.mutable.Map[String, FSFileUpload]()
+  val fileDownloadCallbacks = collection.mutable.Map[String, FSFileDownload]()
 
   val rootFSContext = new FSContext(session, this, onPageUnload = onPageUnload, debugLbl = Some("page_root_context"))
 
-  def gc(keepAliveOlderThan: Long): Unit = {
-    val currentFunctions = functions.toVector
-    val functionsToRemove = currentFunctions.filter(_._2.keepAliveAt < keepAliveOlderThan)
-    functions --= functionsToRemove.map(_._1)
-    functionsToRemove.foreach({
+  def deleteOlderThan(ts: Long): Unit = {
+    val currentCallbacks = callbacks.toVector
+    val callbacksToRemove = currentCallbacks.filter(_._2.keepAliveAt < ts)
+    callbacks --= callbacksToRemove.map(_._1)
+    callbacksToRemove.foreach({
       case (_, f) => f.fsc.functionsGenerated -= f.id
     })
-    session.fsSystem.stats.event(StatEvent.GC_CALLBACK, n = functionsToRemove.size)
+    session.fsSystem.stats.currentCallbacks.dec(callbacksToRemove.size)
+
+    //    session.fsSystem.stats.event(StatEvent.GC_CALLBACK, n = functionsToRemove.size)
     // logger.info(s"Removed ${functionsToRemove.size} functions")
 
-    val currentFunctionsFileUpload = functionsFileUpload.toVector
-    val functionsFileUploadToRemove = currentFunctionsFileUpload.filter(_._2.keepAliveAt < keepAliveOlderThan)
-    functionsFileUpload --= functionsFileUploadToRemove.map(_._1)
-    functionsFileUploadToRemove.foreach({
+    val currentFileUploadCallbacks = fileUploadCallbacks.toVector
+    val fileUploadCallbacksToRemove = currentFileUploadCallbacks.filter(_._2.keepAliveAt < ts)
+    fileUploadCallbacks --= fileUploadCallbacksToRemove.map(_._1)
+    fileUploadCallbacksToRemove.foreach({
       case (_, f) => f.fsc.functionsFileUploadGenerated -= f.id
     })
-    session.fsSystem.stats.event(StatEvent.GC_FILE_UPLOAD, n = functionsFileUploadToRemove.size)
+    session.fsSystem.stats.currentFileUploadCallbacks.dec(fileUploadCallbacksToRemove.size)
+
+    //    session.fsSystem.stats.event(StatEvent.GC_FILE_UPLOAD, n = fileUploadCallbacksToRemove.size)
     // logger.info(s"Removed ${functionsFileUploadToRemove.size} functions")
 
-    val currentFunctionsFileDownload = functionsFileDownload.toVector
-    val functionsFileDownloadToRemove = currentFunctionsFileDownload.filter(_._2.keepAliveAt < keepAliveOlderThan)
-    functionsFileDownload --= functionsFileDownloadToRemove.map(_._1)
-    functionsFileDownloadToRemove.foreach({
+    val currentFileDownloadCallbacks = fileDownloadCallbacks.toVector
+    val fileDownloadCallbacksToRemove = currentFileDownloadCallbacks.filter(_._2.keepAliveAt < ts)
+    fileDownloadCallbacks --= fileDownloadCallbacksToRemove.map(_._1)
+    fileDownloadCallbacksToRemove.foreach({
       case (_, f) => f.fsc.functionsFileDownloadGenerated -= f.id
     })
-    session.fsSystem.stats.event(StatEvent.GC_FILE_DOWNLOAD, n = functionsFileDownloadToRemove.size)
+    session.fsSystem.stats.currentFileDownloadCallbacks.dec(fileDownloadCallbacksToRemove.size)
+
+    //    session.fsSystem.stats.event(StatEvent.GC_FILE_DOWNLOAD, n = fileDownloadCallbacksToRemove.size)
     // logger.info(s"Removed ${functionsFileDownloadToRemove.size} functions")
   }
+
+  def delete(): Unit = {
+    session.pages -= this.id
+    session.fsSystem.stats.currentPages.dec()
+    session.fsSystem.stats.currentFileDownloadCallbacks.dec(fileDownloadCallbacks.size)
+    session.fsSystem.stats.currentFileUploadCallbacks.dec(fileUploadCallbacks.size)
+    session.fsSystem.stats.currentCallbacks.dec(callbacks.size)
+  }
+
+  def fsPageScript(openWSSessionAtStart: Boolean = false)(implicit fsc: FSContext): Js = {
+    Js {
+      s"""window._fs = {
+         |  sessionId: ${Js.asJsStr(session.id).cmd},
+         |  pageId: ${Js.asJsStr(id).cmd},
+         |  callback: function(arg, pageId, funcId, ignoreErrors, async, expectReturn) {
+         |    const xhr = new XMLHttpRequest();
+         |    xhr.open("POST", "/${session.fsSystem.FSPrefix}/cb/"+pageId+"/"+funcId+"?time=" + new Date().getTime() + (ignoreErrors ? "&ignore_errors=true" : ""), async);
+         |    xhr.setRequestHeader("Content-type", "text/plain;charset=utf-8");
+         |    if (expectReturn) {
+         |      xhr.onload = function() { try {eval(this.responseText);} catch(err) { console.log(err.message); console.log('While runnning the code:\\n' + this.responseText); } };
+         |    }
+         |    xhr.send(arg);
+         |  },
+         |  keepAlive: function(pageId) {
+         |    const xhr = new XMLHttpRequest();
+         |    xhr.open("POST", "/${session.fsSystem.FSPrefix}/ka/"+pageId+"?time=" + new Date().getTime(), true);
+         |    xhr.setRequestHeader("Content-type", "text/plain;charset=utf-8");
+         |    xhr.onload = function() { try {eval(this.responseText);} catch(err) { console.log(err.message); console.log('While runnning the code:\\n' + this.responseText); } };
+         |    xhr.send('');
+         |  },
+         |  initWebSocket: function() {
+         |    if(!window._fs.ws) {
+         |      window._fs.ws = new WebSocket(location.origin.replace(/^http/, 'ws') + "/${session.fsSystem.FSPrefix}/ws?sessionId=${URLEncoder.encode(fsc.session.id, "UTF-8")}&pageId=${URLEncoder.encode(fsc.page.id, "UTF-8")}", "fs");
+         |      window._fs.ws.onmessage = function(event) {
+         |        try {eval(event.data);} catch(err) { console.log(err.message); console.log('While runnning the code:\\n' + event.data); }
+         |      };
+         |      window._fs.ws.onclose = function(){
+         |        window._fs.ws = null
+         |        setTimeout(window._fs.initWebSocket, 1000);
+         |      };
+         |    }
+         |  },
+         |};
+         |${if (openWSSessionAtStart) initWebSocket().cmd else Js.void.cmd}
+         |${if (periodicKeepAliveEnabled) setupKeepAlive().cmd else Js.void.cmd}
+         |""".stripMargin
+    }
+  }
+
+  def isDefunct_? = periodicKeepAliveEnabled && (System.currentTimeMillis() - autoKeepAliveAt) > periodicKeepAliveDefunctAfter
+
+  def setupKeepAlive(): Js = Js(s"""function sendKeepAlive() {window._fs.keepAlive(${Js.asJsStr(id).cmd});setTimeout(sendKeepAlive, ${periodicKeepAlivePeriod});};sendKeepAlive();""")
+
+  def initWebSocket() = Js("window._fs.initWebSocket();")
 }
 
 object FSSession {
@@ -441,9 +482,14 @@ class FSSession(
                  , val debugLbl: Option[String] = None
                ) extends FSHasSession {
 
+  val config = ConfigFactory.load()
+
+  def useRandomIds: Boolean = Option(config.getBoolean("com.fastscala.core.random-ids")).getOrElse(false)
+
   val logger = LoggerFactory.getLogger(getClass.getName)
 
-  var idSeq = 0L
+  private var idSeq = 0L
+  private lazy val xoRoShiRo128PlusRandom = new XoRoShiRo128PlusRandom()
 
   private implicit def __fsContextOpt: Option[FSContext] = None
 
@@ -454,9 +500,13 @@ class FSSession(
   private implicit def __fsSystem: FSSystem = fsSystem
 
   def nextID(prefix: String = ""): String = {
-    session.synchronized {
-      session.idSeq += 1
-      prefix + session.idSeq.toString
+    if (useRandomIds) {
+      prefix + java.lang.Long.toHexString(xoRoShiRo128PlusRandom.nextLong())
+    } else {
+      session.synchronized {
+        session.idSeq += 1
+        prefix + session.idSeq.toString
+      }
     }
   }
 
@@ -491,11 +541,13 @@ class FSSession(
                      debugLbl: Option[String] = None,
                      onPageUnload: () => Js = () => Js.void
                    )(implicit req: Request): T = try {
-    session.fsSystem.checkSpace()
+    session.fsSystem.gc()
     val copy = new Request.Wrapper(req)
     val page = new FSPage(nextID(), this, copy, onPageUnload = onPageUnload, debugLbl = debugLbl)
     if (logger.isTraceEnabled) logger.trace(s"Created page ${page.id}")
     fsSystem.stats.event(StatEvent.CREATE_PAGE)
+    session.fsSystem.stats.pagesTotal.inc()
+    session.fsSystem.stats.currentPages.inc()
     this.synchronized {
       pages += (page.id -> page)
     }
@@ -507,20 +559,29 @@ class FSSession(
       throw ex
   }
 
-  def gc(keepAliveOlderThan: Long): Unit = {
+  def deleteOlderThan(ts: Long): Unit = {
     val currentPages = pages.toVector
-    val pagesToRemove = currentPages.filter(_._2.keepAliveAt < keepAliveOlderThan)
-    pages --= pagesToRemove.map(_._1)
-    fsSystem.stats.event(StatEvent.GC_PAGE, n = pagesToRemove.size)
+    val pagesToRemove = currentPages.filter(_._2.keepAliveAt < ts)
+    pagesToRemove.foreach(_._2.delete())
+    fsSystem.stats.currentPages.dec(pagesToRemove.size)
+
+    //    fsSystem.stats.event(StatEvent.GC_PAGE, n = pagesToRemove.size)
     // logger.info(s"Removed ${pagesToRemove.size} pages")
 
     val currentAnonymousPages = anonymousPages.toVector
-    val anonymousPagesToRemove = currentAnonymousPages.filter(_._2.keepAliveAt < keepAliveOlderThan)
+    val anonymousPagesToRemove = currentAnonymousPages.filter(_._2.keepAliveAt < ts)
     anonymousPages --= anonymousPagesToRemove.map(_._1)
-    fsSystem.stats.event(StatEvent.GC_ANON_PAGE, n = anonymousPagesToRemove.size)
+    fsSystem.stats.currentAnonPages.dec(anonymousPagesToRemove.size)
+    //    fsSystem.stats.event(StatEvent.GC_ANON_PAGE, n = anonymousPagesToRemove.size)
     // logger.info(s"Removed ${pagesToRemove.size} anonymous pages")
 
-    pages.values.foreach(_.gc(keepAliveOlderThan))
+    pages.values.foreach(_.deleteOlderThan(ts))
+  }
+
+  def delete(): Unit = {
+    fsSystem.sessions -= this.id
+    fsSystem.stats.currentSessions.dec()
+    pages.foreach(_._2.delete())
   }
 }
 
@@ -552,13 +613,15 @@ class FSSystem(
     cookies.filter(_.getName == FSSessionIdCookieName).map(_.getValue).flatMap(sessions.get(_)).headOption match {
       case Some(session) => Option((Nil, inSession(session)))
       case None if !req.getHttpURI.getPath.startsWith("/" + FSPrefix + "/ws") =>
-        checkSpace()
+        gc()
         val id = IdGen.secureId()
         val session = new FSSession(id, this)
         implicit val __fsContextOpt: Option[FSContext] = None
         implicit val __fsPageOpt: Option[FSPage] = None
         implicit val __fsSessionOpt: Option[FSSession] = Some(session)
         stats.event(StatEvent.CREATE_SESSION)
+        session.fsSystem.stats.sessionsTotal.inc()
+        session.fsSystem.stats.currentSessions.inc()
         this.synchronized(sessions.put(session.id, session))
         FSSession.logger.info(s"Created session: session_id=${session.id}, evt_type=create_session")
         Option((List(HttpCookie.build(FSSessionIdCookieName, session.id).path("/").build()), inSession(session)))
@@ -568,6 +631,7 @@ class FSSystem(
 
   def handleCallbackException(ex: Throwable): Js = {
     ex.printStackTrace()
+    stats.callbackErrorsTotal.inc()
     if (__fsSystem.debug) {
       Js.alert(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
     } else {
@@ -577,6 +641,7 @@ class FSSystem(
 
   def handleFileUploadCallbackException(ex: Throwable): Js = {
     ex.printStackTrace()
+    stats.fileUploadCallbackErrorsTotal.inc()
     if (__fsSystem.debug) {
       Js.alert(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
     } else {
@@ -586,7 +651,7 @@ class FSSystem(
 
   def handleFileDownloadCallbackException(ex: Throwable): Response = {
     ex.printStackTrace()
-
+    stats.fileDownloadCallbackErrorsTotal.inc()
     if (__fsSystem.debug) {
       ServerError.InternalServerError(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
     } else {
@@ -596,36 +661,42 @@ class FSSystem(
 
   override def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request): Option[Response] = {
     val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
-    val sessionIdOpt = cookies.find(_.getName == FSSessionIdCookieName).map(_.getValue)
-    val sessionOpt = sessionIdOpt.flatMap(sessionId => sessions.get(sessionId))
-
     import RoutingHandlerHelper._
 
-    Some(req).collect {
-      case Post(FSPrefix, "cb", pageId, funcId) =>
-        // Callback invocation:
+    val sessionIdOpt = cookies.find(_.getName == FSSessionIdCookieName).map(_.getValue).orElse(
+      Option(Request.getParameters(req).getValue(FSSessionIdCookieName)).filter(_ != "")
+    )
+    val sessionOpt = sessionIdOpt.flatMap(sessionId => sessions.get(sessionId))
 
-        implicit val __fsSessionOpt: Option[FSSession] = None
-        implicit val __fsPageOpt: Option[FSPage] = None
-        implicit val __fsFuncOpt: Option[FSFunc] = None
-        implicit val __fsContextOpt: Option[FSContext] = None
+    Some(req).collect {
+      // Keep alive:
+      case Post(FSPrefix, "ka", pageId) =>
         sessionOpt.map(implicit session => {
-          implicit val __fsSessionOpt: Option[FSSession] = Option(session)
           session.pages.get(pageId).map(implicit page => {
-            implicit val __fsPageOpt: Option[FSPage] = Option(page)
-            page.functions.get(funcId).map(implicit fsFunc => {
-              implicit val __fsFuncOpt = Option(fsFunc)
-              implicit val __fsContextOpt: Option[FSContext] = __fsFuncOpt.map(_.fsc)
+            page.autoKeepAliveAt = System.currentTimeMillis()
+            Ok.js(Js.void)
+          }).getOrElse(Ok.js(onKeepAliveNotFound(Missing.Page, sessionId = sessionIdOpt, pageId = pageId, session = Some(session), page = None)))
+        }).getOrElse(Ok.js(onKeepAliveNotFound(Missing.Session, sessionId = sessionIdOpt, pageId = pageId, session = sessionOpt, page = None)))
+
+      // Callback invocation:
+      case Post(FSPrefix, "cb", pageId, funcId) =>
+        sessionOpt.map(implicit session => {
+          session.pages.get(pageId).map(implicit page => {
+            page.callbacks.get(funcId).map(implicit fsFunc => {
               fsFunc.keepAlive()
               val start = System.currentTimeMillis()
+              stats.callbackInvocationsTotal.inc()
+              stats.event(StatEvent.USE_CALLBACK, additionalFields = Seq("func_name" -> fsFunc.fullPath))
+
               Content.Source.asStringAsync(req, Request.getCharset(req)).whenComplete((arg, failure) => {
                 val rslt: Js = Option(failure) match {
                   case Some(failure) =>
                     handleCallbackException(failure)
                   case None =>
+                    val start = System.currentTimeMillis()
                     try {
+                      stats.callbacksInProcessing.inc()
                       if (logger.isTraceEnabled) logger.trace(s"Running callback on thread ${Thread.currentThread()}...")
-                      val start = System.currentTimeMillis()
                       val rslt = fsFunc.func(arg)
                       if (logger.isTraceEnabled) logger.trace(s"Finished in ${System.currentTimeMillis() - start}ms (thread ${Thread.currentThread()}) with result JS with ${rslt.cmd.length} chars")
                       rslt
@@ -633,229 +704,218 @@ class FSSystem(
                       case trowable =>
                         if (logger.isTraceEnabled) logger.trace(s"Finished with EXCEPTION in ${System.currentTimeMillis() - start}ms (thread ${Thread.currentThread()}): $trowable")
                         handleCallbackException(trowable)
+                    } finally {
+                      stats.callbackTimeTotal.inc(io.prometheus.metrics.model.snapshots.Unit.millisToSeconds(System.currentTimeMillis() - start))
+                      stats.callbacksInProcessing.dec()
                     }
                 }
                 if (logger.isTraceEnabled) logger.trace(s"Invoke func: session_id=${session.id}, page_id=$pageId, func_id=$funcId, took_ms=${System.currentTimeMillis() - start}, response_size_bytes=${rslt.cmd.getBytes.size}, evt_type=invk_func")
-                stats.event(StatEvent.USE_CALLBACK, additionalFields = Seq("func_name" -> fsFunc.fullPath))
                 Ok.js(rslt).respond(response, callback)
               })
               VoidResponse
-            }).getOrElse({
-              stats.event(StatEvent.NOT_FOUND_CALLBACK)
-              onFuncNotFoundForAjaxReq(funcId)(page, req)
-            })
-          }).getOrElse({
-            stats.event(StatEvent.NOT_FOUND_PAGE)
-            onPageNotFoundForAjaxReq(pageId, funcId)(session, req)
-          })
-        }).getOrElse({
-          stats.event(StatEvent.NOT_FOUND_SESSION)
-          onSessionNotFoundForAjaxReq(sessionIdOpt)
-        })
+            }).getOrElse(Ok.js(onCallbackNotFound(Missing.CallbackFunction, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = Some(session), page = Some(page))))
+          }).getOrElse(Ok.js(onCallbackNotFound(Missing.Page, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = Some(session), page = None)))
+        }).getOrElse(Ok.js(onCallbackNotFound(Missing.Session, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = sessionOpt, page = None)))
 
       case Post(FSPrefix, "file-upload", pageId, funcId) =>
-        implicit val __fsSessionOpt: Option[FSSession] = None
-        implicit val __fsPageOpt: Option[FSPage] = None
-        implicit val __fsFuncOpt: Option[FSFunc] = None
-        implicit val __fsContextOpt: Option[FSContext] = None
-
         sessionOpt.map(implicit session => {
-          implicit val __fsSessionOpt: Option[FSSession] = Option(session)
-          session.pages.get(pageId) match {
-            case Some(page) =>
-              implicit val __fsPageOpt: Option[FSPage] = Option(page)
-              page.functionsFileUpload.get(funcId) match {
-                case Some(fSFileUpload) =>
+          session.pages.get(pageId).map(implicit page => {
+            page.fileUploadCallbacks.get(funcId).map(implicit fSFileUpload => {
 
-                  fSFileUpload.keepAlive()
+              fSFileUpload.keepAlive()
+              val start = System.currentTimeMillis()
+              stats.fileUploadCallbackInvocationsTotal.inc()
 
-                  val contentType = req.getHeaders.get(HttpHeader.CONTENT_TYPE)
-                  if (MimeTypes.Type.MULTIPART_FORM_DATA == MimeTypes.getBaseType(contentType)) {
-                    // Extract the multipart boundary.
-                    val boundary = MultiPart.extractBoundary(contentType)
-                    // Create and configure the multipart parser.
-                    val parser = new MultiPartFormData.Parser(boundary)
-                    // By default, uploaded files are stored in this directory, to
-                    // avoid to read the file content (which can be large) in memory.
-                    parser.setFilesDirectory(Path.of(System.getProperty("java.io.tmpdir")))
-                    // Convert the request content into parts.
-                    parser.parse(req).whenComplete((parts, failure) => {
-                      val rslt: Js = Option(failure) match {
-                        case Some(failure) =>
-                          handleFileUploadCallbackException(failure)
-                        case None =>
-                          fSFileUpload.func(parts.asScala.map(part => try {
-                            new FSUploadedFile(
-                              name = part.getName,
-                              submittedFileName = part.getFileName,
-                              contentType = part.getHeaders.get(HttpHeader.CONTENT_TYPE),
-                              content = Content.Source.asByteBuffer(part.getContentSource).array
-                            )
-                          } finally {
-                            try {
-                              part.close()
-                            } finally {
-                              part.delete()
-                            }
-                          }).toSeq)
-                      }
-                      Ok.js(rslt).respond(response, callback)
-                    })
-                    VoidResponse
-                  } else
-                    Ok.js(Js.alert("Not multipart form data"))
-
-                case None =>
-                  stats.event(StatEvent.NOT_FOUND_FILE_UPLOAD)
-                  onFuncNotFoundForAjaxReq(funcId)(page, req)
+              val contentType = req.getHeaders.get(HttpHeader.CONTENT_TYPE)
+              if (MimeTypes.Type.MULTIPART_FORM_DATA == MimeTypes.getBaseType(contentType)) {
+                // Extract the multipart boundary.
+                val boundary = MultiPart.extractBoundary(contentType)
+                // Create and configure the multipart parser.
+                val parser = new MultiPartFormData.Parser(boundary)
+                // By default, uploaded files are stored in this directory, to
+                // avoid to read the file content (which can be large) in memory.
+                parser.setFilesDirectory(Path.of(System.getProperty("java.io.tmpdir")))
+                // Convert the request content into parts.
+                parser.parse(req).whenComplete((parts, failure) => {
+                  val rslt: Js = Option(failure) match {
+                    case Some(failure) =>
+                      handleFileUploadCallbackException(failure)
+                    case None =>
+                      stats.fileUploadCallbacksInProcessing.inc()
+                      fSFileUpload.func(parts.asScala.map(part => try {
+                        new FSUploadedFile(
+                          name = part.getName,
+                          submittedFileName = part.getFileName,
+                          contentType = part.getHeaders.get(HttpHeader.CONTENT_TYPE),
+                          content = Content.Source.asByteBuffer(part.getContentSource).array
+                        )
+                      } catch {
+                        case ex: Throwable =>
+                          handleFileUploadCallbackException(ex)
+                          throw ex
+                      } finally {
+                        stats.fileUploadCallbackTimeTotal.inc(io.prometheus.metrics.model.snapshots.Unit.millisToSeconds(System.currentTimeMillis() - start))
+                        stats.fileUploadCallbacksInProcessing.dec()
+                        try {
+                          part.close()
+                        } finally {
+                          part.delete()
+                        }
+                      }).toSeq)
+                  }
+                  Ok.js(rslt).respond(response, callback)
+                })
+                VoidResponse
+              } else {
+                Ok.js(Js.alert("Not multipart form data"))
               }
-            case None =>
-              stats.event(StatEvent.NOT_FOUND_PAGE)
-              onPageNotFoundForAjaxReq(pageId, funcId)(session, req)
-          }
-        }).getOrElse({
-          stats.event(StatEvent.NOT_FOUND_SESSION)
-          onSessionNotFoundForAjaxReq(sessionIdOpt)
-        })
+            }).getOrElse(Ok.js(onFileUploadNotFound(Missing.FileUploadFunction, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = Some(session), page = Some(page))))
+          }).getOrElse(Ok.js(onFileUploadNotFound(Missing.Page, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = Some(session), page = None)))
+        }).getOrElse(Ok.js(onFileUploadNotFound(Missing.Session, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = sessionOpt, page = None)))
 
       // File downloads:
       case Get(FSPrefix, "file-download", pageId, funcId, _) =>
         sessionOpt.map(implicit session => {
-          session.pages.get(pageId) match {
-            case Some(page) =>
-              page.functionsFileDownload.get(funcId) match {
-                case Some(fSFileDownload) =>
-                  fSFileDownload.keepAlive()
-                  try {
-                    val bytes = fSFileDownload.func()
-                    Ok.binaryWithContentType(bytes, fSFileDownload.contentType)
-                  } catch {
-                    case ex: Exception => handleFileDownloadCallbackException(ex)
-                  }
-                case None =>
-                  stats.event(StatEvent.NOT_FOUND_FILE_DOWNLOAD)
-                  onFuncNotFoundForStdReq(pageId, funcId)(session, req)
+          session.pages.get(pageId).map(implicit page => {
+            page.fileDownloadCallbacks.get(funcId).map(implicit fSFileDownload => {
+
+              fSFileDownload.keepAlive()
+              val start = System.currentTimeMillis()
+              stats.fileDownloadCallbackInvocationsTotal.inc()
+
+              try {
+                stats.fileDownloadCallbacksInProcessing.inc()
+                val bytes = fSFileDownload.func()
+                Ok.binaryWithContentType(bytes, fSFileDownload.contentType)
+              } catch {
+                case ex: Exception => handleFileDownloadCallbackException(ex)
+              } finally {
+                stats.fileDownloadCallbackTimeTotal.inc(io.prometheus.metrics.model.snapshots.Unit.millisToSeconds(System.currentTimeMillis() - start))
+                stats.fileDownloadCallbacksInProcessing.dec()
               }
-            case None =>
-              stats.event(StatEvent.NOT_FOUND_PAGE)
-              onPageNotFoundForStdReq(pageId)(session, req)
-          }
-        }).getOrElse({
-          stats.event(StatEvent.NOT_FOUND_SESSION)
-          onSessionNotFoundForStdReq(sessionIdOpt)
-        })
+            }).getOrElse(onFileDownloadNotFound(Missing.FileDownloadFunction, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = Some(session), page = Some(page)))
+          }).getOrElse(onFileDownloadNotFound(Missing.Page, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = Some(session), page = None))
+        }).getOrElse(onFileDownloadNotFound(Missing.Session, sessionId = sessionIdOpt, pageId = pageId, functionId = funcId, session = sessionOpt, page = None))
 
       // Anonymous pages:
       case Get(FSPrefix, "anon", anonymousPageId, _) =>
+
         sessionOpt.map(implicit session => {
-          session.anonymousPages.get(anonymousPageId).map(anonymousPage => {
+          session.anonymousPages.get(anonymousPageId).map(implicit anonymousPage => {
             anonymousPage.keepAlive()
             val nodeSeq = session.createPage(implicit fsc => anonymousPage.renderAsString(), onPageUnload = () => {
               anonymousPage.onPageUnload()
             }, debugLbl = Some(s"page for anon page ${anonymousPage.debugLbl.getOrElse(s"with id ${anonymousPage.id}")}"))
             Ok.html(nodeSeq)
-          }).getOrElse({
-            stats.event(StatEvent.NOT_FOUND_ANON_PAGE)
-            onAnonymousPageNotFoundForStdReq(anonymousPageId)
-          })
-        }).getOrElse({
-          stats.event(StatEvent.NOT_FOUND_SESSION)
-          onSessionNotFoundForStdReq(sessionIdOpt)
-        })
+          }).getOrElse(onAnonymousPageNotFound(Missing.AnonPage, sessionId = sessionIdOpt, anonPageId = anonymousPageId, session = Some(session), page = None))
+        }).getOrElse(onAnonymousPageNotFound(Missing.Session, sessionId = sessionIdOpt, anonPageId = anonymousPageId, session = sessionOpt, page = None))
     }
   }
 
-  def onSessionNotFoundForAjaxReq(sessionId: Option[String])(implicit req: Request): Response = {
-    logger.warn(s"Session not found: session_id=$sessionId, evt_type=session_id_not_found")
-    val js: Js = if (Option(Request.getParameters(req).getValue("ignore_errors")).map(_ == "true").getOrElse(false)) Js.void
-    else Js.confirm(s"Session $sessionId not found, will reload", Js.reload())
-    Ok.js(js)
-  }
-
-  def onSessionNotFoundForWebsocketReq(sessionId: String)(implicit session: Session): Js = {
-    logger.warn(s"Session not found: session_id=$sessionId, evt_type=session_id_not_found")
-    val js: Js = if (session.getUpgradeRequest.getParameterMap.asScala.get("ignore_errors").flatMap(_.asScala.headOption).map(_ == "true").getOrElse(false)) Js.void
-    else Js.confirm(s"Session $sessionId not found, will reload", Js.reload())
-    js
-  }
-
-  def onSessionNotFoundForStdReq(sessionId: Option[String])(implicit req: Request): Response = {
-    logger.warn(s"Session not found: session_id=$sessionId, evt_type=session_not_found")
-    Redirect.temporaryRedirect("/")
-  }
-
-  def onPageNotFoundForAjaxReq(pageId: String, funcId: String)(implicit session: FSSession, req: Request): Response = {
-    logger.warn(s"Page not found: session_id=${session.id}, page_id=$pageId, func_id=$funcId, evt_type=page_id_not_found")
-    val js: Js = if (Option(Request.getParameters(req).getValue("ignore_errors")).map(_ == "true").getOrElse(false)) Js.void
-    else Js.confirm(s"Page $pageId not found", Js.redirectTo("/"))
-    Ok.js(js)
-  }
-
-  def onPageNotFoundForWebsocketReq(sessionId: String, pageId: String)(implicit session: Session): Js = {
-    logger.warn(s"Page not found: session_id=$sessionId, page_id=$pageId, evt_type=page_id_not_found")
-    val js: Js = if (session.getUpgradeRequest.getParameterMap.asScala.get("ignore_errors").flatMap(_.asScala.headOption).map(_ == "true").getOrElse(false)) Js.void
-    else Js.confirm(s"Page $pageId not found, will reload", Js.reload())
-    js
-  }
-
-  def onPageNotFoundForStdReq(pageId: String)(implicit session: FSSession, req: Request): Response = {
-    logger.warn(s"Page not found: session_id=${session.id}, page_id=$pageId, evt_type=page_id_not_found")
-    Redirect.temporaryRedirect("/")
-  }
-
-  def onFuncNotFoundForAjaxReq(funcId: String)(implicit page: FSPage, req: Request): Response = {
-    val ignoreErrors = Option(Request.getParameters(req).getValue("ignore_errors")).map(_ == "true").getOrElse(false)
-    logger.warn(s"Function not found: session_id=${page.session.id}, page_id=${page.id}, func_id=$funcId, evt_type=func_id_not_found, ignore_errors=$ignoreErrors")
-    val js: Js = if (ignoreErrors) Js.void
-    else Js.confirm(s"Func $funcId not found, will reload", Js.reload())
-    Ok.js(js)
-  }
-
-  def onFuncNotFoundForStdReq(pageId: String, funcId: String)(implicit session: FSSession, req: Request): Response = {
-    logger.warn(s"Function not found: session_id=${session.id}, page_id=${pageId}, func_id=$funcId, evt_type=func_id_not_found")
-    Redirect.temporaryRedirect("/")
-  }
-
-  def onAnonymousPageNotFoundForStdReq(anonymousPageId: String)(implicit session: FSSession): Response = {
-    logger.warn(s"Anonymous page not found: session_id=${session.id}, anonymous_page_id=$anonymousPageId, evt_type=anonymous_page_id_not_found")
-    Redirect.temporaryRedirect("/")
-  }
-
-  def onPageUnload()(implicit fsc: FSContext): Js = {
-    //    fsc.session.synchronized {
-    //      FSSession.logger.trace(s"REMOVE PAGE lived ${((System.currentTimeMillis() - fsc.page.createdAt) / 1000d).formatted("%.2f")}s session_id=${fsc.session.id} page_id=${fsc.page.id} #functions=${fsc.page.functions.keys.size} #functions_file_upload=${fsc.page.functionsFileUpload.keys.size} #functions_file_download=${fsc.page.functionsFileDownload.keys.size}, evt_type=remove_page")
-    //      fsc.session.pages.remove(fsc.page.id)
-    //    }
+  def onKeepAliveNotFound(
+                           missing: Missing.Value,
+                           sessionId: Option[String],
+                           pageId: String,
+                           session: Option[FSSession],
+                           page: Option[FSPage],
+                         )(implicit req: Request): Js = {
+    missing.updateStats()
     Js.void
+  }
+
+  def onCallbackNotFound(
+                          missing: Missing.Value,
+                          sessionId: Option[String],
+                          pageId: String,
+                          functionId: String,
+                          session: Option[FSSession],
+                          page: Option[FSPage],
+                        )(implicit req: Request): Js = {
+    missing.updateStats()
+    if (Option(Request.getParameters(req).getValue("ignore_errors")).map(_ == "true").getOrElse(false)) Js.void
+    else Js.confirm(s"Page has expired, please reload", Js.reload())
+  }
+
+  def onFileUploadNotFound(
+                            missing: Missing.Value,
+                            sessionId: Option[String],
+                            pageId: String,
+                            functionId: String,
+                            session: Option[FSSession],
+                            page: Option[FSPage],
+                          )(implicit req: Request): Js = {
+    missing.updateStats()
+    if (Option(Request.getParameters(req).getValue("ignore_errors")).map(_ == "true").getOrElse(false)) Js.void
+    else Js.confirm(s"Page has expired, please reload", Js.reload())
+  }
+
+  def onFileDownloadNotFound(
+                              missing: Missing.Value,
+                              sessionId: Option[String],
+                              pageId: String,
+                              functionId: String,
+                              session: Option[FSSession],
+                              page: Option[FSPage],
+                            )(implicit req: Request): Response = {
+    missing.updateStats()
+    Redirect.temporaryRedirect("/")
+  }
+
+  def onAnonymousPageNotFound(
+                               missing: Missing.Value,
+                               sessionId: Option[String],
+                               anonPageId: String,
+                               session: Option[FSSession],
+                               page: Option[FSPage],
+                             )(implicit req: Request): Response = {
+    missing.updateStats()
+    Redirect.temporaryRedirect("/")
+  }
+
+  def onWebsocketNotFound(
+                           missing: Missing.Value,
+                           sessionId: String,
+                           pageId: String,
+                           session: Option[FSSession],
+                           page: Option[FSPage],
+                         )(implicit wsSession: Session): Js = {
+    missing.updateStats()
+    if (wsSession.getUpgradeRequest.getParameterMap.asScala.get("ignore_errors").flatMap(_.asScala.headOption).map(_ == "true").getOrElse(false)) Js.void
+    else Js.confirm(s"Page has expired, please reload", Js.reload())
   }
 
   def allKeepAlivesIterable: Iterable[Long] = sessions.values.flatMap(_.allKeepAlivesIterable)
 
-  def checkSpace(): Unit = synchronized {
+  def gc(): Unit = synchronized {
     if (
       Runtime.getRuntime.totalMemory() > 1000 * 1024 * 1024 &&
         Runtime.getRuntime.freeMemory() < 50 * 1024 * 1024
     ) {
-      if (logger.isTraceEnabled) logger.trace("Less than 50MB available")
-      if (logger.isTraceEnabled) logger.trace(s"#Sessions: ${sessions.size} #Pages: ${sessions.map(_._2.pages.size).sum} #Funcs: ${sessions.map(_._2.pages.map(_._2.functions.size).sum).sum}")
-      val allKeepAlives = allKeepAlivesIterable.toVector.sorted
-      if (logger.isTraceEnabled) logger.trace(s"Found ${allKeepAlives.size} keep alives")
-      val deleteOlderThan: Long = allKeepAlives.drop(allKeepAlives.size / 2).headOption.getOrElse(0L)
-      if (logger.isTraceEnabled) logger.trace(s"Removing everything with keepalive older than ${System.currentTimeMillis() - deleteOlderThan}ms")
-      gc(deleteOlderThan)
-      val start = System.currentTimeMillis()
-      System.gc()
-      if (logger.isTraceEnabled) logger.trace(s"Run GC in ${System.currentTimeMillis() - start}ms")
-      checkSpace()
+      if (logger.isTraceEnabled) logger.trace("Less than 50MB available, freeing up space...")
+      freeUpSpace()
+      gc()
     }
   }
 
-  def gc(keepAliveOlderThan: Long): Unit = {
-    val current = sessions.toVector
-    val toRemove = current.filter(_._2.keepAliveAt < keepAliveOlderThan)
-    sessions --= toRemove.map(_._1)
-    stats.event(StatEvent.GC_SESSION, n = toRemove.size)
-    if (logger.isTraceEnabled) logger.trace(s"Removed ${toRemove.size} sessions: ${toRemove.map(_._1).mkString(", ")}")
-    sessions.values.foreach(_.gc(keepAliveOlderThan))
+  def freeUpSpace(): Unit = {
+    if (logger.isTraceEnabled) logger.trace(s"#Sessions: ${sessions.size} #Pages: ${sessions.map(_._2.pages.size).sum} #Funcs: ${sessions.map(_._2.pages.map(_._2.callbacks.size).sum).sum}")
+    val allKeepAlives = allKeepAlivesIterable.toVector.sorted
+    if (logger.isTraceEnabled) logger.trace(s"Found ${allKeepAlives.size} keep alives")
+    val deleteOlderThanTs: Long = allKeepAlives.drop(allKeepAlives.size / 2).headOption.getOrElse(0L)
+    if (logger.isTraceEnabled) logger.trace(s"Removing everything with keepalive older than ${System.currentTimeMillis() - deleteOlderThanTs}ms")
+    deleteOlderThan(deleteOlderThanTs)
+    val start = System.currentTimeMillis()
+    System.gc()
+    if (logger.isTraceEnabled) logger.trace(s"Run GC in ${System.currentTimeMillis() - start}ms")
+  }
+
+  val gcLock = new Object
+
+  def deleteOlderThan(keepAliveOlderThan: Long): Unit = gcLock.synchronized {
+    val currentSessions = sessions.toVector
+    val sessionsToRemove = currentSessions.filter(_._2.keepAliveAt < keepAliveOlderThan)
+    sessionsToRemove.foreach(_._2.delete())
+    if (logger.isTraceEnabled) logger.trace(s"Removed ${sessionsToRemove.size} sessions: ${sessionsToRemove.map(_._1).mkString(", ")}")
+    sessions.values.foreach(_.deleteOlderThan(keepAliveOlderThan))
   }
 }
