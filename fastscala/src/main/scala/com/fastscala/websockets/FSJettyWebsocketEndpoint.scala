@@ -7,6 +7,7 @@ import org.eclipse.jetty.websocket.api.{ Callback, Session }
 import org.slf4j.LoggerFactory
 
 import com.fastscala.core.FSSystem
+import com.fastscala.utils.Missing
 
 object FSJettyWebsocketEndpoint:
   val logger = LoggerFactory.getLogger(getClass.getName)
@@ -38,9 +39,27 @@ class FSJettyWebsocketEndpoint(implicit fss: FSSystem):
                   sendText(page.wsQueue.reverse.reduce(_ & _).cmd)
                   page.wsQueue = Nil
             .getOrElse:
-              sendText(fss.onPageNotFoundForWebsocketReq(sessionId, pageId).cmd)
+              sendText:
+                fss
+                  .onWebsocketNotFound(
+                    Missing.Page,
+                    sessionId = sessionId,
+                    pageId = pageId,
+                    session = Some(fsSession),
+                    page = None,
+                  )
+                  .cmd
         .getOrElse:
-          sendText(fss.onSessionNotFoundForWebsocketReq(sessionId).cmd)
+          sendText:
+            fss
+              .onWebsocketNotFound(
+                Missing.Session,
+                sessionId = sessionId,
+                pageId = pageId,
+                session = None,
+                page = None,
+              )
+              .cmd
 
   @OnWebSocketError
   def onError(t: Throwable): Unit =

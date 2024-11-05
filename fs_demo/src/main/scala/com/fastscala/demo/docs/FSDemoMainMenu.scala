@@ -42,6 +42,10 @@ object FSDemoMainMenu
           "Server Side Push",
           ServerSidePushPage(),
         ),
+        RoutingMenuItem("demo", "fastscala", "internal_metrics")(
+          "Internal Metrics",
+          new InternalMetricsPage(),
+        ),
       ),
       MenuSection("HTML utils")(
         RoutingMenuItem("demo", "html", "tags")("tags", HtmlTagsPage()),

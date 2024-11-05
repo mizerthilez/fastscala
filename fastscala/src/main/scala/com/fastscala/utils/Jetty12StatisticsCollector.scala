@@ -1,7 +1,7 @@
 package com.fastscala.utils
 
 import io.prometheus.metrics.model.registry.{ MultiCollector, PrometheusRegistry }
-import io.prometheus.metrics.model.snapshots.*
+import io.prometheus.metrics.model.snapshots.{ Unit as PUnit, * }
 import org.eclipse.jetty.server.handler.StatisticsHandler
 
 class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) extends MultiCollector:
@@ -28,22 +28,26 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
       buildGauge(
         "jetty_request_time_max_seconds",
         "Maximum time spent in request handling",
-        statisticsHandler.getRequestTimeMax / 1000.0,
+        PUnit.nanosToSeconds(statisticsHandler.getRequestTimeMax),
+        PUnit.SECONDS,
       ),
       buildCounter(
-        "jetty_request_time_seconds_total",
+        "jetty_request_time_total_seconds",
         "Total time spent in all request handling",
-        statisticsHandler.getRequestTimeTotal / 1000.0,
+        PUnit.nanosToSeconds(statisticsHandler.getRequestTimeTotal),
+        PUnit.SECONDS,
       ),
       buildGauge(
-        "jetty_request_time_seconds_mean",
+        "jetty_request_time_mean_seconds",
         "Mean time spent in all request handling",
-        statisticsHandler.getRequestTimeMean / 1000.0,
+        statisticsHandler.getRequestTimeMean / 1e9,
+        PUnit.SECONDS,
       ),
       buildGauge(
-        "jetty_request_time_seconds_stddev",
+        "jetty_request_time_stddev_seconds",
         "Standard deviation for time spent in all request handling",
-        statisticsHandler.getRequestTimeStdDev,
+        statisticsHandler.getRequestTimeStdDev / 1e9,
+        PUnit.SECONDS,
       ),
       buildCounter(
         "jetty_handler_total",
@@ -66,60 +70,77 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
         statisticsHandler.getHandleActiveMax,
       ),
       buildGauge(
-        "jetty_handler_time_max",
+        "jetty_handler_time_max_seconds",
         "Maximum time spent in handle() execution",
-        statisticsHandler.getHandleTimeMax / 1000.0,
+        PUnit.nanosToSeconds(statisticsHandler.getHandleTimeMax),
+        PUnit.SECONDS,
       ),
       buildCounter(
-        "jetty_handler_time_seconds_total",
+        "jetty_handler_time_total_seconds",
         "Total time spent in handle() execution",
-        statisticsHandler.getHandleTimeTotal / 1000.0,
+        PUnit.nanosToSeconds(statisticsHandler.getHandleTimeTotal),
+        PUnit.SECONDS,
       ),
       buildGauge(
-        "jetty_handler_time_seconds_mean",
+        "jetty_handler_time_mean_seconds",
         "Mean time spent in handle() execution",
-        statisticsHandler.getHandleTimeMean / 1000.0,
+        statisticsHandler.getHandleTimeMean / 1e9,
+        PUnit.SECONDS,
       ),
       buildGauge(
-        "jetty_handler_time_seconds_stddev",
+        "jetty_handler_time_stddev_seconds",
         "Standard deviation for time spent in handle() execution",
-        statisticsHandler.getHandleTimeStdDev,
+        statisticsHandler.getHandleTimeStdDev / 1e9,
+        PUnit.SECONDS,
       ),
       buildStatusCounter(),
       buildCounter(
-        "jetty_stats_seconds",
+        "jetty_stats_duration_seconds",
         "Time in seconds stats have been collected for",
-        statisticsHandler.getStatisticsDuration.toSeconds / 1000.0,
+        statisticsHandler.getStatisticsDuration.toSeconds,
+        PUnit.SECONDS,
       ),
       buildCounter(
-        "jetty_bytes_read_total",
+        "jetty_total_read_bytes",
         "Total count of bytes read",
         statisticsHandler.getBytesRead,
+        PUnit.BYTES,
       ),
       buildCounter(
-        "jetty_bytes_written_total",
+        "jetty_total_written_bytes",
         "Total count of bytes written",
         statisticsHandler.getBytesWritten,
+        PUnit.BYTES,
       ),
     ).foreach(result.metricSnapshot(_))
 
     result.build()
 
+  // format: off
   def buildGauge(name: String, help: String, value: Double): MetricSnapshot[?] =
+    buildGauge(name, help, value, null)
+
+  def buildGauge(name: String, help: String, value: Double, unit: PUnit): MetricSnapshot[?] =
     GaugeSnapshot
       .builder()
       .name(PrometheusNaming.sanitizeMetricName(name))
       .help(help)
+      .unit(unit)
       .dataPoint(new GaugeSnapshot.GaugeDataPointSnapshot(value, Labels.EMPTY, null))
       .build()
 
   def buildCounter(name: String, help: String, value: Double): MetricSnapshot[?] =
+    buildCounter(name, help, value, null)
+
+  def buildCounter(name: String, help: String, value: Double, unit: PUnit): MetricSnapshot[?] =
     CounterSnapshot
       .builder()
       .name(PrometheusNaming.sanitizeMetricName(name))
       .help(help)
+      .unit(unit)
       .dataPoint(new CounterSnapshot.CounterDataPointSnapshot(value, Labels.EMPTY, null, 0L))
       .build()
+  // format: on
 
   def buildStatusCounter(): MetricSnapshot[?] =
     val name = "jetty_responses_total"

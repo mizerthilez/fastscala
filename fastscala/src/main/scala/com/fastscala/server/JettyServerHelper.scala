@@ -1,6 +1,8 @@
 package com.fastscala.server
 
 import com.typesafe.config.ConfigFactory
+import io.prometheus.metrics.exporter.httpserver.HTTPServer
+import io.prometheus.metrics.instrumentation.jvm.JvmMetrics
 import org.eclipse.jetty.http.CompressedContentFormat
 import org.eclipse.jetty.server.*
 import org.eclipse.jetty.server.handler.gzip.GzipHandler
@@ -24,14 +26,26 @@ abstract class JettyServerHelper():
 
   def NThreads = 200
 
-  def Port: Int = config.getInt("com.fastscala.demo.server.port")
+  def Port: Int = config.getInt("com.fastscala.server.helper.port")
 
-  def isLocal: Boolean = config.getBoolean("com.fastscala.demo.server.local")
+  def isLocal: Boolean = config.getBoolean("com.fastscala.server.helper.is-local")
+
+  def setupPrometheusJvmMetrics: Boolean =
+    config.getBoolean("com.fastscala.server.helper.setup-prometheus-jvm-metrics")
+
+  def prometheusHttpServerEnabled: Boolean =
+    config.getBoolean("com.fastscala.server.helper.prometheus-http-server.enabled")
+
+  def prometheusHttpServerPort: Int =
+    config.getInt("com.fastscala.server.helper.prometheus-http-server.port")
+
+  def useVirtualThreads: Boolean = config.getBoolean("com.fastscala.core.virtual-threads")
 
   val threadPool = new QueuedThreadPool(NThreads)
   threadPool.setName("http_server")
   // enable virtual thread support on JDK21+
-  threadPool.setVirtualThreadsExecutor(VirtualThreads.getDefaultVirtualThreadsExecutor())
+  if useVirtualThreads then
+    threadPool.setVirtualThreadsExecutor(VirtualThreads.getDefaultVirtualThreadsExecutor())
 
   val server = new Server(threadPool)
 
@@ -100,6 +114,14 @@ abstract class JettyServerHelper():
     val statHandler = new StatisticsHandler(gzipHandler)
     // register prometheus metrics
     new Jetty12StatisticsCollector(statHandler).register()
+
+    if setupPrometheusJvmMetrics then JvmMetrics.builder().register()
+
+    if prometheusHttpServerEnabled then
+      HTTPServer
+        .builder()
+        .port(prometheusHttpServerPort)
+        .buildAndStart()
 
     server.setHandler(statHandler)
 

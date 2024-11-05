@@ -116,7 +116,7 @@ class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI:
               btn.disable()
           .btn
 
-  def openProgressModal(): Js = fsc.initWebSocket() & modal.installAndShow()
+  def openProgressModal(): Js = fsc.page.initWebSocket() & modal.installAndShow()
 
   override def finished(): Unit =
     hasFinished = true

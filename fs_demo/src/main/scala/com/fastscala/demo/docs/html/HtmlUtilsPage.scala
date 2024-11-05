@@ -14,7 +14,7 @@ class HtmlUtilsPage extends MultipleCodeExamples2Page():
     <p>
       Remember you need the import: {
       span
-        .apply("import com.fastscala.templates.bootstrap5.classes.BSHelpers.{given, *}")
+        .apply("import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{given, *}")
         .text_bg_primary
         .d_inline
     }

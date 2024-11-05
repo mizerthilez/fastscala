@@ -20,3 +20,7 @@ object JettyServer extends JettyServerHelper():
       // val desktop = Desktop.getDesktop()
       // desktop.browse(new URI(s"http://localhost:$Port"))
       println(s"Available at: http://localhost:$Port")
+
+  override def postStop(): Unit =
+    super.postStop()
+    cats.effect.unsafe.implicits.global.shutdown()

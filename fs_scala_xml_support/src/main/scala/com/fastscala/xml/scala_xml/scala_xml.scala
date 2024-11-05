@@ -37,6 +37,8 @@ object FSScalaXmlEnv extends FSXmlEnv:
       )
     ).withAttrs(attrs*)
 
+  override def label(elem: Elem): String = elem.label
+
   override def render(elem: NodeSeq): String = elem.toString()
 
   override def transformAttribute(elem: Elem, attrName: String, transform: Option[String] => String): Elem =

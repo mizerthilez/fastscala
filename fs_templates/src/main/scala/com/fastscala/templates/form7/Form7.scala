@@ -34,6 +34,8 @@ trait Form7
 
   def formRenderHints(): Seq[RenderHint] = Nil
 
+  def changedField(field: F7Field)(using FSContext): Js = onEvent(ChangedField(field))
+
   def onEvent(event: F7Event)(using Form7, FSContext): Js =
     given Seq[RenderHint] = formRenderHints()
     event match

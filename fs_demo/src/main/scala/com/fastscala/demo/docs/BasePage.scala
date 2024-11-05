@@ -25,6 +25,8 @@ trait BasePage extends ScalaXmlRenderableWithFSContext:
 
   def pageTitle: String
 
+  def openWSSessionAtStart: Boolean = false
+
   /*
 com.fastscala.demo.pages.include_file_in_body
    */
@@ -42,7 +44,7 @@ com.fastscala.demo.pages.include_file_in_body
         <link href="https://fastly.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous"/>
         <link href="https://fastly.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css" rel="stylesheet"/>
         <link href="/static/custom_base_page.css" rel="stylesheet"/>
-        {JS.inScriptTag(fsc.fsPageScript())}
+        {JS.inScriptTag(fsc.fsPageScript(openWSSessionAtStart))}
         {append2Head()}
         {
       Try(config.getString("com.fastscala.demo.pages.include_file_in_head"))

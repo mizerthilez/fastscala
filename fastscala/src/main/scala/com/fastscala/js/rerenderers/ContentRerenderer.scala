@@ -13,27 +13,32 @@ class ContentRerenderer[Env <: FSXmlEnv](
   id: Option[String] = None,
   debugLabel: Option[String] = None,
   gcOldFSContext: Boolean = true,
+)(using debugStatus: RerendererDebugStatus.Value
 ):
   val outterElem: env.Elem = env.buildElem("div")()
 
   val aroundId = id.getOrElse("around" + IdGen.id)
   var rootRenderContext: Option[FSContext] = None
 
-  def render()(implicit fsc: FSContext): env.Elem =
+  def render()(using fsc: FSContext): env.Elem =
     rootRenderContext = Some(fsc)
-    outterElem
-      .withIdIfNotSet(aroundId)
-      .pipe: elem =>
-        elem.withContents(renderFunc(this):
-          if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
-          else fsc
-        )
+    debugStatus.render:
+      outterElem
+        .withIdIfNotSet(aroundId)
+        .pipe: elem =>
+          elem.withContents:
+            renderFunc(this):
+              if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
+              else fsc
 
-  def rerender(): Js = JsUtils.generic.replace(
+  def rerender(): Js = debugStatus.rerender(
     aroundId,
-    render()(
-      rootRenderContext.getOrElse(
-        throw new Exception("Missing context - did you call render() first?")
-      )
+    JsUtils.generic.replace(
+      aroundId,
+      render()(
+        using rootRenderContext.getOrElse(
+          throw new Exception("Missing context - did you call render() first?")
+        )
+      ),
     ),
-  ) // & Js(s"""$$("#$aroundId").fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100)""")
+  )
