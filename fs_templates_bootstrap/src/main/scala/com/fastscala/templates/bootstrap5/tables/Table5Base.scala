@@ -8,13 +8,13 @@ import scala.xml.{ Elem, NodeSeq }
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.helpers.BSHelpers.given
-import com.fastscala.templates.bootstrap5.helpers.ClassEnrichable
+import com.fastscala.templates.bootstrap5.helpers.ClassEnrichableMutable
 import com.fastscala.templates.utils.Mutable
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.{ MkNSFromElems, MkNSFromNodeSeq }
 
-abstract class Table5Base() extends Table5ColsRenderable with ClassEnrichable with Mutable:
+abstract class Table5Base extends Table5ColsRenderable with ClassEnrichableMutable with Mutable:
   type R
   type C
 
@@ -31,7 +31,7 @@ abstract class Table5Base() extends Table5ColsRenderable with ClassEnrichable wi
   var onTableBodyTRTransforms: Elem => Elem = identity[Elem]
   var onTableBodyTRTDTransforms: Elem => Elem = identity[Elem]
 
-  override def setClass(clas: String): this.type = mutate:
+  def addClass(clas: String): this.type = mutate:
     additionalTableClasses += s" $clas"
 
   def tableClasses()(implicit columns: Seq[(String, C)], rows: Seq[(String, R)]): String =

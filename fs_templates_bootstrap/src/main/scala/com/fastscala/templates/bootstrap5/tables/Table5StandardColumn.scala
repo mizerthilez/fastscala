@@ -4,7 +4,7 @@ import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
 import com.fastscala.templates.bootstrap5.helpers.BSHelpers.given
-import com.fastscala.templates.bootstrap5.helpers.ClassEnrichable
+import com.fastscala.templates.bootstrap5.helpers.ClassEnrichableMutable
 
 trait Table5StandardColumns extends Table5ColsRenderable with Table5ColsLabeled with Table5StdColsHelper:
   type C = Table5StandardColumn[R]
@@ -39,10 +39,10 @@ trait Table5StandardColumns extends Table5ColsRenderable with Table5ColsLabeled 
 
   override def colLabel(col: C): String = col.label
 
-trait Table5StandardColumn[R] extends ClassEnrichable:
+trait Table5StandardColumn[R] extends ClassEnrichableMutable:
   var additionalClasses = ""
 
-  override def setClass(clas: String): this.type =
+  def addClass(clas: String): this.type =
     additionalClasses += s" $clas"
     this
 

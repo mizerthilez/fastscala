@@ -17,7 +17,7 @@ object FSDemoMainMenu
         RoutingMenuItem("getting_started")("Getting Started", GettingStartedPage()),
         RoutingMenuItem("author")("Author", AuthorPage()),
       ),
-      MenuSection("FastScala Basics")(
+      MenuSection("FastScala")(
         RoutingMenuItem("demo", "fastscala", "callbacks")(
           "Callbacks",
           CallbacksPage(),
@@ -45,6 +45,10 @@ object FSDemoMainMenu
         RoutingMenuItem("demo", "fastscala", "internal_metrics")(
           "Internal Metrics",
           new InternalMetricsPage(),
+        ),
+        SimpleMenuItem(
+          "Grafana",
+          "https://grafana.fastscala.com/public-dashboards/e01e760c4321418e9b4903e7e6bfcfb0?orgId=1&refresh=5s",
         ),
       ),
       MenuSection("HTML utils")(

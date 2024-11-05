@@ -9,6 +9,7 @@ import scala.jdk.CollectionConverters.{ IterableHasAsScala, MapHasAsScala }
 
 import com.typesafe.config.ConfigFactory
 import io.circe.{ Decoder, Json }
+import io.prometheus.metrics.model.snapshots.Unit as PUnit
 import it.unimi.dsi.util.XoRoShiRo128PlusRandom
 import org.eclipse.jetty.http.*
 import org.eclipse.jetty.io.Content
@@ -680,6 +681,7 @@ class FSSystem(
                 .get(pageId)
                 .map:
                   implicit page =>
+                    stats.keepAliveInvocationsTotal.inc()
                     page.autoKeepAliveAt = System.currentTimeMillis()
                     Ok.js(Js.void)
                 .getOrElse:
@@ -1060,14 +1062,21 @@ class FSSystem(
   def allKeepAlivesIterable: Iterable[Long] = sessions.values.flatMap(_.allKeepAlivesIterable)
 
   def gc(): Unit = synchronized:
-    if Runtime.getRuntime.totalMemory() > 1000 * 1024 * 1024 &&
-        Runtime.getRuntime.freeMemory() < 50 * 1024 * 1024
+    val minFreeSpacePercent = config.getDouble("com.fastscala.core.gc.run-when-less-than-mem-free-percent")
+    if (Runtime.getRuntime.freeMemory.toDouble / Runtime.getRuntime.totalMemory * 100) < minFreeSpacePercent
     then
-      if logger.isTraceEnabled then logger.trace("Less than 50MB available, freeing up space...")
-      freeUpSpace()
-      gc()
+      System.gc()
+      if (Runtime.getRuntime.freeMemory.toDouble / Runtime.getRuntime.totalMemory * 100) < minFreeSpacePercent
+      then
+        if logger.isTraceEnabled then
+          logger.trace(
+            s"Less than ${minFreeSpacePercent.formatted("%.2f%%")} space available, freeing up space..."
+          )
+        freeUpSpace()
+        gc()
 
   def freeUpSpace(): Unit =
+    val start = System.currentTimeMillis()
     if logger.isTraceEnabled then
       logger.trace(
         s"#Sessions: ${sessions.size} #Pages: ${sessions.map(_._2.pages.size).sum} #Funcs: ${sessions.map(_._2.pages.map(_._2.callbacks.size).sum).sum}"
@@ -1080,9 +1089,8 @@ class FSSystem(
         s"Removing everything with keepalive older than ${System.currentTimeMillis() - deleteOlderThanTs}ms"
       )
     deleteOlderThan(deleteOlderThanTs)
-    val start = System.currentTimeMillis()
-    System.gc()
-    if logger.isTraceEnabled then logger.trace(s"Run GC in ${System.currentTimeMillis() - start}ms")
+    stats.gcTimeTotal.inc(PUnit.millisToSeconds(System.currentTimeMillis() - start))
+    stats.gcRunsTotal.inc()
 
   val gcLock = new Object
 

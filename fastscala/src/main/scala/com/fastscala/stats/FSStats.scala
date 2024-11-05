@@ -65,7 +65,7 @@ class FSStats(
 
   val callbackTimeTotal = Counter
     .builder()
-    .name("fs_callback_time_total")
+    .name("fs_callback_time_seconds_total")
     .unit(io.prometheus.metrics.model.snapshots.Unit.SECONDS)
     .help("total time processing callback invocations since application was started")
     .register()
@@ -92,7 +92,7 @@ class FSStats(
 
   val fileDownloadCallbackTimeTotal = Counter
     .builder()
-    .name("fs_file_download_callback_time_total")
+    .name("fs_file_download_callback_time_seconds_total")
     .unit(io.prometheus.metrics.model.snapshots.Unit.SECONDS)
     .help("total time processing file download callback invocations since application was started")
     .register()
@@ -119,7 +119,7 @@ class FSStats(
 
   val fileUploadCallbackTimeTotal = Counter
     .builder()
-    .name("fs_file_upload_callback_time_total")
+    .name("fs_file_upload_callback_time_seconds_total")
     .unit(io.prometheus.metrics.model.snapshots.Unit.SECONDS)
     .help("total time processing file upload callback invocations since application was started")
     .register()
@@ -187,6 +187,25 @@ class FSStats(
     .builder()
     .name("fs_callback_not_found_total")
     .help("total number of callbacks not found since application was started")
+    .register()
+
+  val keepAliveInvocationsTotal = Counter
+    .builder()
+    .name("fs_keepalive_invocations_total")
+    .help("total number of keep alive invocations since application was started")
+    .register()
+
+  val gcRunsTotal = Counter
+    .builder()
+    .name("fs_gc_runs_total")
+    .help("total number of gc runs since application was started")
+    .register()
+
+  val gcTimeTotal = Counter
+    .builder()
+    .name("fs_gc_time_seconds_total")
+    .unit(io.prometheus.metrics.model.snapshots.Unit.SECONDS)
+    .help("total number of gc time since application was started")
     .register()
 
   def eventLevel(event: StatEvent): Level = event match

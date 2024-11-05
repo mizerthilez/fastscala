@@ -4,7 +4,7 @@ import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
-import com.fastscala.templates.bootstrap5.helpers.ClassEnrichable
+import com.fastscala.templates.bootstrap5.helpers.ClassEnrichableMutable
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.utils.Mutable
 import com.fastscala.utils.IdGen
@@ -17,7 +17,7 @@ object BSModal5Size extends Enumeration:
   val LG = Value("modal-lg")
   val XL = Value("modal-xl")
 
-abstract class BSModal5Base extends ClassEnrichable with Mutable:
+abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
   import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   val modalId = IdGen.id("modal")
@@ -27,7 +27,7 @@ abstract class BSModal5Base extends ClassEnrichable with Mutable:
 
   var modalClasses = ""
 
-  override def setClass(clas: String): this.type =
+  def addClass(clas: String): this.type =
     modalClasses += s" $clas"
     this
 

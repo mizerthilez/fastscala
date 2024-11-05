@@ -32,7 +32,7 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
         PUnit.SECONDS,
       ),
       buildCounter(
-        "jetty_request_time_total_seconds",
+        "jetty_request_time_seconds_total",
         "Total time spent in all request handling",
         PUnit.nanosToSeconds(statisticsHandler.getRequestTimeTotal),
         PUnit.SECONDS,
@@ -76,7 +76,7 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
         PUnit.SECONDS,
       ),
       buildCounter(
-        "jetty_handler_time_total_seconds",
+        "jetty_handler_time_seconds_total",
         "Total time spent in handle() execution",
         PUnit.nanosToSeconds(statisticsHandler.getHandleTimeTotal),
         PUnit.SECONDS,
@@ -95,19 +95,19 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
       ),
       buildStatusCounter(),
       buildCounter(
-        "jetty_stats_duration_seconds",
+        "jetty_stats_duration_seconds_total",
         "Time in seconds stats have been collected for",
         statisticsHandler.getStatisticsDuration.toSeconds,
         PUnit.SECONDS,
       ),
       buildCounter(
-        "jetty_total_read_bytes",
+        "jetty_total_read_bytes_total",
         "Total count of bytes read",
         statisticsHandler.getBytesRead,
         PUnit.BYTES,
       ),
       buildCounter(
-        "jetty_total_written_bytes",
+        "jetty_total_written_bytes_total",
         "Total count of bytes written",
         statisticsHandler.getBytesWritten,
         PUnit.BYTES,

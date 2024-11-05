@@ -4,12 +4,12 @@ import scala.xml.Elem
 
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
-import com.fastscala.templates.bootstrap5.helpers.ClassEnrichable
+import com.fastscala.templates.bootstrap5.helpers.ClassEnrichableMutable
 import com.fastscala.templates.utils.Mutable
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS, JS.given
 
-abstract class BSToast2Base extends ClassEnrichable with Mutable:
+abstract class BSToast2Base extends ClassEnrichableMutable with Mutable:
   import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   val toastContainerId = IdGen.id("toast-container")
@@ -23,7 +23,7 @@ abstract class BSToast2Base extends ClassEnrichable with Mutable:
 
   var toastClasses = ""
 
-  override def setClass(clas: String): this.type =
+  def addClass(clas: String): this.type =
     toastClasses += s" $clas"
     this
 
