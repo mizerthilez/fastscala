@@ -1,24 +1,49 @@
 package com.fastscala.demo.docs
 
 import com.fastscala.core.FSContext
+import com.fastscala.demo.db.CurrentUser
+import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.helpers.BSHelpers
+import com.fastscala.templates.bootstrap5.utils.BSBtn
+import com.fastscala.xml.scala_xml.JS.RichJs
 import com.fastscala.xml.scala_xml.{JS, ScalaXmlRenderableWithFSContext}
 import com.typesafe.config.ConfigFactory
 
+import java.time.LocalDate
 import scala.io.Source
 import scala.util.Try
 import scala.xml.NodeSeq
 
-
 trait BasePage extends ScalaXmlRenderableWithFSContext {
+
+  import BSHelpers._
 
   val config = ConfigFactory.load()
 
-  def navBarTopRight()(implicit fsc: FSContext): NodeSeq
+  def navBarTopRight()(implicit fsc: FSContext): NodeSeq =
+    <div class="text-end justify-content-end">
+        {
+        CurrentUser().map(user => {
+          BSBtn().BtnOutlineWarning.lbl("Logout").ajax(implicit fsc => {
+            user.logOut()
+          }).btn.ms_2
+        }).getOrElse(Empty)
+        }
+        <a href="https://training.fastscala.com/" class="btn btn-warning">Register for Free Training!</a>
+    </div>
+  //      <div class="text-end justify-content-end ms-2">
+  //        <a href="https://github.com/fastscala/fastscala" class="btn btn-warning">GitHub</a>
+  //    </div> // ++
 
-  def renderSideMenu()(implicit fsc: FSContext): NodeSeq
-
-  def renderPageContents()(implicit fsc: FSContext): NodeSeq
+  def renderSideMenu()(implicit fsc: FSContext): NodeSeq = {
+    FSDemoMainMenu.render() ++ CurrentUser().map(user => {
+      hr ++
+        p_3.d_flex.align_items_center.apply {
+          a.apply(user.miniHeadshotOrPlaceholderRendered.withStyle("width: 55px;border-radius: 55px;")) ++
+            a.text_decoration_none.fw_bold.text_warning.ms_2.apply(user.fullName)
+        }
+    }).getOrElse(Empty)
+  }
 
   def append2Head(): NodeSeq = NodeSeq.Empty
 
@@ -28,9 +53,16 @@ trait BasePage extends ScalaXmlRenderableWithFSContext {
 
   def openWSSessionAtStart: Boolean = false
 
-  /*
-com.fastscala.demo.pages.include_file_in_body
-   */
+  implicit val atTime: LocalDate = LocalDate.now()
+
+  lazy val pageRenderer = JS.rerenderableContents(rerenderer => implicit fsc => {
+    renderPageContents()
+  }, debugLabel = Some("page"))
+
+  def rerenderPageContents(): Js = pageRenderer.rerender()
+
+  def renderPageContents()(implicit fsc: FSContext): NodeSeq
+
   def render()(implicit fsc: FSContext): NodeSeq = {
     import BSHelpers._
 
@@ -57,7 +89,7 @@ com.fastscala.demo.pages.include_file_in_body
                     <div class="d-flex flex-column flex-shrink-0 p-3 text-bg-dark" style="width: 280px;">
                         <div class="position-relative">
                           <a href="/" class="p-3 d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-                            <img style="width: 200px;" src="/static/images/fastscala_logo.svg"></img>
+                            <img style="width: 200px;" src="/static/images/logo-wide.png"></img>
                           </a>
                           <button type="button" class="btn-close btn-close-white d-lg-none text-white position-absolute end-0 top-0" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#main-sidebar"></button>
                         </div>
@@ -86,6 +118,7 @@ com.fastscala.demo.pages.include_file_in_body
                         {div.d_flex.apply(navBarTopRight())}
                     </div>
                 </header>
+                <header class="py-1 px-2 text-bg-secondary">#Callbacks: <span id="fs_num_page_callbacks">--</span></header>
 
                 <div class="p-3">
                   {renderPageContents()}
@@ -99,6 +132,7 @@ com.fastscala.demo.pages.include_file_in_body
         <script src="//cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>
         {append2Body()}
         {Try(config.getString("com.fastscala.demo.pages.include_file_in_body")).map(Source.fromFile(_).getLines().mkString("\n")).map(scala.xml.Unparsed(_)).getOrElse(NodeSeq.Empty)}
+        {JS.setContents("fs_num_page_callbacks", scala.xml.Text(fsc.page.callbacks.size.toString)).inScriptTag}
       </body>
     </html>
 

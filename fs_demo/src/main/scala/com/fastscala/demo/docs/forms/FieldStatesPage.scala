@@ -76,11 +76,11 @@ class FieldStatesPage extends MultipleCodeExamples2Page() {
                   "col" -> multiSelectField,
                   "col" -> radioField,
                 ),
-                new F7SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+                new F7SubmitButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
               )
 
               override def postSubmitForm()(implicit fsc: FSContext): Js =
-                BSToast2.VerySimple(label.apply("Submitted"))(span.apply("You submitted the form")).installAndShow()
+                BSToast2.VerySimple(label.apply("Submitted"))(div.my_1.apply("You submitted the form")).installAndShow()
             }.render()
         }.mb_3
       }
@@ -125,11 +125,11 @@ class FieldStatesPage extends MultipleCodeExamples2Page() {
                   "col" -> textField,
                   "col" -> textareaField,
                 ),
-                new F7SaveButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+                new F7SubmitButtonField(implicit fsc => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
               )
 
               override def postSubmitForm()(implicit fsc: FSContext): Js =
-                BSToast2.VerySimple(label.apply("Submitted"))(span.apply("You submitted the form")).installAndShow()
+                BSToast2.VerySimple(label.apply("Submitted"))(div.my_1.apply("You submitted the form")).installAndShow()
             }.render()
         }.mb_3
       }

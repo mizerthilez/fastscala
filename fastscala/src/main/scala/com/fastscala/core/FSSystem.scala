@@ -1,6 +1,7 @@
 package com.fastscala.core
 
 import com.fastscala.js.Js
+import com.fastscala.js.rerenderers.RerendererDebugStatus
 import com.fastscala.server._
 import com.fastscala.stats.{FSStats, StatEvent}
 import com.fastscala.utils.{IdGen, Missing}
@@ -77,6 +78,7 @@ class FSContext(
                  , val parentFSContext: Option[FSContext] = None
                  , val onPageUnload: () => Js = () => Js.void
                  , val debugLbl: Option[String] = None
+                 , var deleted: Boolean = false
                ) extends FSHasSession {
 
   import FSContext.logger
@@ -119,15 +121,34 @@ class FSContext(
   }
 
   def createNewChildContextAndGCExistingOne(key: AnyRef, debugLabel: Option[String] = None): FSContext = {
+    if (deleted) throw new Exception("Trying to create child of deleted context")
     page.key2FSContext.get(key).foreach(existing => {
       children -= existing
       existing.delete()
     })
     val newContext = new FSContext(session, page, Some(this), debugLbl = debugLabel)
     page.key2FSContext(key) = newContext
-    logger.debug(s"Creating context ${newContext.fullPath}")
+    logger.trace(s"Creating context ${newContext.fullPath} ($newContext)")
     children += page.key2FSContext(key)
     page.key2FSContext(key)
+  }
+
+  def getOrCreateContext(key: AnyRef, debugLabel: Option[String] = None): FSContext = {
+    if (deleted) throw new Exception("Trying to get child of deleted context")
+    page.key2FSContext.getOrElseUpdate(key, {
+      val newContext = new FSContext(session, page, Some(this), debugLbl = debugLabel)
+      children += page.key2FSContext(key)
+      logger.trace(s"Creating context ${newContext.fullPath} ($newContext)")
+      newContext
+    })
+  }
+
+  def deleteContext(key: AnyRef): Unit = {
+    page.key2FSContext.get(key).foreach(existing => {
+      logger.trace(s"DELETING CONTEXT ${existing.fullPath} ($existing)")
+      children -= existing
+      existing.delete()
+    })
   }
 
   def delete(): Unit = {
@@ -143,6 +164,7 @@ class FSContext(
     session.fsSystem.stats.event(StatEvent.GC_FILE_DOWNLOAD, n = functionsFileDownloadGenerated.size)
     session.fsSystem.stats.currentFileDownloadCallbacks.dec(functionsFileDownloadGenerated.size)
     children.foreach(_.delete())
+    deleted = true
   }
 
   def callback(func: () => Js): Js = callback(Js.void, _ => func())
@@ -154,6 +176,7 @@ class FSContext(
                 expectReturn: Boolean = true,
                 ignoreErrors: Boolean = false
               ): Js = {
+    logger.trace(s"CREATING CALLBACK IN CONTEXT ${fullPath}")
     session.fsSystem.gc()
     val funcId = session.nextID()
     functionsGenerated += funcId
@@ -276,6 +299,10 @@ class FSUploadedFile(
                       val content: Array[Byte]
                     )
 
+object FSUploadedFile {
+  def unapply(file: FSUploadedFile): Option[(String, String, String, Array[Byte])] = Some((file.name, file.submittedFileName, file.contentType, file.content))
+}
+
 object FSPage {
   val logger = LoggerFactory.getLogger(getClass.getName)
 }
@@ -293,6 +320,8 @@ class FSPage(
               , var wsLock: AnyRef = new AnyRef
               , val debugLbl: Option[String] = None
             ) extends FSHasSession {
+
+  var rerendererDebugStatus: RerendererDebugStatus.Value = RerendererDebugStatus.Disabled
 
   def periodicKeepAliveEnabled: Boolean = session.fsSystem.config.getBoolean("com.fastscala.core.periodic-page-keep-alive.enabled")
 
@@ -328,34 +357,31 @@ class FSPage(
   val rootFSContext = new FSContext(session, this, onPageUnload = onPageUnload, debugLbl = Some("page_root_context"))
 
   def deleteOlderThan(ts: Long): Unit = {
-    val currentCallbacks = callbacks.toVector
-    val callbacksToRemove = currentCallbacks.filter(_._2.keepAliveAt < ts)
-    callbacks --= callbacksToRemove.map(_._1)
-    callbacksToRemove.foreach({
-      case (_, f) => f.fsc.functionsGenerated -= f.id
-    })
+    val callbacksToRemove = callbacks.filter(_._2.keepAliveAt < ts)
+    callbacksToRemove.foreach{ case (id, f) =>
+      callbacks -= id
+      f.fsc.functionsGenerated -= id
+    }
     session.fsSystem.stats.currentCallbacks.dec(callbacksToRemove.size)
 
     //    session.fsSystem.stats.event(StatEvent.GC_CALLBACK, n = functionsToRemove.size)
     // logger.info(s"Removed ${functionsToRemove.size} functions")
 
-    val currentFileUploadCallbacks = fileUploadCallbacks.toVector
-    val fileUploadCallbacksToRemove = currentFileUploadCallbacks.filter(_._2.keepAliveAt < ts)
-    fileUploadCallbacks --= fileUploadCallbacksToRemove.map(_._1)
-    fileUploadCallbacksToRemove.foreach({
-      case (_, f) => f.fsc.functionsFileUploadGenerated -= f.id
-    })
+    val fileUploadCallbacksToRemove = fileUploadCallbacks.filter(_._2.keepAliveAt < ts)
+    fileUploadCallbacksToRemove.foreach{ case (id, f) =>
+      fileUploadCallbacks -= id
+      f.fsc.functionsFileUploadGenerated -= id
+    }
     session.fsSystem.stats.currentFileUploadCallbacks.dec(fileUploadCallbacksToRemove.size)
 
     //    session.fsSystem.stats.event(StatEvent.GC_FILE_UPLOAD, n = fileUploadCallbacksToRemove.size)
     // logger.info(s"Removed ${functionsFileUploadToRemove.size} functions")
 
-    val currentFileDownloadCallbacks = fileDownloadCallbacks.toVector
-    val fileDownloadCallbacksToRemove = currentFileDownloadCallbacks.filter(_._2.keepAliveAt < ts)
-    fileDownloadCallbacks --= fileDownloadCallbacksToRemove.map(_._1)
-    fileDownloadCallbacksToRemove.foreach({
-      case (_, f) => f.fsc.functionsFileDownloadGenerated -= f.id
-    })
+    val fileDownloadCallbacksToRemove = fileDownloadCallbacks.filter(_._2.keepAliveAt < ts)
+    fileDownloadCallbacksToRemove.foreach{ case (id, f) =>
+      fileDownloadCallbacks -= id
+      f.fsc.functionsFileDownloadGenerated -= id
+    }
     session.fsSystem.stats.currentFileDownloadCallbacks.dec(fileDownloadCallbacksToRemove.size)
 
     //    session.fsSystem.stats.event(StatEvent.GC_FILE_DOWNLOAD, n = fileDownloadCallbacksToRemove.size)
@@ -363,11 +389,23 @@ class FSPage(
   }
 
   def delete(): Unit = {
-    session.pages -= this.id
-    session.fsSystem.stats.currentPages.dec()
-    session.fsSystem.stats.currentFileDownloadCallbacks.dec(fileDownloadCallbacks.size)
-    session.fsSystem.stats.currentFileUploadCallbacks.dec(fileUploadCallbacks.size)
+    callbacks.filterInPlace{ (_, f) =>
+      f.fsc.functionsGenerated -= id
+      false
+    }
     session.fsSystem.stats.currentCallbacks.dec(callbacks.size)
+
+    fileUploadCallbacks.filterInPlace{ (_, f) =>
+      f.fsc.functionsFileUploadGenerated -= id
+      false
+    }
+    session.fsSystem.stats.currentFileUploadCallbacks.dec(fileUploadCallbacks.size)
+
+    fileDownloadCallbacks.filterInPlace{ (_, f) =>
+      f.fsc.functionsFileDownloadGenerated -= id
+      false
+    }
+    session.fsSystem.stats.currentFileDownloadCallbacks.dec(fileDownloadCallbacks.size)
   }
 
   def fsPageScript(openWSSessionAtStart: Boolean = false)(implicit fsc: FSContext): Js = {
@@ -412,10 +450,9 @@ class FSPage(
 
   def isDefunct_? = periodicKeepAliveEnabled && (System.currentTimeMillis() - autoKeepAliveAt) > periodicKeepAliveDefunctAfter
 
-  def setupKeepAlive(): Js = {
+  def isAlive_? = !isDefunct_?
 
-    Js(s"""function sendKeepAlive() {window._fs.keepAlive(${Js.asJsStr(id).cmd});setTimeout(sendKeepAlive, ${periodicKeepAlivePeriod});};sendKeepAlive();""")
-  }
+  def setupKeepAlive(): Js = Js(s"""function sendKeepAlive() {window._fs.keepAlive(${Js.asJsStr(id).cmd});setTimeout(sendKeepAlive, ${periodicKeepAlivePeriod});};sendKeepAlive();""")
 
   def initWebSocket() = Js("window._fs.initWebSocket();")
 }
@@ -540,7 +577,7 @@ class FSSession(
   def clear[T](key: Any): Unit = data.remove(key)
 
   def createPage[T](
-                     code: FSContext => T,
+                     generatePage: FSContext => T,
                      debugLbl: Option[String] = None,
                      onPageUnload: () => Js = () => Js.void
                    )(implicit req: Request): T = try {
@@ -555,28 +592,34 @@ class FSSession(
       pages += (page.id -> page)
     }
     // FSSession.logger.trace(s"Created page: page_id=${page.id}, evt_type=create_page")
-    code(page.rootFSContext)
+    generatePage(page.rootFSContext)
   } catch {
     case ex: Exception =>
       ex.printStackTrace()
       throw ex
   }
 
-  def deleteOlderThan(ts: Long): Unit = {
-    val currentPages = pages.toVector
-    val pagesToRemove = currentPages.filter(_._2.keepAliveAt < ts)
-    pagesToRemove.foreach(_._2.delete())
+  def deletePages(toDelete: Set[FSPage]): Unit = {
+    val currentPages = pages.values.toSet
+    val pagesToRemove = currentPages.intersect(toDelete)
+    pagesToRemove.foreach{ page =>
+      pages -= page.id
+      page.delete()
+    }
+    fsSystem.stats.currentPages.dec(pagesToRemove.size)
+  }
+
+  def deletePagesOlderThan(ts: Long): Unit = {
+    val pagesToRemove = pages.filter(_._2.keepAliveAt < ts)
+    pagesToRemove.foreach{ case (id, page) =>
+      pages -= id
+      page.delete()
+    }
     fsSystem.stats.currentPages.dec(pagesToRemove.size)
 
-    //    fsSystem.stats.event(StatEvent.GC_PAGE, n = pagesToRemove.size)
-    // logger.info(s"Removed ${pagesToRemove.size} pages")
-
-    val currentAnonymousPages = anonymousPages.toVector
-    val anonymousPagesToRemove = currentAnonymousPages.filter(_._2.keepAliveAt < ts)
-    anonymousPages --= anonymousPagesToRemove.map(_._1)
+    val anonymousPagesToRemove = anonymousPages.filter(_._2.keepAliveAt < ts)
+    anonymousPagesToRemove.foreach(anonymousPages -= _._1)
     fsSystem.stats.currentAnonPages.dec(anonymousPagesToRemove.size)
-    //    fsSystem.stats.event(StatEvent.GC_ANON_PAGE, n = anonymousPagesToRemove.size)
-    // logger.info(s"Removed ${pagesToRemove.size} anonymous pages")
 
     pages.values.foreach(_.deleteOlderThan(ts))
   }
@@ -584,7 +627,15 @@ class FSSession(
   def delete(): Unit = {
     fsSystem.sessions -= this.id
     fsSystem.stats.currentSessions.dec()
-    pages.foreach(_._2.delete())
+
+    pages.filterInPlace{ (_, page) =>
+      page.delete()
+      false
+    }
+    fsSystem.stats.currentPages.dec(pages.size)
+
+    anonymousPages.clear()
+    fsSystem.stats.currentAnonPages.dec(anonymousPages.size)
   }
 }
 
@@ -611,22 +662,27 @@ class FSSystem(
 
   val FSPrefix = "fs"
 
+  def createSession(): FSSession = {
+    gc()
+    val id = IdGen.secureId()
+    val session = new FSSession(id, this)
+    implicit val __fsContextOpt: Option[FSContext] = None
+    implicit val __fsPageOpt: Option[FSPage] = None
+    implicit val __fsSessionOpt: Option[FSSession] = Some(session)
+    stats.event(StatEvent.CREATE_SESSION)
+    session.fsSystem.stats.sessionsTotal.inc()
+    session.fsSystem.stats.currentSessions.inc()
+    this.synchronized(sessions.put(session.id, session))
+    FSSession.logger.info(s"Created session: session_id=${session.id}, evt_type=create_session")
+    session
+  }
+
   def inSession[T](inSession: FSSession => T)(implicit req: Request): Option[(List[HttpCookie], T)] = {
     val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
     cookies.filter(_.getName == FSSessionIdCookieName).map(_.getValue).flatMap(sessions.get(_)).headOption match {
       case Some(session) => Option((Nil, inSession(session)))
       case None if !req.getHttpURI.getPath.startsWith("/" + FSPrefix + "/ws") =>
-        gc()
-        val id = IdGen.secureId()
-        val session = new FSSession(id, this)
-        implicit val __fsContextOpt: Option[FSContext] = None
-        implicit val __fsPageOpt: Option[FSPage] = None
-        implicit val __fsSessionOpt: Option[FSSession] = Some(session)
-        stats.event(StatEvent.CREATE_SESSION)
-        session.fsSystem.stats.sessionsTotal.inc()
-        session.fsSystem.stats.currentSessions.inc()
-        this.synchronized(sessions.put(session.id, session))
-        FSSession.logger.info(s"Created session: session_id=${session.id}, evt_type=create_session")
+        val session = createSession()
         Option((List(HttpCookie.build(FSSessionIdCookieName, session.id).path("/").build()), inSession(session)))
       case None => None
     }
@@ -636,7 +692,7 @@ class FSSystem(
     ex.printStackTrace()
     stats.callbackErrorsTotal.inc()
     if (__fsSystem.debug) {
-      Js.alert(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
+      Js.alert(s"Internal error: $ex (showing because in debug mode)")
     } else {
       Js.alert(s"Internal error")
     }
@@ -646,7 +702,7 @@ class FSSystem(
     ex.printStackTrace()
     stats.fileUploadCallbackErrorsTotal.inc()
     if (__fsSystem.debug) {
-      Js.alert(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
+      Js.alert(s"Internal error: $ex (showing because in debug mode)")
     } else {
       Js.alert(s"Internal error")
     }
@@ -656,7 +712,7 @@ class FSSystem(
     ex.printStackTrace()
     stats.fileDownloadCallbackErrorsTotal.inc()
     if (__fsSystem.debug) {
-      ServerError.InternalServerError(s"Internal error: ${ex.getMessage} (showing because in debug mode)")
+      ServerError.InternalServerError(s"Internal error: $ex (showing because in debug mode)")
     } else {
       ServerError.InternalServerError
     }
@@ -701,7 +757,7 @@ class FSSystem(
                     try {
                       stats.callbacksInProcessing.inc()
                       if (logger.isTraceEnabled) logger.trace(s"Running callback on thread ${Thread.currentThread()}...")
-                      val rslt = fsFunc.func(arg)
+                      val rslt = transformCallbackResponse(fsFunc.func(arg), fsFunc, page)
                       if (logger.isTraceEnabled) logger.trace(s"Finished in ${System.currentTimeMillis() - start}ms (thread ${Thread.currentThread()}) with result JS with ${rslt.cmd.length} chars")
                       rslt
                     } catch {
@@ -816,6 +872,12 @@ class FSSystem(
     }
   }
 
+  def transformCallbackResponse(
+                                 resp: Js,
+                                 fsFunc: FSFunc,
+                                 page: FSPage,
+                               ): Js = resp
+
   def onKeepAliveNotFound(
                            missing: Missing.Value,
                            sessionId: Option[String],
@@ -892,8 +954,6 @@ class FSSystem(
 
   def transformFileUploadCallbackResponse(js: Js)(implicit fsc: FSContext): Js = js
 
-  def allKeepAlivesIterable: Iterable[Long] = sessions.values.flatMap(_.allKeepAlivesIterable)
-
   def gc(): Unit = synchronized {
     val minFreeSpacePercent = config.getDouble("com.fastscala.core.gc.run-when-less-than-mem-free-percent")
     if ((Runtime.getRuntime.freeMemory().toDouble / Runtime.getRuntime.totalMemory() * 100) < minFreeSpacePercent) {
@@ -906,25 +966,26 @@ class FSSystem(
     }
   }
 
-  def freeUpSpace(): Unit = {
+  def freeUpSpace(): Unit = synchronized {
     stats.gcRunsTotal.inc()
     val start = System.currentTimeMillis()
-    if (logger.isTraceEnabled) logger.trace(s"#Sessions: ${sessions.size} #Pages: ${sessions.map(_._2.pages.size).sum} #Funcs: ${sessions.map(_._2.pages.map(_._2.callbacks.size).sum).sum}")
-    val allKeepAlives = allKeepAlivesIterable.toVector.sorted
-    if (logger.isTraceEnabled) logger.trace(s"Found ${allKeepAlives.size} keep alives")
-    val deleteOlderThanTs: Long = allKeepAlives.drop(allKeepAlives.size / 2).headOption.getOrElse(0L)
-    if (logger.isTraceEnabled) logger.trace(s"Removing everything with keepalive older than ${System.currentTimeMillis() - deleteOlderThanTs}ms")
-    deleteOlderThan(deleteOlderThanTs)
+
+    val percentOfPagesToDelete: Double = config.getDouble("com.fastscala.core.gc.percent-of-pages-to-delete")
+
+    val pagesSortedByInterest = sessions.flatMap(_._2.pages.values).toSeq.sortBy(p => (p.isAlive_?, p.keepAliveAt))
+    val pagesToDelete: Set[FSPage] = pagesSortedByInterest.take(math.max(1, (percentOfPagesToDelete / 100.0) * pagesSortedByInterest.size).toInt).toSet
+
+    // Delete sessions with no more pages:
+    val sessionsToDelete = sessions.values.filter(s => s.pages.isEmpty || s.pages.values.forall(p => pagesToDelete.contains(p))).toSet
+    sessionsToDelete.foreach(_.delete())
+
+    // Delete pages:
+    pagesToDelete.groupBy(_.session).foreach({
+      case (session, toDelete) if sessionsToDelete.contains(session) => session.deletePages(toDelete)
+      case _ =>
+    })
+    sessions.values.toSeq.flatMap(_.pages.values)
+
     stats.gcTimeTotal.inc(io.prometheus.metrics.model.snapshots.Unit.millisToSeconds(System.currentTimeMillis() - start))
-  }
-
-  val gcLock = new Object
-
-  def deleteOlderThan(keepAliveOlderThan: Long): Unit = gcLock.synchronized {
-    val currentSessions = sessions.toVector
-    val sessionsToRemove = currentSessions.filter(_._2.keepAliveAt < keepAliveOlderThan)
-    sessionsToRemove.foreach(_._2.delete())
-    if (logger.isTraceEnabled) logger.trace(s"Removed ${sessionsToRemove.size} sessions: ${sessionsToRemove.map(_._1).mkString(", ")}")
-    sessions.values.foreach(_.deleteOlderThan(keepAliveOlderThan))
   }
 }

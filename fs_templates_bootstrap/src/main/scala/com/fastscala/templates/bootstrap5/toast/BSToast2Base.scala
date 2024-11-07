@@ -8,7 +8,6 @@ import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.JS.RichJs
 
-import scala.util.chaining.scalaUtilChainingOps
 import scala.xml.Elem
 
 abstract class BSToast2Base extends ClassEnrichableMutable with Mutable {
@@ -56,19 +55,19 @@ abstract class BSToast2Base extends ClassEnrichableMutable with Mutable {
   }
 
   def onToastContainer(f: Elem => Elem): this.type = mutate {
-    toastContainerTransforms = toastContainerTransforms.pipe(toastContainerTransforms => elem => f(toastContainerTransforms(elem)))
+    toastContainerTransforms = toastContainerTransforms andThen f
   }
 
   def onToast(f: Elem => Elem): this.type = mutate {
-    toastTransforms = toastTransforms.pipe(toastTransforms => elem => f(toastTransforms(elem)))
+    toastTransforms = toastTransforms andThen f
   }
 
   def onToastHeader(f: Elem => Elem): this.type = mutate {
-    toastHeaderTransforms = toastHeaderTransforms.pipe(toastHeaderTransforms => elem => f(toastHeaderTransforms(elem)))
+    toastHeaderTransforms = toastHeaderTransforms andThen f
   }
 
   def onToastBody(f: Elem => Elem): this.type = mutate {
-    toastBodyTransforms = toastBodyTransforms.pipe(toastBodyTransforms => elem => f(toastBodyTransforms(elem)))
+    toastBodyTransforms = toastBodyTransforms andThen f
   }
 
   def transformToastContainer(elem: Elem): Elem = toastContainerTransforms(elem.withId(toastContainerId).toast_container.p_3)
@@ -150,13 +149,13 @@ object BSToast2 {
   import com.fastscala.templates.bootstrap5.helpers.BSHelpers._
 
   def Simple(header: Elem)(contents: Elem): BSToast2Base = new BSToast2Base {
-    override def toastHeader(): Elem = header
+    override def toastHeader(): Elem = <div>{header.me_auto}</div>
 
     override def toastContents(): Elem = contents
   }
 
   def VerySimple(header: Elem)(contents: Elem): BSToast2Base = new BSToast2Base {
-    override def toastHeader(): Elem = header
+    override def toastHeader(): Elem = <div>{header.me_auto}</div>
 
     override def toastContents(): Elem = contents
   }.onToastContainer(_.position_fixed.top_0.end_0).addCloseBtn()
