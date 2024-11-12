@@ -227,9 +227,9 @@ class FSStats(
       .log(
         List(
           List("event" -> event.name),
-          fsSessionOpt.toList.map(session => "session_id" -> session.id),
+          fsSessionOpt.toList.map("session_id" -> _.id),
           fsSessionOpt.toList.flatMap(_.debugLbl.map("session_lbl" -> _)),
-          fsPageOpt.toList.map(page => "page_id" -> page.id),
+          fsPageOpt.toList.map("page_id" -> _.id),
           fsPageOpt.toList.flatMap(_.debugLbl.map("page_lbl" -> _)),
           fsContextOpt.toList.map("context_lbl" -> _.fullPath),
           additionalFields,

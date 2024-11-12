@@ -39,27 +39,9 @@ class FSJettyWebsocketEndpoint(implicit fss: FSSystem):
                   sendText(page.wsQueue.reverse.reduce(_ & _).cmd)
                   page.wsQueue = Nil
             .getOrElse:
-              sendText:
-                fss
-                  .onWebsocketNotFound(
-                    Missing.Page,
-                    sessionId = sessionId,
-                    pageId = pageId,
-                    session = Some(fsSession),
-                    page = None,
-                  )
-                  .cmd
+              sendText(fss.onWebsocketNotFound(Missing.Page).cmd)
         .getOrElse:
-          sendText:
-            fss
-              .onWebsocketNotFound(
-                Missing.Session,
-                sessionId = sessionId,
-                pageId = pageId,
-                session = None,
-                page = None,
-              )
-              .cmd
+          sendText(fss.onWebsocketNotFound(Missing.Session).cmd)
 
   @OnWebSocketError
   def onError(t: Throwable): Unit =
