@@ -18,8 +18,11 @@ class SelectableRowsTableExamplePage extends SingleCodeExamplePage():
     val table = new Table5Base
       with Table5BaseBootrapSupport
       with Table5SelectableRows
-      with Table5StandardColumns:
+      with Table5StandardColumns
+      with Table5Paginated:
       override type R = Country
+
+      override def defaultPageSize: Int = 10
 
       val ColName = ColStr("Name", _.name.common)
       val ColCapital = ColStr("Capital", _.capital.mkString(", "))
@@ -34,7 +37,7 @@ class SelectableRowsTableExamplePage extends SingleCodeExamplePage():
         ColSelectRow,
       )
 
-      override def rows(hints: Seq[RowsHint]): Seq[Country] = CountriesData.data
+      override def seqRowsSource: Seq[Country] = CountriesData.data
     // === code snippet ===
 
     new Widget:

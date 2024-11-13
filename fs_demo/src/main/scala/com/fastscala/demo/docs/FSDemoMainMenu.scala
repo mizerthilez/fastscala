@@ -44,7 +44,11 @@ object FSDemoMainMenu
         ),
         RoutingMenuItem("demo", "fastscala", "internal_metrics")(
           "Internal Metrics",
-          new InternalMetricsPage(),
+          InternalMetricsPage(),
+        ),
+        RoutingMenuItem("demo", "fastscala", "discard_fs_context")(
+          "FSContext discard",
+          FSContextDiscardPage(),
         ),
         SimpleMenuItem(
           "Grafana",

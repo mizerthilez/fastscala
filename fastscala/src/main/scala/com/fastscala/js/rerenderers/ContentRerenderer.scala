@@ -13,7 +13,6 @@ class ContentRerenderer[Env <: FSXmlEnv](
   id: Option[String] = None,
   debugLabel: Option[String] = None,
   gcOldFSContext: Boolean = true,
-)(using debugStatus: RerendererDebugStatus.Value
 ):
   val outterElem: env.Elem = env.buildElem("div")()
 
@@ -22,7 +21,7 @@ class ContentRerenderer[Env <: FSXmlEnv](
 
   def render()(using fsc: FSContext): env.Elem =
     rootRenderContext = Some(fsc)
-    debugStatus.render:
+    fsc.page.rerendererDebugStatus.render:
       outterElem
         .withIdIfNotSet(aroundId)
         .pipe: elem =>
@@ -31,14 +30,10 @@ class ContentRerenderer[Env <: FSXmlEnv](
               if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
               else fsc
 
-  def rerender(): Js = debugStatus.rerender(
-    aroundId,
-    JsUtils.generic.replace(
-      aroundId,
-      render()(
-        using rootRenderContext.getOrElse(
-          throw new Exception("Missing context - did you call render() first?")
-        )
-      ),
-    ),
-  )
+  def rerender(): Js = rootRenderContext
+    .map: fsc =>
+      fsc.page.rerendererDebugStatus.rerender(
+        aroundId,
+        JsUtils.generic.replace(aroundId, render()(using fsc)),
+      )
+    .getOrElse(throw new Exception("Missing context - did you call render() first?"))

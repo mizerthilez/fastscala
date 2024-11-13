@@ -3,7 +3,7 @@ package com.fastscala.js.rerenderers
 import scala.util.chaining.scalaUtilChainingOps
 
 import com.fastscala.core.{ FSContext, FSXmlEnv }
-import com.fastscala.js.JsUtils
+import com.fastscala.js.{ Js, JsUtils }
 import com.fastscala.utils.IdGen
 
 class ContentRerendererP[Env <: FSXmlEnv, P](
@@ -13,7 +13,6 @@ class ContentRerendererP[Env <: FSXmlEnv, P](
   id: Option[String] = None,
   debugLabel: Option[String] = None,
   gcOldFSContext: Boolean = true,
-)(using debugStatus: RerendererDebugStatus.Value
 ):
   val outterElem: env.Elem = env.buildElem("div")()
 
@@ -22,7 +21,7 @@ class ContentRerendererP[Env <: FSXmlEnv, P](
 
   def render(param: P)(using fsc: FSContext) =
     rootRenderContext = Some(fsc)
-    debugStatus.render:
+    fsc.page.rerendererDebugStatus.render:
       outterElem
         .withIdIfNotSet(aroundId)
         .pipe: elem =>
@@ -32,14 +31,10 @@ class ContentRerendererP[Env <: FSXmlEnv, P](
               else fsc
             }(param)
 
-  def rerender(param: P) = debugStatus.rerender(
-    aroundId,
-    JsUtils.generic.replace(
-      aroundId,
-      render(param)(
-        using rootRenderContext.getOrElse(
-          throw new Exception("Missing context - did you call render() first?")
-        )
-      ),
-    ),
-  )
+  def rerender(param: P): Js = rootRenderContext
+    .map: fsc =>
+      fsc.page.rerendererDebugStatus.rerender(
+        aroundId,
+        JsUtils.generic.replace(aroundId, render(param)(using fsc)),
+      )
+    .getOrElse(throw new Exception("Missing context - did you call render() first?"))

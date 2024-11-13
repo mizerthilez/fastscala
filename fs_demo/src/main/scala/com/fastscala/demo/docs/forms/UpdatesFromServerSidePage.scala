@@ -103,7 +103,7 @@ class UpdatesFromServerSidePage extends MultipleCodeExamples2Page():
 
           override def postSubmitForm()(using FSContext): Js =
             BSToast2
-              .VerySimple(label("Submitted"))(span("You submitted the form"))
+              .VerySimple(label("Submitted"))(div("You submitted the form").my_1)
               .installAndShow()
         .render()
 

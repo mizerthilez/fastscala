@@ -34,14 +34,14 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
         lazy val rootField: F7Field = F7VerticalField(
           F7StringField()
             .label("Name")
-            .addValidation(_.currentValue.length >= 5, _ => div.apply("Error: minimum of 5 chars"))
+            .addValidation(_.currentValue.length >= 5, _ => div("Error: minimum of 5 chars"))
             .help("Input at least 5 characters"),
           F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
         )
 
         override def postSubmitForm()(using FSContext): Js =
           BSToast2
-            .VerySimple(div.apply(strong.apply("Submitted!").me_auto))(div.apply("Submission was successful"))
+            .VerySimple(div(strong("Submitted!").me_auto))(div("Submission was successful").my_2)
             .installAndShow()
       .render()
         .pipe: renderedForm =>
@@ -54,14 +54,14 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
         lazy val rootField: F7Field = F7VerticalField(
           F7StringTextareaField()
             .label("Your message")
-            .addValidation(_.currentValue.split(" ").length >= 5, _ => div.apply("Error: minimum of 5 words"))
+            .addValidation(_.currentValue.split(" ").length >= 5, _ => div("Error: minimum of 5 words"))
             .help("Input at least 5 words"),
           F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
         )
 
         override def postSubmitForm()(using FSContext): Js =
           BSToast2
-            .VerySimple(div.apply(strong.apply("Submitted!").me_auto))(div.apply("Submission was successful"))
+            .VerySimple(div(strong("Submitted!").me_auto))(div("Submission was successful").my_2)
             .installAndShow()
       .render()
         .pipe: renderedForm =>
@@ -86,7 +86,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
       val inputField = F7SelectField(colors)
         .label("Color")
         .option2String(_._1)
-        .addValidation(_.currentValue != colors.head, _ => div.apply("Error: cannot be white!"))
+        .addValidation(_.currentValue != colors.head, _ => div("Error: cannot be white!"))
         .help("Choose a color different from white.")
 
       div.border.p_2.rounded:
@@ -100,8 +100,8 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           override def postSubmitForm()(using FSContext): Js =
             BSToast2
-              .VerySimple(div.apply(strong.apply("Submitted!").me_auto))(
-                div.apply("Submission was successful")
+              .VerySimple(div(strong("Submitted!").me_auto))(
+                div("Submission was successful").my_2
               )
               .installAndShow()
         .render()
@@ -122,7 +122,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
         .size(10)
         .addValidation(
           _.currentValue.size >= 2,
-          _ => div.apply("Error: please select at least 2 continents."),
+          _ => div("Error: please select at least 2 continents."),
         )
         .help("Include at least two continents in your selection.")
 
@@ -137,13 +137,13 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           override def postSubmitForm()(using FSContext): Js =
             BSModal5.verySimple("Your input", "Done"): modal =>
-              _ => div.apply(s"Your selected continents: " + inputField.currentValue.mkString(", "))
+              _ => div(s"Your selected continents: " + inputField.currentValue.mkString(", "))
         .render()
 
     renderSnippet("Checkbox"):
       val inputField = F7CheckboxField()
         .label("I agree to the Terms of Service")
-        .addValidation(_.currentValue == true, _ => div.apply("Error: you must accept the Terms of Service."))
+        .addValidation(_.currentValue == true, _ => div("Error: you must accept the Terms of Service."))
 
       div.border.p_2.rounded:
         new DefaultForm7:
@@ -156,7 +156,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           override def postSubmitForm()(using FSContext): Js =
             BSModal5.verySimple("Your input", "Done"): modal =>
-              _ => div.apply(s"Your selection: " + inputField.currentValue)
+              _ => div(s"Your selection: " + inputField.currentValue)
         .render()
 
     renderSnippet("Checkbox as switch"):
@@ -166,7 +166,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
       // Pass the renderer which renders as switches:
       val inputField = F7CheckboxField()
         .label("I agree to the Terms of Service")
-        .addValidation(_.currentValue == true, _ => div.apply("Error: you must accept the Terms of Service."))
+        .addValidation(_.currentValue == true, _ => div("Error: you must accept the Terms of Service."))
 
       div.border.p_2.rounded:
         new DefaultForm7:
@@ -179,7 +179,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           override def postSubmitForm()(using FSContext): Js =
             BSModal5.verySimple("Your input", "Done"): modal =>
-              _ => div.apply(s"Your selection: " + inputField.currentValue)
+              _ => div(s"Your selection: " + inputField.currentValue)
         .render()
 
     renderSnippet("Radio"):
@@ -200,7 +200,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           override def postSubmitForm()(using FSContext): Js =
             BSModal5.verySimple("Your input", "Done"): modal =>
-              _ => div.apply(s"Your phone type: ${inputField.currentValue}")
+              _ => div(s"Your phone type: ${inputField.currentValue}")
         .render()
 
     closeSnippet()

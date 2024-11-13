@@ -11,7 +11,6 @@ class Rerenderer[Env <: FSXmlEnv](
   idOpt: Option[String] = None,
   debugLabel: Option[String] = None,
   gcOldFSContext: Boolean = true,
-)(using debugStatus: RerendererDebugStatus.Value
 ):
   self =>
   val Js = JsUtils.generic
@@ -24,24 +23,20 @@ class Rerenderer[Env <: FSXmlEnv](
     val rendered = renderFunc(this):
       if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
       else fsc
-    debugStatus.render:
-      rendered.getId() match
+    fsc.page.rerendererDebugStatus.render:
+      rendered.getId match
         case Some(id) =>
           aroundId = id
           rendered
         case None => rendered.withIdIfNotSet(aroundId)
 
-  def rerender(): Js = debugStatus.rerender(
-    aroundId,
-    Js.replace(
-      aroundId,
-      render()(
-        using rootRenderContext.getOrElse(
-          throw new Exception("Missing context - did you call render() first?")
-        )
-      ),
-    ),
-  )
+  def rerender(): Js = rootRenderContext
+    .map: fsc =>
+      fsc.page.rerendererDebugStatus.rerender(
+        aroundId,
+        Js.replace(aroundId, render()(using fsc)),
+      )
+    .getOrElse(throw new Exception("Missing context - did you call render() first?"))
 
   def replaceBy(elem: env.Elem): Js = Js.replace(aroundId, elem.withId(aroundId))
 

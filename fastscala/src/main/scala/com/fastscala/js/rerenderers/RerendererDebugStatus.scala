@@ -10,6 +10,9 @@ object RerendererDebugStatus extends Enumeration:
   def Unsupported = Set("table", "thead", "tbody", "tfooter", "tr")
 
   implicit class RichValue(v: Value) extends AnyVal:
+    private def style(bgColor: String = "rgb(147 211 255 / 6%)") =
+      s"width: 100%; height: 100%; position: absolute; top: 0; left: 0; text-align: right; color: #4b4b4b; background-color: $bgColor; font-weight: bold; padding: 2px 4px; border: 2px solid #6290bd;pointer-events: none; z-index: 10;"
+
     def render[Env <: FSXmlEnv](using env: Env)(rendered: env.Elem): env.Elem =
       if v == RerendererDebugStatus.Enabled && !Unsupported.contains(env.label(rendered))
       then
@@ -19,9 +22,10 @@ object RerendererDebugStatus extends Enumeration:
             env.concat(
               existing,
               env.buildElem(
-                "div",
+                "span",
                 "for" -> rendered.toString,
-                "style" -> s"width: 100%; height: 100%; position: absolute; top: 0; left: 0; text-align: right; color: #4b4b4b; background-color: rgb(147 211 255 / 6%); font-weight: bold; padding: 2px 4px; border: 2px solid #6290bd;pointer-events: none; z-index: 10;",
+                "style" -> style(),
+                "id" -> rendered.getId.map(_ + "-overlay").getOrElse(null),
               )(),
             ),
         )
@@ -29,5 +33,6 @@ object RerendererDebugStatus extends Enumeration:
 
     def rerender(aroundId: String, rerenderJs: Js): Js =
       if v == RerendererDebugStatus.Enabled then
-        com.fastscala.js.Js(s"""$$("#$aroundId").fadeOut(1500, function() {${rerenderJs.cmd}});""")
+        Js.catchAndLogErrors(Js.setAttr(aroundId + "-overlay")("style", style("rgb(255 147 156 / 50%)"))) &
+          Js(s"""$$("#$aroundId").fadeOut(1500, function() {${rerenderJs.cmd}});""")
       else rerenderJs

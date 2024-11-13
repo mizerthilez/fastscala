@@ -15,12 +15,14 @@ import com.fastscala.core.FSSystem
 import com.fastscala.utils.{ FSOptimizedResourceHandler, Jetty12StatisticsCollector }
 import com.fastscala.websockets.FSWebsocketJettyContextHandler
 
-abstract class JettyServerHelper():
+abstract class JettyServerHelper:
   val config = ConfigFactory.load()
 
   def appName: String
 
-  implicit val fss: FSSystem = new FSSystem(appName = appName)
+  def buildFSSystem(): FSSystem = new FSSystem(appName = appName)
+
+  implicit lazy val fss: FSSystem = buildFSSystem()
 
   def buildMainHandler(): Handler
 

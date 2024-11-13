@@ -16,8 +16,6 @@ trait Js:
   def cmd: String
 
   def cmdEscaped: String =
-    println("IN: " + cmd)
-    println("OUT: " + "\"" + StringEscapeUtils.escapeEcmaScript(cmd.replaceAll("\n", "")) + "\"")
     "'" + StringEscapeUtils.escapeEcmaScript(cmd.replaceAll("\n", "")) + "'"
 
   def &(js: Js) = RawJs(cmd + ";" + js.cmd)
@@ -228,12 +226,13 @@ trait JsUtils:
     expires: Option[Long] = None,
     path: Option[String] = None,
   ): Js =
-    Js(
+    Js:
       s"""document.cookie='$name=${escapeStr(cookie)};${expires.map(new Date(_)).map(_.toGMTString).map("; expires=" + _).getOrElse("")}${path.map("; path=" + _).getOrElse("")}'"""
-    )
 
   def deleteCookie(name: String, path: String): Js =
     setCookie(name, "", expires = Some(0), path = Some(path))
+
+  def catchAndLogErrors(js: Js): Js = Js(s"""try {${js.cmd}} catch (error) { console.error(error); }""")
 
 object Js extends JsUtils:
   def apply(s: String): Js = RawJs(s)

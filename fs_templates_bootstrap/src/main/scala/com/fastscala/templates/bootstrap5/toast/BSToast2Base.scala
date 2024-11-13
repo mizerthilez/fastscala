@@ -138,12 +138,12 @@ object BSToast2:
   import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
 
   def Simple(header: Elem)(contents: Elem): BSToast2Base = new BSToast2Base:
-    def toastHeader(): Elem = header
+    def toastHeader(): Elem = <div>{header.me_auto}</div>
 
     def toastContents(): Elem = contents
 
   def VerySimple(header: Elem)(contents: Elem): BSToast2Base = new BSToast2Base:
-    def toastHeader(): Elem = header
+    def toastHeader(): Elem = <div>{header.me_auto}</div>
 
     def toastContents(): Elem = contents
   .onToastContainer(_.position_fixed.top_0.end_0)

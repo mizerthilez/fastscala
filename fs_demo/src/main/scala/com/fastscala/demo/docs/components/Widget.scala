@@ -10,7 +10,7 @@ import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 
 abstract class Widget extends Mutable:
-  lazy val widgetId = IdGen.id("widget-")
+  lazy val widgetId = IdGen.id("widget")
   lazy val widgetHeaderId = IdGen.id("widget-header")
   lazy val widgetContentsId = IdGen.id("widget-contents")
 
@@ -27,6 +27,8 @@ abstract class Widget extends Mutable:
   def onCardBody(f: Elem => Elem): this.type = mutate:
     onCardBodyTransforms = onCardBodyTransforms andThen f
 
+  lazy val widgetRenderer =
+    JS.rerenderable(rerenderer => implicit fsc => renderWidgetCard(), Some(widgetId))
   lazy val widgetHeaderRenderer =
     JS.rerenderable(rerenderer => implicit fsc => renderWidgetHeader(), Some(widgetHeaderId))
   lazy val widgetContentsRenderer =
@@ -40,7 +42,7 @@ abstract class Widget extends Mutable:
 
   def widgetContents()(implicit fsc: FSContext): NodeSeq
 
-  def rerenderWidget()(implicit fsc: FSContext): Js = JS.replace(widgetId, renderWidget())
+  def rerenderWidget()(implicit fsc: FSContext): Js = widgetRenderer.rerender()
 
   def rerenderWidgetHeader()(implicit fsc: FSContext): Js = widgetHeaderRenderer.rerender()
 
@@ -64,9 +66,11 @@ abstract class Widget extends Mutable:
       widgetContents()
     } pipe transformWidgetCardBody
 
-  def renderWidget()(implicit fsc: FSContext): Elem =
+  def renderWidgetCard()(implicit fsc: FSContext): Elem =
     import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     card.withId(widgetId).apply {
       widgetHeaderRenderer.render() ++
         widgetContentsRenderer.render()
     } pipe transformWidgetCard
+
+  def renderWidget()(implicit fsc: FSContext): Elem = widgetRenderer.render()

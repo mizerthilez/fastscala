@@ -37,7 +37,7 @@ trait FSXmlEnv:
   given Conversion[Elem, NodeSeq] = elem2NodeSeq(_)
 
   extension (elem: Elem)
-    def getId(): Option[String] = attribute(elem, "id")
+    def getId: Option[String] = attribute(elem, "id")
 
     def withId(id: String): Elem = transformAttribute(elem, "id", _ => id)
 

@@ -2,7 +2,7 @@ package com.fastscala.demo.server
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{ Files, Paths }
-import java.util.Collections
+import java.util.{ Collections, Date }
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
@@ -17,6 +17,7 @@ import com.fastscala.demo.docs.bootstrap.BootstrapModalPage
 import com.fastscala.demo.docs.chartjs.SimpleChartjsPage
 import com.fastscala.demo.docs.forms.BasicFormExamplePage
 import com.fastscala.demo.docs.tables.*
+import com.fastscala.js.Js
 import com.fastscala.server.*
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
@@ -46,44 +47,111 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
     req: Request,
     session: FSSession,
   ): Option[Response] =
-    onlyHandleHtmlRequests:
-      if CurrentUser().isEmpty then
-        val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
-        cookies
-          .find(_.getName == "user_token")
-          .map(_.getValue)
-          .filter(_.trim != "")
-          .orElse(
-            Option(Request.getParameters(req).getValues("user_token"))
-              .getOrElse(Collections.emptyList)
-              .asScala
-              .headOption
-              .filter(_.trim != "")
-          )
-          .foreach: token =>
-            FakeDB.users
-              .find(_.loginToken == token)
-              .foreach: user =>
-                CurrentUser() = user
-
-      FSDemoMainMenu
-        .serve()
-        .map(servePage[FSScalaXmlEnv.type](_))
-        .orElse {
-          Some(req).collect {
-            case Get("demo") => servePage(SimpleTableExamplePage())
-            case Get("demo", "simple_tables") => servePage(SimpleTableExamplePage())
-            case Get("demo", "sortable_tables") => servePage(SortableTableExamplePage())
-            case Get("demo", "paginated_tables") => servePage(PaginatedTableExamplePage())
-            case Get("demo", "selectable_rows_tables") =>
-              servePage(SelectableRowsTableExamplePage())
-            case Get("demo", "tables_sel_cols") => servePage(SelectableColsTableExamplePage())
-            case Get("demo", "simple_form") => servePage(BasicFormExamplePage())
-            case Get("demo", "simple_modal") => servePage(BootstrapModalPage())
-
-            case Get("demo", "chartjs", "simple") => servePage(SimpleChartjsPage())
-          }
-        }
-        .orElse(
-          Some(Redirect.temporaryRedirect("/demo/"))
+    import com.fastscala.xml.scala_xml.JS.given
+    if req.getHttpURI.getPath == "/basic1" then
+      Some(
+        Ok(
+          """<!DOCTYPE html>
+              |<html>
+              |<body>
+              |<h1>Basic example 1</h1>
+              |</body>
+              |</html>
+              |""".stripMargin
         )
+      )
+    else if req.getHttpURI.getPath == "/basic2" then
+      Some(session.createPage: fsc =>
+        val callback = fsc.callback: () =>
+          println("clicked!")
+          Js.void
+        Ok(
+          "<!DOCTYPE html>" ++
+            <html>
+              <body>
+              <h1>Basic example 2</h1>
+              <button onclick={callback.cmd}>Click me!</button>
+              </body>
+            </html>.toString()
+        )
+      )
+    else if req.getHttpURI.getPath == "/basic3" then
+      Some(session.createPage: fsc =>
+        val callback = fsc.callback: () =>
+          println("clicked!")
+          Js.void
+        Ok(
+          "<!DOCTYPE html>" ++
+            <html>
+              <head>{fsc.fsPageScript().inScriptTag}</head>
+              <body>
+                <h1>Basic example 3</h1>
+                <button onclick={callback.cmd}>Click me!</button>
+                <p>On click, calling: <pre>{callback.cmd}</pre></p>
+              </body>
+            </html>.toString()
+        )
+      )
+    else if req.getHttpURI.getPath == "/basic4" then
+      Some(session.createPage: fsc =>
+        val callback = fsc.callback(
+          Js("document.getElementById('myInput').value"),
+          str =>
+            println(s"input has value: '$str'")
+            Js.alert(s"The server has received your input at ${new Date().toGMTString}"),
+        )
+        Ok(
+          "<!DOCTYPE html>" ++
+            <html>
+              <head>{fsc.fsPageScript().inScriptTag}</head>
+              <body>
+                <h1>Basic example 4</h1>
+                <input type="text" id="myInput"></input>
+                <button onclick={callback.cmd}>Click me!</button>
+                <p>On click, calling: <pre>{callback.cmd}</pre></p>
+              </body>
+            </html>.toString()
+        )
+      )
+    else
+      onlyHandleHtmlRequests:
+        if CurrentUser().isEmpty then
+          val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
+          cookies
+            .find(_.getName == "user_token")
+            .map(_.getValue)
+            .filter(_.trim != "")
+            .orElse(
+              Option(Request.getParameters(req).getValues("user_token"))
+                .getOrElse(Collections.emptyList)
+                .asScala
+                .headOption
+                .filter(_.trim != "")
+            )
+            .foreach: token =>
+              FakeDB.users
+                .find(_.loginToken == token)
+                .foreach: user =>
+                  CurrentUser() = user
+
+        FSDemoMainMenu
+          .serve()
+          .map(servePage[FSScalaXmlEnv.type](_))
+          .orElse {
+            Some(req).collect {
+              case Get("demo") => servePage(SimpleTableExamplePage())
+              case Get("demo", "simple_tables") => servePage(SimpleTableExamplePage())
+              case Get("demo", "sortable_tables") => servePage(SortableTableExamplePage())
+              case Get("demo", "paginated_tables") => servePage(PaginatedTableExamplePage())
+              case Get("demo", "selectable_rows_tables") =>
+                servePage(SelectableRowsTableExamplePage())
+              case Get("demo", "tables_sel_cols") => servePage(SelectableColsTableExamplePage())
+              case Get("demo", "simple_form") => servePage(BasicFormExamplePage())
+              case Get("demo", "simple_modal") => servePage(BootstrapModalPage())
+
+              case Get("demo", "chartjs", "simple") => servePage(SimpleChartjsPage())
+            }
+          }
+          .orElse(
+            Some(Redirect.temporaryRedirect("/demo/"))
+          )
