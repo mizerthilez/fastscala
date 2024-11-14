@@ -6,6 +6,7 @@ import com.fastscala.demo.docs.fastscala.*
 import com.fastscala.demo.docs.forms.*
 import com.fastscala.demo.docs.html.{ HtmlTagsPage, HtmlUtilsPage, ScalaTagsPage }
 import com.fastscala.demo.docs.js.JsUtilsPage
+import com.fastscala.demo.docs.loggedout.LoginPage
 import com.fastscala.demo.docs.navigation.*
 import com.fastscala.demo.docs.navigation.DefaultBSMenuRenderers.given
 import com.fastscala.demo.docs.tables.ModifyingTableExamplePage
@@ -54,6 +55,7 @@ object FSDemoMainMenu
           "Grafana",
           "https://grafana.fastscala.com/public-dashboards/e01e760c4321418e9b4903e7e6bfcfb0?orgId=1&refresh=5s",
         ),
+        RoutingMenuItem("demo", "empty-page")("Empty page", EmptyPage()),
       ),
       MenuSection("HTML utils")(
         RoutingMenuItem("demo", "html", "tags")("tags", HtmlTagsPage()),
@@ -115,6 +117,9 @@ object FSDemoMainMenu
         SimpleMenuItem("Selectable Rows", "/demo/selectable_rows_tables"),
         SimpleMenuItem("Selectable Columns", "/demo/tables_sel_cols"),
         RoutingMenuItem("demo", "tables", "modifying")("Modifying tables", ModifyingTableExamplePage()),
+      ),
+      MenuSection("Logged in")(
+        RoutingMenuItem("demo", "login")("Login example", LoginPage())
       ),
       //  MenuSection("chart.js integration")(
       //    SimpleMenuItem("Simple", "/demo/chartjs/simple")

@@ -34,7 +34,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page:
 
           lazy val rootField: F7Field = F7VerticalField(
             inputField,
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
         .render()
 
@@ -73,7 +73,7 @@ class FormInputTypesPage extends MultipleCodeExamples2Page:
           lazy val rootField: F7Field = F7VerticalField(
             inputField,
             inputField2,
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
         .render()
     closeSnippet()

@@ -77,9 +77,10 @@ case class BSBtn(
   def onclick(jsCmd: Js): BSBtn =
     copy(onclickOpt = Some(fsc => onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc) & jsCmd))
 
-  def ajax(jsCmd: FSContext => Js): BSBtn = copy(onclickOpt =
-    Some(fsc => onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc) & fsc.callback(() => jsCmd(fsc)))
-  )
+  def ajax(jsCmd: FSContext => Js): BSBtn =
+    copy(onclickOpt =
+      Some(fsc => onclickOpt.getOrElse((_: FSContext) => JS.void)(fsc) & fsc.callback(() => jsCmd(fsc)))
+    )
 
   def ajaxOnce(jsCmd: FSContext => Js, moreThanOnceRslt: Option[Js] = None): BSBtn =
     val used = new AtomicBoolean(false)

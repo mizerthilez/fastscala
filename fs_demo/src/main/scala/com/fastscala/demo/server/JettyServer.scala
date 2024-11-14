@@ -1,6 +1,7 @@
 package com.fastscala.demo.server
 
 import java.awt.Desktop
+import java.net.URI
 
 import org.eclipse.jetty.server.Handler
 
@@ -24,12 +25,12 @@ object JettyServer extends JettyServerHelper:
   override def postStart(): Unit =
     super.postStart()
 
-    if isLocal && Desktop
-          .isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
+    if config.getBoolean("com.fastscala.demo.open-browser") &&
+        Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
     then
-      // val desktop = Desktop.getDesktop()
-      // desktop.browse(new URI(s"http://localhost:$Port"))
-      println(s"Available at: http://localhost:$Port")
+      val desktop = Desktop.getDesktop()
+      desktop.browse(new URI(s"http://localhost:$Port"))
+    else println(s"Available at: http://localhost:$Port")
 
   override def postStop(): Unit =
     super.postStop()

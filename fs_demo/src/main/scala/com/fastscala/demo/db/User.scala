@@ -16,9 +16,9 @@ import com.fastscala.xml.scala_xml.JS
 object CurrentUser extends FSSessionVarOpt[User]()
 
 class User(
-  val firstName: String,
-  val lastName: String,
-  val username: String,
+  val firstName: String = "",
+  val lastName: String = "",
+  val username: String = "",
   var passwordHashed: String = "",
   var loginToken: String = IdGen.id,
   var photo: Option[(String, Array[Byte])] = None,

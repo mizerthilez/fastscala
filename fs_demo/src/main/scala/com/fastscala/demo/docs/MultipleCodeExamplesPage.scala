@@ -9,6 +9,7 @@ import scala.xml.NodeSeq
 import org.eclipse.jetty.util.IO
 
 import com.fastscala.demo.db.User
+import com.fastscala.xml.scala_xml.given
 
 abstract class MultipleCodeExamplesPage(val file: String)(implicit val user: User) extends PageWithTopTitle:
   override def append2Head(): NodeSeq = super.append2Head() ++

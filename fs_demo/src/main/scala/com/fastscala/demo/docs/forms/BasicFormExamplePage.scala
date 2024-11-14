@@ -9,7 +9,7 @@ import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.modals.BSModal5
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form7.{ DefaultForm7, F7Field }
-import com.fastscala.templates.form7.fields.F7SaveButtonField
+import com.fastscala.templates.form7.fields.F7SubmitButtonField
 import com.fastscala.templates.form7.fields.layout.{ F7ContainerField, F7VerticalField }
 import com.fastscala.templates.form7.fields.select.F7SelectField
 import com.fastscala.templates.form7.fields.text.{ F7IntOptField, F7LocalDateOptField, F7StringField }
@@ -134,7 +134,7 @@ class BasicFormExamplePage extends SingleCodeExamplePage:
             .rw(editing.city, editing.city = _)
             .option2String(_.name)
             .deps(Set(_provField)),
-          F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Create User").btn.d_block),
+          F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Create User").btn.d_block),
         )
       .render()
     // === code snippet ===

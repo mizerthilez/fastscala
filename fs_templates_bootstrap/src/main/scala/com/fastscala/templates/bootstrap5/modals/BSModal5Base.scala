@@ -1,5 +1,6 @@
 package com.fastscala.templates.bootstrap5.modals
 
+import scala.util.chaining.given
 import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
@@ -7,7 +8,7 @@ import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.helpers.ClassEnrichableMutable
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.utils.Mutable
-import com.fastscala.utils.IdGen
+import com.fastscala.utils.{ IdGen, given }
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer
 
@@ -44,15 +45,16 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
 
   def transformModalFooterElem(elem: Elem): Elem = elem.modal_footer
 
-  lazy val modalRenderer: ScalaXmlRerenderer = JS.rerenderable(_ => implicit fsc => renderModal())
+  lazy val modalRenderer: ScalaXmlRerenderer =
+    JS.rerenderable(_ => fsc ?=> renderModal(), debugLabel = Some("modal"))
 
   lazy val modalContentsRenderer: ScalaXmlRerenderer =
-    JS.rerenderable(_ => implicit fsc => renderModalContent())
+    JS.rerenderable(_ => fsc ?=> renderModalContent(), debugLabel = Some("modal-contents"))
 
   lazy val modalContentsFooterRenderer: ScalaXmlRerenderer =
-    JS.rerenderable(_ => implicit fsc => renderModalFooterContent())
+    JS.rerenderable(_ => fsc ?=> renderModalFooterContent(), debugLabel = Some("modal-contents-footer"))
 
-  def append2DOM()(implicit fsc: FSContext): Js = JS.append2Body(renderModal())
+  def append2DOM()(implicit fsc: FSContext): Js = JS.append2Body(modalRenderer.render())
 
   def installAndShow(
     backdrop: Boolean = true,
@@ -81,11 +83,19 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
 
   def dispose(): Js = Js(s"""$$('#$modalId').modal('dispose')""")
 
-  def remove(): Js = JS.removeId(modalId)
+  def deleteContext()(implicit fsc: FSContext): Unit = fsc.page.rootFSContext.deleteContext(this)
+
+  def removeAndDeleteContext()(implicit fsc: FSContext): Js = JS.removeId(modalId) &
+    fsc.page.rootFSContext
+      .getOrCreateContext(this)
+      .callback: () =>
+        deleteContext()
+        Js.void
 
   def handleUpdate(): Js = Js(s"""$$('#$modalId').modal('handleUpdate')""")
 
-  def hideAndRemove(): Js = hide() & onHidden(remove())
+  def hideAndRemoveAndDeleteContext()(implicit fsc: FSContext): Js =
+    hide() & onHidden(removeAndDeleteContext())
 
   def hide(): Js = Js(s"""$$('#$modalId').modal('hide')""")
 
@@ -105,7 +115,7 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
     s"""$$('#$modalId').on('hidden.bs.modal', function (e) {${js.cmd}});"""
   )
 
-  def removeOnHidden(): Js = onHidden(remove())
+  def removeOnHidden()(implicit fsc: FSContext): Js = onHidden(removeAndDeleteContext())
 
   def modalHeaderTitle: String
 
@@ -129,32 +139,27 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
   def renderModalFooterContent()(implicit fsc: FSContext): Elem =
     modalFooterContents()
       .map: contents =>
-        transformModalFooterElem {
-          div.apply(contents)
-        }: Elem
+        transformModalFooterElem(div(contents))
       .getOrElse(<div style="display:none;"></div>)
 
   def renderModalContent()(implicit fsc: FSContext): Elem =
     transformModalContentElem:
       div.apply:
-        transformModalHeaderElem:
-          div.apply:
-            modalHeaderContents()
-        ++
-          transformModalBodyElem:
-            div.apply:
-              modalBodyContents()
+        transformModalHeaderElem(div(modalHeaderContents()))
           ++
-          modalContentsFooterRenderer.render()
+            transformModalBodyElem(div(modalBodyContents()))
+            ++
+            modalContentsFooterRenderer.render()
 
   def renderModal()(implicit fsc: FSContext): Elem =
-    transformModalElem:
-      div.withAttr("tabindex" -> "-1"):
-        transformModalDialogElem:
-          div
-            .withClass(modalClasses)
-            .apply:
-              modalContentsRenderer.render()
+    fsc.page.rootFSContext
+      .createNewChildContextAndGCExistingOne(this, Some("modal"))
+      .pipe: fsc ?=>
+        transformModalElem:
+          div.withAttr("tabindex" -> "-1"):
+            transformModalDialogElem:
+              div.withClass(modalClasses):
+                modalContentsRenderer.render()
 
 object BSModal5:
   def verySimple(
@@ -171,14 +176,14 @@ object BSModal5:
       override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = contents(this)(fsc)
 
       override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some(
-        BSBtn().BtnPrimary.lbl(closeBtnText).onclick(hideAndRemove()).btn
+        BSBtn().BtnPrimary.lbl(closeBtnText).onclick(hideAndRemoveAndDeleteContext()).btn
       )
     modal.installAndShow() & modal.onHidden(onHidden)
 
   def okCancel(
     title: String,
     onOk: BSModal5Base => FSContext => Js,
-    onCancel: BSModal5Base => FSContext => Js = modal => _ => modal.hideAndRemove(),
+    onCancel: BSModal5Base => FSContext => Js = modal => _ ?=> modal.hideAndRemoveAndDeleteContext(),
     okBtnText: String = "OK",
     cancelBtnText: String = "Cancel",
     onHidden: Js = JS.void,

@@ -9,8 +9,9 @@ import org.eclipse.jetty.util.{ IO, VirtualThreads }
 
 import com.fastscala.core.FSContext
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
+import com.fastscala.xml.scala_xml.given
 
-abstract class MultipleCodeExamples2Page extends LoggedInPage:
+abstract class MultipleCodeExamples2Page extends BasePage:
   def file = getClass.getName.split("\\.").mkString("/", "/", ".scala")
 
   override def append2Head(): NodeSeq = super.append2Head() ++

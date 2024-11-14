@@ -4,7 +4,7 @@ import scala.xml.NodeSeq
 
 import com.fastscala.core.FSContext
 
-trait PageWithTopTitle extends LoggedInPage:
+trait PageWithTopTitle extends BasePage:
   def pageTitle: String
 
   def pageTitleToolbar()(implicit fsc: FSContext): NodeSeq = NodeSeq.Empty

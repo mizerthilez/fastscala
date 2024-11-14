@@ -24,7 +24,7 @@ class ValidationStrategiesPage extends MultipleCodeExamples2Page():
             .label("Name")
             .addValidation(_.currentValue.length >= 5, _ => <span>Error: input less than 5 characters</span>),
           F7IntOptField().label("Integer field"),
-          F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+          F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
         )
       .render()
     renderSnippet("ValidateEachFieldAfterUserInput (validates immediately after input in a field)"):
@@ -35,7 +35,7 @@ class ValidationStrategiesPage extends MultipleCodeExamples2Page():
             .label("Name")
             .addValidation(_.currentValue.length >= 5, _ => <span>Error: input less than 5 characters</span>),
           F7IntOptField().label("Integer field"),
-          F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+          F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
         )
       .render()
     renderSnippet("ValidateOnAttemptSubmitOnly (only validates on submit)"):
@@ -46,7 +46,7 @@ class ValidationStrategiesPage extends MultipleCodeExamples2Page():
             .label("Name")
             .addValidation(_.currentValue.length >= 5, _ => <span>Error: input less than 5 characters</span>),
           F7IntOptField().label("Integer field"),
-          F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+          F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
         )
       .render()
     closeSnippet()

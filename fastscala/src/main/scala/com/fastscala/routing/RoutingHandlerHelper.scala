@@ -419,8 +419,16 @@ object RoutingHandlerHelper:
   object Patch extends Method("PATCH")
 
   def onlyHandleHtmlRequests(handle: => Option[Response])(implicit req: Request): Option[Response] =
-    if Option(req.getHeaders.get(HttpHeader.ACCEPT)).getOrElse("").contains("text/html") then handle
+    if Option(req.getHeaders.get(HttpHeader.ACCEPT)).getOrElse("").contains("text/html")
+    then handle
     else None
+
+  def ignoreNonHtmlRequests(handle: => Option[Response])(implicit req: Request): Option[Response] =
+    if Option(req.getHeaders.get(HttpHeader.ACCEPT)).exists(accept =>
+          !accept.contains("text/html") && !accept.contains("text/*") && !accept.contains("*/*")
+        )
+    then None
+    else handle
 
 abstract class RoutingHandlerNoSessionHelper extends Handler.Abstract:
   def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request)

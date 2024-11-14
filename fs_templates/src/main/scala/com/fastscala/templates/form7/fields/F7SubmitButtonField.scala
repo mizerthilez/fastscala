@@ -10,7 +10,7 @@ import com.fastscala.templates.form7.renderers.*
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
 
-class F7SaveButtonField[B](
+class F7SubmitButtonField[B](
   btn: FSContext => B,
   val toInitialState: B => B = identity[B],
   val toChangedState: B => B = identity[B],

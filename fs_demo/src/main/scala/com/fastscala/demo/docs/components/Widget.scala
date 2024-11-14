@@ -6,7 +6,7 @@ import scala.xml.{ Elem, NodeSeq }
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.utils.Mutable
-import com.fastscala.utils.IdGen
+import com.fastscala.utils.{ IdGen, given }
 import com.fastscala.xml.scala_xml.JS
 
 abstract class Widget extends Mutable:
@@ -28,11 +28,25 @@ abstract class Widget extends Mutable:
     onCardBodyTransforms = onCardBodyTransforms andThen f
 
   lazy val widgetRenderer =
-    JS.rerenderable(rerenderer => implicit fsc => renderWidgetCard(), Some(widgetId))
+    JS.rerenderable(
+      rerenderer => fsc ?=> renderWidgetCard(),
+      Some(widgetId),
+      debugLabel = Some("widget"),
+    )
+
   lazy val widgetHeaderRenderer =
-    JS.rerenderable(rerenderer => implicit fsc => renderWidgetHeader(), Some(widgetHeaderId))
+    JS.rerenderable(
+      rerenderer => fsc ?=> renderWidgetHeader(),
+      Some(widgetHeaderId),
+      debugLabel = Some("widget-header"),
+    )
+
   lazy val widgetContentsRenderer =
-    JS.rerenderable(rerenderer => implicit fsc => renderWidgetContents(), Some(widgetContentsId))
+    JS.rerenderable(
+      rerenderer => fsc ?=> renderWidgetContents(),
+      Some(widgetContentsId),
+      debugLabel = Some("widget-contents"),
+    )
 
   def widgetTitle: String
 

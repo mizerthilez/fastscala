@@ -36,7 +36,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
             .label("Name")
             .addValidation(_.currentValue.length >= 5, _ => div("Error: minimum of 5 chars"))
             .help("Input at least 5 characters"),
-          F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+          F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
         )
 
         override def postSubmitForm()(using FSContext): Js =
@@ -56,7 +56,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
             .label("Your message")
             .addValidation(_.currentValue.split(" ").length >= 5, _ => div("Error: minimum of 5 words"))
             .help("Input at least 5 words"),
-          F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+          F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
         )
 
         override def postSubmitForm()(using FSContext): Js =
@@ -95,7 +95,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           lazy val rootField: F7Field = F7VerticalField(
             inputField,
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
 
           override def postSubmitForm()(using FSContext): Js =
@@ -132,7 +132,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           lazy val rootField: F7Field = F7VerticalField(
             inputField,
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
 
           override def postSubmitForm()(using FSContext): Js =
@@ -151,7 +151,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           lazy val rootField: F7Field = F7VerticalField(
             inputField,
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
 
           override def postSubmitForm()(using FSContext): Js =
@@ -174,7 +174,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           lazy val rootField: F7Field = F7VerticalField(
             inputField,
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
 
           override def postSubmitForm()(using FSContext): Js =
@@ -195,7 +195,7 @@ class ValidationByFieldTypePage extends MultipleCodeExamples2Page():
 
           lazy val rootField: F7Field = F7VerticalField(
             inputField,
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block),
           )
 
           override def postSubmitForm()(using FSContext): Js =

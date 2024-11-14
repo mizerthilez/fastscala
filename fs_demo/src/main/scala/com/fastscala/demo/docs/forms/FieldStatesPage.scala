@@ -96,7 +96,7 @@ class FieldStatesPage extends MultipleCodeExamples2Page:
                     "col" -> multiSelectField,
                     "col" -> radioField,
                   ),
-                  F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+                  F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
                 )
 
                 override def postSubmitForm()(using FSContext): Js =
@@ -151,7 +151,7 @@ class FieldStatesPage extends MultipleCodeExamples2Page:
                     "col" -> textField,
                     "col" -> textareaField,
                   ),
-                  F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+                  F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
                 )
 
                 override def postSubmitForm()(using FSContext): Js =

@@ -52,7 +52,7 @@ class TestPage extends PageWithTopTitle:
 
             val htmlField = F7HtmlField(<div/>)
             val htmlsurroundField = F7HtmlSurroundField(_ => <div/>)(htmlField)
-            val btnField = F7SaveButtonField(_ => <div/>)
+            val btnField = F7SubmitButtonField(_ => <div/>)
 
             given form: Form7 = new DefaultForm7:
               lazy val rootField: F7Field = selectField

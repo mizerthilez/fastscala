@@ -50,47 +50,42 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
     import com.fastscala.xml.scala_xml.JS.given
     if req.getHttpURI.getPath == "/basic1" then
       Some(
-        Ok(
-          """<!DOCTYPE html>
-              |<html>
-              |<body>
-              |<h1>Basic example 1</h1>
-              |</body>
-              |</html>
-              |""".stripMargin
-        )
+        Ok:
+          """<html>
+            |<body>
+            |<h1>Basic example 1</h1>
+            |</body>
+            |</html>
+            |""".stripMargin
       )
     else if req.getHttpURI.getPath == "/basic2" then
       Some(session.createPage: fsc =>
         val callback = fsc.callback: () =>
           println("clicked!")
           Js.void
-        Ok(
-          "<!DOCTYPE html>" ++
-            <html>
-              <body>
-              <h1>Basic example 2</h1>
-              <button onclick={callback.cmd}>Click me!</button>
-              </body>
-            </html>.toString()
-        )
+        Ok:
+          <html>
+            <body>
+            <h1>Basic example 2</h1>
+            <button onclick={callback.cmd}>Click me!</button>
+            <p>Will fail: missing JS in the page head.</p>
+            </body>
+          </html>.toString()
       )
     else if req.getHttpURI.getPath == "/basic3" then
       Some(session.createPage: fsc =>
         val callback = fsc.callback: () =>
           println("clicked!")
           Js.void
-        Ok(
-          "<!DOCTYPE html>" ++
-            <html>
-              <head>{fsc.fsPageScript().inScriptTag}</head>
-              <body>
-                <h1>Basic example 3</h1>
-                <button onclick={callback.cmd}>Click me!</button>
-                <p>On click, calling: <pre>{callback.cmd}</pre></p>
-              </body>
-            </html>.toString()
-        )
+        Ok:
+          <html>
+            <head>{fsc.fsPageScript().inScriptTag}</head>
+            <body>
+              <h1>Basic example 3</h1>
+              <button onclick={callback.cmd}>Click me!</button>
+              <p>On click, calling: <pre>{callback.cmd}</pre></p>
+            </body>
+          </html>.toString()
       )
     else if req.getHttpURI.getPath == "/basic4" then
       Some(session.createPage: fsc =>
@@ -98,20 +93,18 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
           Js("document.getElementById('myInput').value"),
           str =>
             println(s"input has value: '$str'")
-            Js.alert(s"The server has received your input at ${new Date().toGMTString}"),
+            Js.alert(s"The server has received your input ('$str') at ${new Date().toGMTString}"),
         )
-        Ok(
-          "<!DOCTYPE html>" ++
-            <html>
-              <head>{fsc.fsPageScript().inScriptTag}</head>
-              <body>
-                <h1>Basic example 4</h1>
-                <input type="text" id="myInput"></input>
-                <button onclick={callback.cmd}>Click me!</button>
-                <p>On click, calling: <pre>{callback.cmd}</pre></p>
-              </body>
-            </html>.toString()
-        )
+        Ok:
+          <html>
+            <head>{fsc.fsPageScript().inScriptTag}</head>
+            <body>
+              <h1>Basic example 4</h1>
+              <input type="text" id="myInput"></input>
+              <button onclick={callback.cmd}>Click me!</button>
+              <p>On click, calling: <pre>{callback.cmd}</pre></p>
+            </body>
+          </html>.toString()
       )
     else
       onlyHandleHtmlRequests:
@@ -121,13 +114,12 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
             .find(_.getName == "user_token")
             .map(_.getValue)
             .filter(_.trim != "")
-            .orElse(
+            .orElse:
               Option(Request.getParameters(req).getValues("user_token"))
                 .getOrElse(Collections.emptyList)
                 .asScala
                 .headOption
                 .filter(_.trim != "")
-            )
             .foreach: token =>
               FakeDB.users
                 .find(_.loginToken == token)
@@ -137,8 +129,8 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
         FSDemoMainMenu
           .serve()
           .map(servePage[FSScalaXmlEnv.type](_))
-          .orElse {
-            Some(req).collect {
+          .orElse:
+            Some(req).collect:
               case Get("demo") => servePage(SimpleTableExamplePage())
               case Get("demo", "simple_tables") => servePage(SimpleTableExamplePage())
               case Get("demo", "sortable_tables") => servePage(SortableTableExamplePage())
@@ -150,8 +142,3 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
               case Get("demo", "simple_modal") => servePage(BootstrapModalPage())
 
               case Get("demo", "chartjs", "simple") => servePage(SimpleChartjsPage())
-            }
-          }
-          .orElse(
-            Some(Redirect.temporaryRedirect("/demo/"))
-          )

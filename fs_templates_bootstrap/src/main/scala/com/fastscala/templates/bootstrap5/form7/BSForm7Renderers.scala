@@ -39,7 +39,7 @@ abstract class BSForm7Renderers(using CheckboxAlignment, CheckboxStyle, Checkbox
     def defaultRequiredFieldLabel: String = BSForm7Renderers.this.defaultRequiredFieldLabel
 
   given ButtonF7FieldRenderer with
-    def render(field: F7SaveButtonField[?])(btn: Elem)(using hints: Seq[RenderHint]): Elem =
+    def render(field: F7SubmitButtonField[?])(btn: Elem)(using hints: Seq[RenderHint]): Elem =
       import RenderHint.*
       if !field.enabled then div.withId(field.aroundId).withStyle(";display:none;")
       else

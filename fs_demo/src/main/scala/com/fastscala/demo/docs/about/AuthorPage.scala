@@ -3,10 +3,11 @@ package com.fastscala.demo.docs.about
 import scala.xml.NodeSeq
 
 import com.fastscala.core.FSContext
-import com.fastscala.demo.docs.LoggedInPage
+import com.fastscala.demo.docs.BasePage
 import com.fastscala.templates.bootstrap5.utils.BSBtn
+import com.fastscala.xml.scala_xml.given
 
-class AuthorPage extends LoggedInPage():
+class AuthorPage extends BasePage:
   override def pageTitle: String = "FastScala Web Framework Author | David Antunes"
 
   override def renderPageContents()(implicit fsc: FSContext): NodeSeq =

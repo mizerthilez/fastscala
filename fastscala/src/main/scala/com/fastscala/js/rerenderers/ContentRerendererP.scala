@@ -4,7 +4,7 @@ import scala.util.chaining.scalaUtilChainingOps
 
 import com.fastscala.core.{ FSContext, FSXmlEnv }
 import com.fastscala.js.{ Js, JsUtils }
-import com.fastscala.utils.IdGen
+import com.fastscala.utils.{ IdGen, given }
 
 class ContentRerendererP[Env <: FSXmlEnv, P](
   using val env: Env
@@ -32,9 +32,9 @@ class ContentRerendererP[Env <: FSXmlEnv, P](
             }(param)
 
   def rerender(param: P): Js = rootRenderContext
-    .map: fsc =>
+    .map: fsc ?=>
       fsc.page.rerendererDebugStatus.rerender(
         aroundId,
-        JsUtils.generic.replace(aroundId, render(param)(using fsc)),
+        JsUtils.generic.replace(aroundId, render(param)),
       )
     .getOrElse(throw new Exception("Missing context - did you call render() first?"))

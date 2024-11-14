@@ -5,7 +5,7 @@ import java.time.LocalDate
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.templates.bootstrap5.utils.BSBtn
-import com.fastscala.templates.form7.fields.F7SaveButtonField
+import com.fastscala.templates.form7.fields.F7SubmitButtonField
 import com.fastscala.templates.form7.fields.layout.F7VerticalField
 import com.fastscala.templates.form7.fields.text.*
 import com.fastscala.templates.form7.{ DefaultForm7, F7Field }
@@ -36,7 +36,7 @@ class FormValidationPage extends MultipleCodeExamples2Page:
               _.currentValue.exists(_.isAfter(LocalDate.now())),
               _ => <span>Must be a date in the future.</span>,
             ),
-          F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+          F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
         )
       .render()
     closeSnippet()

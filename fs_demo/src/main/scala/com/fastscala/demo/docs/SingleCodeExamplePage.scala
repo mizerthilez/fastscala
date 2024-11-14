@@ -9,6 +9,7 @@ import scala.xml.NodeSeq
 import org.eclipse.jetty.util.IO
 
 import com.fastscala.core.FSContext
+import com.fastscala.xml.scala_xml.given
 
 abstract class SingleCodeExamplePage extends PageWithTopTitle:
   def file = getClass.getName.split("\\.").mkString("/", "/", ".scala")

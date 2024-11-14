@@ -55,7 +55,7 @@ class FormInputGroupsPage extends MultipleCodeExamples2Page:
               F7HtmlField.label(".00"),
             ),
             F7BSFormInputGroup(heightField, F7HtmlField.label("meters")).inputGroupSizeLarge(),
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
           )
 
           override def postSubmitForm()(using FSContext): Js =

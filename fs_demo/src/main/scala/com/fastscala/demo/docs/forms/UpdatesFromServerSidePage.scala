@@ -98,7 +98,7 @@ class UpdatesFromServerSidePage extends MultipleCodeExamples2Page():
             F7ContainerField("row")("col" -> textareaField, "col" -> textareaFieldInputGroup),
             F7ContainerField("row")("col" -> multiSelectField, "col" -> multiSelectFieldInputGroup),
             F7ContainerField("row")("col" -> radioField),
-            F7SaveButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
+            F7SubmitButtonField(_ => BSBtn().BtnPrimary.lbl("Submit").btn.d_block.w_100),
           )
 
           override def postSubmitForm()(using FSContext): Js =

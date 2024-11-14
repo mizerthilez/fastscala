@@ -106,7 +106,7 @@ class LoggerUIImpl(val title: String)(implicit fsc: FSContext) extends LoggerUI:
           ""
 
     override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some:
-      if hasFinished then BSBtn().BtnSecondary.lbl("Close").onclick(hideAndRemove()).btn
+      if hasFinished then BSBtn().BtnSecondary.lbl("Close").onclick(hideAndRemoveAndDeleteContext()).btn
       else
         val btn: BSBtn = BSBtn().BtnDark.lbl("Stop").withRandomId
         btn

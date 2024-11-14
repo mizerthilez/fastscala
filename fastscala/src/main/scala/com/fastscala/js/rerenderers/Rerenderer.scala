@@ -2,7 +2,7 @@ package com.fastscala.js.rerenderers
 
 import com.fastscala.core.{ FSContext, FSXmlEnv }
 import com.fastscala.js.{ Js, JsUtils }
-import com.fastscala.utils.IdGen
+import com.fastscala.utils.{ IdGen, given }
 
 class Rerenderer[Env <: FSXmlEnv](
   using val env: Env
@@ -31,10 +31,10 @@ class Rerenderer[Env <: FSXmlEnv](
         case None => rendered.withIdIfNotSet(aroundId)
 
   def rerender(): Js = rootRenderContext
-    .map: fsc =>
+    .map: fsc ?=>
       fsc.page.rerendererDebugStatus.rerender(
         aroundId,
-        Js.replace(aroundId, render()(using fsc)),
+        Js.replace(aroundId, render()),
       )
     .getOrElse(throw new Exception("Missing context - did you call render() first?"))
 

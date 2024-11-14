@@ -5,6 +5,7 @@ import scala.xml.NodeSeq
 import com.fastscala.core.FSContext
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form7.{ F7FormRenderer, Form7 }
+import com.fastscala.utils.given
 import com.fastscala.xml.scala_xml.{ ScalaXmlElemUtils, given }
 
 abstract class BSModal5WithForm7Base(
@@ -21,10 +22,10 @@ abstract class BSModal5WithForm7Base(
   def cancelBtnEnabled: Boolean = false
 
   def saveBtn(using FSContext) =
-    BSBtn().BtnPrimary.lbl(saveBtnLbl).onclick(form.submitFormClientSide())
+    BSBtn().BtnPrimary.lbl(saveBtnLbl).ajax(fsc ?=> form.submitFormServerSide())
 
   def cancelBtn(using FSContext) =
-    BSBtn().BtnSecondary.lbl(cancelBtnLbl).onclick(hideAndRemove())
+    BSBtn().BtnSecondary.lbl(cancelBtnLbl).onclick(hideAndRemoveAndDeleteContext())
 
   def modalBodyContents()(using FSContext): NodeSeq = form.render()
 

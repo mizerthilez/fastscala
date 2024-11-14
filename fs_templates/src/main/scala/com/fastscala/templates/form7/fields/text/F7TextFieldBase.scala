@@ -99,3 +99,11 @@ trait F7TextFieldBase[T](using val renderer: TextF7FieldRenderer)
           validFeedback = if errorsToShow.isEmpty then validFeedback else None,
           help = help,
         )
+
+  def inputTypeEmail = super.inputType("email")
+
+  def inputTypePassword = super.inputType("password")
+
+  def inputTypeTel = super.inputType("tel")
+
+  def inputTypeUrl = super.inputType("url")
