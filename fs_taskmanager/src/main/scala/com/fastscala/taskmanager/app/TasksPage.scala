@@ -110,6 +110,8 @@ class TasksPage extends BasePage:
 
         override def seqRowsSource: Seq[Task] = DB().tasks.toSeq
 
+        override def actionsBtnToIncludeInTopDropdown = super.actionsBtnToIncludeInTopDropdown.sm.mx_2
+
       override def widgetTopRight()(implicit fsc: FSContext): NodeSeq = super.widgetTopRight() ++
         BSBtn().BtnSuccess.sm
           .lbl("Add Task")
@@ -133,7 +135,7 @@ class TasksPage extends BasePage:
                     hideAndRemoveAndDeleteContext()
                 }
               .installAndShow()
-          .btn
+          .btn ++ tasksTable.actionsDropdownBtnRenderer.render()
 
       override def widgetContents()(implicit fsc: FSContext): NodeSeq = tasksTable.render()
 
