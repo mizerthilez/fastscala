@@ -74,6 +74,13 @@ trait F7RadioFieldBase[T](using val renderer: RadioF7FieldRenderer)
             s"""Array.from(document.querySelectorAll('#${aroundId} [name=$radioNameId]')).forEach((elem,idx) => { elem.removeAttribute('disabled') });"""
       else Js.void
 
+  override def onEvent(event: F7Event)(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
+    event match
+      case ChangedField(field) if deps.contains(field) =>
+        reRender() & form.onEvent(ChangedField(this))
+      case ChangedField(f) if f == this => updateFieldStatus()
+      case _ => Js.void
+
   override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
     super.updateFieldStatus() &
       currentRenderedOptions
@@ -91,13 +98,14 @@ trait F7RadioFieldBase[T](using val renderer: RadioF7FieldRenderer)
         val errorsToShow: Seq[(F7Field, NodeSeq)] = if shouldShowValidation then validate() else Nil
         showingValidation = errorsToShow.nonEmpty
 
-        currentRenderedValue = Some(currentValue)
-
         val renderedOptions: Seq[T] = options
         val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
         val option2Id: Map[T, String] = ids2Option.map(_.swap)
         currentRenderedOptions = Some(renderedOptions, ids2Option, option2Id)
 
+        if !renderedOptions.contains(currentValue) then currentValue = defaultValue
+
+        currentRenderedValue = Some(currentValue)
         val radioToggles: Seq[(Elem, Some[Elem])] = renderedOptions.map: opt =>
           val onchangeJs = fsc
             .callback: () =>
@@ -112,7 +120,7 @@ trait F7RadioFieldBase[T](using val renderer: RadioF7FieldRenderer)
             processInputElem(<input
                 type="radio"
                 id={option2Id(opt)}
-                checked={if currentRenderedValue.get == opt then "checked" else null}
+                checked={if currentValue == opt then "checked" else null}
                 onchange={onchangeJs}
                 name={radioNameId}></input>),
             Some(<label>{_option2NodeSeq(opt)}</label>),

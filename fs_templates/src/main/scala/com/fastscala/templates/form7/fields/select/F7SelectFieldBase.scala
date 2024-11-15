@@ -48,6 +48,13 @@ trait F7SelectFieldBase[T](using val renderer: SelectF7FieldRenderer)
 
   var currentRenderedOptions = Option.empty[(Seq[T], Map[String, T], Map[T, String])]
 
+  override def onEvent(event: F7Event)(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
+    event match
+      case ChangedField(field) if deps.contains(field) =>
+        reRender() & form.onEvent(ChangedField(this))
+      case ChangedField(f) if f == this => updateFieldStatus()
+      case _ => Js.void
+
   override def updateFieldStatus()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
     super.updateFieldStatus() &
       currentRenderedOptions
@@ -68,15 +75,16 @@ trait F7SelectFieldBase[T](using val renderer: SelectF7FieldRenderer)
         val errorsToShow: Seq[(F7Field, NodeSeq)] = if shouldShowValidation then validate() else Nil
         showingValidation = errorsToShow.nonEmpty
 
-        currentRenderedValue = Some(currentValue)
-
         val renderedOptions: Seq[T] = options
         val ids2Option: Map[String, T] = renderedOptions.map(opt => fsc.session.nextID() -> opt).toMap
         val option2Id: Map[T, String] = ids2Option.map(_.swap)
         currentRenderedOptions = Some(renderedOptions, ids2Option, option2Id)
 
+        if !renderedOptions.contains(currentValue) then currentValue = defaultValue
+
+        currentRenderedValue = Some(currentValue)
         val optionsRendered = renderedOptions.map: opt =>
-          renderer.renderOption(currentRenderedValue.get == opt, option2Id(opt), _option2NodeSeq(opt))
+          renderer.renderOption(currentValue == opt, option2Id(opt), _option2NodeSeq(opt))
 
         val onchangeJs = fsc
           .callback(
