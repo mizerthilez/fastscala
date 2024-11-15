@@ -38,8 +38,6 @@ class TasksPage extends BasePage:
 
         override def defaultPageSize = 10
 
-        import com.fastscala.demo.docs.forms.DefaultFSDemoBSForm7Renderers.given
-
         val ColStatus = ColNs(
           "Status",
           implicit fsc =>
@@ -68,28 +66,24 @@ class TasksPage extends BasePage:
           "Assigned to",
           implicit fsc => {
             case (tableBodyRerenderer, trRerenderer, tdRerenderer, row, rowIdx, colIdx, rows) =>
-              td.apply(
+              val cmd = fsc
+                .callback: () =>
+                  import com.fastscala.demo.docs.forms.DefaultFSDemoBSForm7Renderers.given
+                  new BSModal5WithForm7Base(s"Assign task ${row.name} to..."):
+                    lazy val rootField: F7Field = F7SelectOptField[User]()
+                      .optionsNonEmpty(DB().users.toSeq)
+                      .option2String(_.map(_.fullName).getOrElse("Unassigned"))
+                      .rw(row.assignedTo, row.assignedTo = _)
+
+                    override def postSubmitForm()(implicit fsc: FSContext): Js = super.postSubmitForm() &
+                      hideAndRemoveAndDeleteContext() & tdRerenderer.rerenderer.rerender()
+                  .installAndShow()
+                .cmd
+              td.apply:
                 (row.assignedTo match
                   case Some(assignedTo) => badge.text_bg_primary.apply(assignedTo.firstName)
                   case None => badge.text_bg_secondary.apply("unassigned")
-                ).withAttrs(
-                  "onclick" -> fsc
-                    .callback(() =>
-                      new BSModal5WithForm7Base(s"Assign task ${row.name} to..."):
-                        lazy val rootField: F7Field = F7SelectOptField[User]()
-                          .optionsNonEmpty(DB().users.toSeq)
-                          .option2String(_.map(_.fullName).getOrElse("Unassigned"))
-                          .rw(row.assignedTo, row.assignedTo = _)
-
-                        override def postSubmitForm()(implicit fsc: FSContext): Js =
-                          super.postSubmitForm() & {
-                            hideAndRemoveAndDeleteContext() & tdRerenderer.rerenderer.rerender()
-                          }
-                      .installAndShow()
-                    )
-                    .cmd
-                )
-              ).text_center
+                ).withAttrs("onclick" -> cmd)
           },
         )
         val ColName = ColStr("Name", _.name)
