@@ -18,13 +18,13 @@ import com.fastscala.demo.docs.chartjs.SimpleChartjsPage
 import com.fastscala.demo.docs.forms.BasicFormExamplePage
 import com.fastscala.demo.docs.tables.*
 import com.fastscala.js.Js
-import com.fastscala.server.*
+import com.fastscala.routing.method.Get
+import com.fastscala.routing.resp.{ Ok, Response }
+import com.fastscala.routing.{ FilterUtils, RoutingHandlerHelper }
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
   val logger = LoggerFactory.getLogger(getClass.getName)
-
-  import com.fastscala.server.RoutingHandlerHelper.*
 
   override def handlerNoSession(
     response: JettyServerResponse,
@@ -107,7 +107,7 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
           </html>.toString()
       )
     else
-      onlyHandleHtmlRequests:
+      FilterUtils.onlyHandleHtmlRequests:
         if CurrentUser().isEmpty then
           val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
           cookies

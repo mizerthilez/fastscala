@@ -7,7 +7,9 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 
 import com.fastscala.core.{ FSSession, FSSystem }
 import com.fastscala.demo.db.{ CurrentUser, FakeDB }
-import com.fastscala.server.{ Ok, Redirect, Response, RoutingHandlerHelper }
+import com.fastscala.routing.method.Get
+import com.fastscala.routing.resp.{ Ok, Redirect, Response }
+import com.fastscala.routing.{ FilterUtils, RoutingHandlerHelper }
 import com.fastscala.taskmanager.app.{ FSTaskmanagerMainMenu, TasksPage }
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 import org.eclipse.jetty.server.{ Request, Response as JettyServerResponse }
@@ -16,8 +18,6 @@ import org.slf4j.LoggerFactory
 
 class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
   val logger = LoggerFactory.getLogger(getClass.getName)
-
-  import com.fastscala.server.RoutingHandlerHelper.*
 
   override def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request)
     : Option[Response] = Some(req).collect:
@@ -35,7 +35,7 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
     req: Request,
     session: FSSession,
   ): Option[Response] =
-    onlyHandleHtmlRequests:
+    FilterUtils.onlyHandleHtmlRequests:
       if CurrentUser().isEmpty then
         val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
         cookies

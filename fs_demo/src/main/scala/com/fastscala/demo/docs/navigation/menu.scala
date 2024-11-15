@@ -5,6 +5,7 @@ import scala.xml.NodeSeq
 import org.eclipse.jetty.server.Request
 
 import com.fastscala.core.{ FSContext, FSSession }
+import com.fastscala.routing.method.Get
 import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.ScalaXmlRenderableWithFSContext
 
@@ -59,8 +60,6 @@ class RoutingMenuItem(
   val href: String = matching.mkString("/", "/", "")
 
   def render()(implicit fsc: FSContext): NodeSeq = renderer.render(this)
-
-  import com.fastscala.server.RoutingHandlerHelper.*
 
   def serve()(implicit req: Request, session: FSSession): Option[ScalaXmlRenderableWithFSContext] =
     Some(req).collect:

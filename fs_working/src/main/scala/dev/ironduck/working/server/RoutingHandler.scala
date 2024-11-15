@@ -14,13 +14,13 @@ import com.fastscala.core.{ FSSession, FSSystem }
 import dev.ironduck.working.db.{ CurrentUser, FakeDB }
 import dev.ironduck.working.*
 import dev.ironduck.working.pages.BootstrapModalPage
-import com.fastscala.server.*
+import com.fastscala.routing.method.Get
+import com.fastscala.routing.resp.{ Ok, Redirect, Response }
+import com.fastscala.routing.{ FilterUtils, RoutingHandlerHelper }
 import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
   val logger = LoggerFactory.getLogger(getClass.getName)
-
-  import com.fastscala.server.RoutingHandlerHelper.*
 
   override def handlerNoSession(
     response: JettyServerResponse,
@@ -43,7 +43,7 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
     req: Request,
     session: FSSession,
   ): Option[Response] =
-    onlyHandleHtmlRequests:
+    FilterUtils.onlyHandleHtmlRequests:
       if CurrentUser().isEmpty then
         val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
         cookies

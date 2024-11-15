@@ -18,7 +18,10 @@ import org.eclipse.jetty.server.{ Request, Response as JettyServerResponse }
 import org.eclipse.jetty.util.{ Callback, IO }
 
 import com.fastscala.core.FSXmlEnv
-import com.fastscala.server.*
+import com.fastscala.routing.RoutingHandlerNoSessionHelper
+import com.fastscala.routing.method.Get
+import com.fastscala.routing.req.Req
+import com.fastscala.routing.resp.{ ClientError, Ok, Response }
 
 object FSOptimizedResourceHandler:
   def cssLoaderUrl(files: String*): String = "/static/optimized/css_loader.css?" + files
@@ -40,8 +43,6 @@ class FSOptimizedResourceHandler(
   defaultMaxHeight: Int = 900,
   defaultCompression: Int = 7,
 ) extends RoutingHandlerNoSessionHelper:
-  import RoutingHandlerHelper.*
-
   private def openResource(name: String): Option[InputStream] =
     resourceRoots.iterator
       .map(root => Option(getClass.getResourceAsStream(root + name)))

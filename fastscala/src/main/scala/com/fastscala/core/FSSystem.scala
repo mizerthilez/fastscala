@@ -20,7 +20,9 @@ import org.slf4j.LoggerFactory
 
 import com.fastscala.js.Js
 import com.fastscala.js.rerenderers.RerendererDebugStatus
-import com.fastscala.server.*
+import com.fastscala.routing.RoutingHandlerNoSessionHelper
+import com.fastscala.routing.method.{ Get, Post }
+import com.fastscala.routing.resp.{ Ok, Redirect, Response, ServerError, VoidResponse }
 import com.fastscala.stats.{ FSStats, StatEvent }
 import com.fastscala.utils.{ IdGen, Missing }
 
@@ -627,7 +629,6 @@ class FSSystem(
   override def handlerNoSession(response: JettyServerResponse, callback: Callback)(implicit req: Request)
     : Option[Response] =
     val cookies = Option(Request.getCookies(req)).getOrElse(Collections.emptyList).asScala
-    import RoutingHandlerHelper.*
 
     val sessionIdOpt = cookies
       .find(_.getName == FSSessionIdCookieName)
