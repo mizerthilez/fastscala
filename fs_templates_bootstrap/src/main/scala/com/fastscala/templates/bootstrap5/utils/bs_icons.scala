@@ -7,7 +7,7 @@ import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 object BsIcn:
   type BsIcn = String
 
-  implicit class RichIcn(i: BsIcn):
+  implicit class RichIcn(val i: BsIcn) extends AnyVal:
     def icn: Elem = FSScalaXmlEnv.buildElem("i", "class" -> s"bi $i")()
 
   val bi123: BsIcn = "bi-123"

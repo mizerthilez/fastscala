@@ -40,7 +40,7 @@ case class RawJs(js: String) extends Js:
   override def cmd: String = js
 
 object JsOps:
-  implicit class RichJs(js: Js):
+  implicit class RichJs(val js: Js) extends AnyVal:
     def `_==`(other: Js): Js = Js(s"${js.cmd} == ${other.cmd}")
 
     def `_!=`(other: Js): Js = Js(s"${js.cmd} != ${other.cmd}")

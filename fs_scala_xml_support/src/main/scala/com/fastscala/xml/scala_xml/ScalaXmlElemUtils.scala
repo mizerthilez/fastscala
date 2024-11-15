@@ -6,7 +6,7 @@ import scala.xml.*
 import com.fastscala.js.Js
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromNodeSeq
 
-trait ScalaXmlElemUtils:
+trait ScalaXmlElemUtils extends Any:
   def elem: Elem
 
   def attributeTransform(attrName: String, transform: Option[String] => String): Elem =
@@ -129,6 +129,6 @@ trait ScalaXmlElemUtils:
   def getId: Option[String] = elem.attributes.get("id").map(_.map(_.toString).mkString(" "))
 
 object ScalaXmlElemUtils:
-  implicit class RichElem(val elem: Elem) extends ScalaXmlElemUtils
+  implicit class RichElem(val elem: Elem) extends AnyVal with ScalaXmlElemUtils
 
   def showIf(b: Boolean)(ns: => NodeSeq): NodeSeq = if b then ns else NodeSeq.Empty

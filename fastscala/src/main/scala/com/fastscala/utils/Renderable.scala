@@ -9,7 +9,7 @@ trait RenderableWithFSContext[Env <: FSXmlEnv](using val env: Env):
   def render()(implicit fsc: FSContext): env.NodeSeq
 
 object RenderableWithFSContext:
-  given [Env <: FSXmlEnv](using e: Env)(using FSContext)
+  given [Env <: FSXmlEnv](using e: Env, fsc: FSContext)
     : Conversion[RenderableWithFSContext[e.type], Renderable[e.type]] =
     renderableWithFSC =>
       new Renderable:

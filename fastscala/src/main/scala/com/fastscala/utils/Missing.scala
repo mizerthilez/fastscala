@@ -6,7 +6,7 @@ import com.fastscala.stats.StatEvent
 object Missing extends Enumeration:
   val Session, Page, AnonPage, CallbackFunction, FileDownloadFunction, FileUploadFunction = Value
 
-  implicit class RichValue(v: Value) extends AnyVal:
+  implicit class RichValue(val v: Value) extends AnyVal:
     def updateStats()(implicit fss: FSSystem): Unit = v match
       case Session =>
         fss.stats.sessionNotFoundTotal.inc()

@@ -7,7 +7,7 @@ import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 object IcnFA:
   type FaIcn = String
 
-  implicit class RichIcn(i: FaIcn):
+  implicit class RichIcn(val i: FaIcn) extends AnyVal:
     def icn: Elem = FSScalaXmlEnv.buildElem("i", "class" -> i)()
 
   val adjust: FaIcn = " fa fa-adjust "

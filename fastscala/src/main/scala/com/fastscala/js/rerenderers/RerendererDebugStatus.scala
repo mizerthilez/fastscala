@@ -9,7 +9,7 @@ object RerendererDebugStatus extends Enumeration:
 
   def Unsupported = Set("table", "thead", "tbody", "tfooter", "tr")
 
-  implicit class RichValue(v: Value) extends AnyVal:
+  implicit class RichValue(val v: Value) extends AnyVal:
     private def style(bgColor: String = "rgb(147 211 255 / 6%)") =
       s"width: 100%; height: 100%; position: absolute; top: 0; left: 0; text-align: right; color: #4b4b4b; background-color: $bgColor; font-weight: bold; padding: 2px 4px; border: 2px solid #6290bd;pointer-events: none; z-index: 10;"
 
