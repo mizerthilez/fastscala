@@ -1,8 +1,6 @@
 import sbt.*
 import sbt.Keys.*
 
-import scala.concurrent.duration.*
-
 resolvers += Resolver.mavenLocal
 
 ThisBuild / organization := "com.fastscala"
@@ -53,11 +51,19 @@ lazy val fastscala = (project in file(FSRoot + "fastscala"))
       "org.apache.commons" % "commons-text" % "1.12.0",
       "org.eclipse.jetty" % "jetty-server" % "12.0.14",
       "org.eclipse.jetty.websocket" % "jetty-websocket-jetty-server" % "12.0.14",
+    ),
+  )
+
+lazy val fs_circe = (project in file(FSRoot + "fs_circe"))
+  .settings(
+    name := "fs_circe",
+    libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % "0.14.10",
       "io.circe" %% "circe-generic" % "0.14.10",
       "io.circe" %% "circe-parser" % "0.14.10",
     ),
   )
+  .dependsOn(fastscala)
 
 lazy val fs_scala_xml = (project in file(FSRoot + "fs_scala_xml_support"))
   .settings(
@@ -82,6 +88,8 @@ lazy val fs_db = (project in file(FSRoot + "fs_db"))
     Test / parallelExecution := false,
   )
   .dependsOn(fastscala)
+  .dependsOn(fs_scala_xml)
+  .dependsOn(fs_circe)
 
 lazy val fs_templates = (project in file(FSRoot + "fs_templates"))
   .settings(
@@ -96,11 +104,13 @@ lazy val fs_templates = (project in file(FSRoot + "fs_templates"))
 lazy val fs_templates_bootstrap = (project in file(FSRoot + "fs_templates_bootstrap"))
   .settings(name := "fs_templates_bootstrap")
   .dependsOn(fs_templates)
+  .dependsOn(fs_circe)
 
 lazy val fs_chartjs = (project in file(FSRoot + "fs_chartjs"))
   .settings(name := "fs_chartjs")
   .dependsOn(fastscala)
   .dependsOn(fs_scala_xml)
+  .dependsOn(fs_circe)
 
 lazy val fs_demo = (project in file(FSRoot + "fs_demo"))
   .enablePlugins(JavaServerAppPackaging, SystemdPlugin)

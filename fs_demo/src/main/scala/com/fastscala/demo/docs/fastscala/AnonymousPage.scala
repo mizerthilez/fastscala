@@ -1,33 +1,32 @@
 package com.fastscala.demo.docs.fastscala
 
-import scala.xml.NodeSeq
-
 import com.fastscala.core.FSContext
-import com.fastscala.demo.docs.SingleCodeExamplePage
+import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.templates.bootstrap5.utils.FileUpload
 import com.fastscala.xml.scala_xml.{ FSScalaXmlEnv, JS }
 
-class AnonymousPage() extends SingleCodeExamplePage():
-  override def pageTitle: String = "Anonymous Page"
+class AnonymousPage extends MultipleCodeExamples2Page:
+  def pageTitle: String = "Anonymous Page"
 
-  override def renderExampleContents()(implicit fsc: FSContext): NodeSeq =
-    // === code snippet ===
-    import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
-    JS.rerenderable(rerenderer =>
-      implicit fsc =>
-        div.border.p_2.rounded.apply:
-          h3.apply("Upload an image:") ++
-            FileUpload: uploadedFile =>
-              rerenderer.rerender()
-              JS.redirectTo(
-                fsc.anonymousPageURL[FSScalaXmlEnv.type](
-                  implicit fsc =>
-                    new VisualizeUploadedImageAnonymousPage(
-                      uploadedFile.head.contentType,
-                      uploadedFile.head.content,
-                    ).render(),
-                  "visualize_image",
+  def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
+    renderSnippet("Source"):
+      import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
+      JS.rerenderable(rerenderer =>
+        implicit fsc =>
+          div.border.p_2.rounded.apply:
+            h3.apply("Upload an image:") ++
+              FileUpload: uploadedFile =>
+                rerenderer.rerender()
+                JS.redirectTo(
+                  fsc.anonymousPageURL[FSScalaXmlEnv.type](
+                    implicit fsc =>
+                      new VisualizeUploadedImageAnonymousPage(
+                        uploadedFile.head.contentType,
+                        uploadedFile.head.content,
+                      ).render(),
+                    "visualize_image",
+                  )
                 )
-              )
-    ).render()
-    // === code snippet ===
+      ).render()
+
+    closeSnippet()

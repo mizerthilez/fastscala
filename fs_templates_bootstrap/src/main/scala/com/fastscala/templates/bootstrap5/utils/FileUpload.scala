@@ -25,6 +25,8 @@ object FileUpload:
     acceptTypes: Option[String] = None,
   )(implicit fsc: FSContext
   ): NodeSeq =
+    import com.fastscala.core.circe.CirceSupport.given
+
     val actionUrl = fsc.fileUploadActionUrl:
       case uploadedFile => processUpload(uploadedFile)
     val targetId = IdGen.id("targetFrame")

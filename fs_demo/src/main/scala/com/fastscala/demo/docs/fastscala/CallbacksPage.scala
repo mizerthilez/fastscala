@@ -6,6 +6,7 @@ import io.circe.Decoder
 import io.circe.generic.semiauto
 
 import com.fastscala.core.FSContext
+import com.fastscala.core.circe.CirceSupport.given
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.js.Js
 
