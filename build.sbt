@@ -26,13 +26,13 @@ val FSRoot = "./"
 
 lazy val root = (project in file(".")).aggregate(
   fastscala,
+  fs_circe,
   fs_scala_xml,
   fs_db,
   fs_chartjs,
   fs_templates,
   fs_templates_bootstrap,
   fs_demo,
-  fs_working,
 )
 
 lazy val fastscala = (project in file(FSRoot + "fastscala"))
