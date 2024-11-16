@@ -166,23 +166,3 @@ lazy val fs_taskmanager = (project in file(FSRoot + "fs_taskmanager"))
     javaOptions += "-Xms400M",
   )
   .dependsOn(fs_demo)
-
-lazy val fs_working = (project in file(FSRoot + "fs_working"))
-  .settings(
-    name := "fs_working",
-    Compile / packageBin / mainClass := Some("dev.ironduck.working.server.JettyServer"),
-    Compile / mainClass := Some("dev.ironduck.working.server.JettyServer"),
-    libraryDependencies ++= Seq(
-      "at.favre.lib" % "bcrypt" % "0.10.2"
-    ),
-    Compile / run / fork := true,
-    Compile / run / connectInput := true,
-    javaOptions += "-Xmx2G",
-    javaOptions += "-Xms400M",
-    reStart / javaOptions += "-Xmx2G",
-    reStart / javaOptions += "-Xms400M",
-    reStart / mainClass := Some("dev.ironduck.working.server.JettyServer"),
-    reColors := Revolver.basicColors,
-  )
-  .dependsOn(fs_templates_bootstrap)
-  .dependsOn(fs_chartjs)
