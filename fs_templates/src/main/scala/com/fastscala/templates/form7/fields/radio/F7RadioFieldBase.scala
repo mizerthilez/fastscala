@@ -1,6 +1,7 @@
 package com.fastscala.templates.form7.fields.radio
 
-import scala.util.chaining.scalaUtilChainingOps
+import scala.util.chaining.*
+import scala.util.{ Failure, Success }
 import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
@@ -48,8 +49,6 @@ trait F7RadioFieldBase[T](using val renderer: RadioF7FieldRenderer)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
-  var currentRenderedOptions = Option.empty[(Seq[T], Map[String, T], Map[T, String])]
-
   override def updateFieldReadOnlyStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
     readOnly.pipe: shouldBeReadOnly =>
       if shouldBeReadOnly != currentlyReadOnly then
@@ -74,22 +73,22 @@ trait F7RadioFieldBase[T](using val renderer: RadioF7FieldRenderer)
             s"""Array.from(document.querySelectorAll('#${aroundId} [name=$radioNameId]')).forEach((elem,idx) => { elem.removeAttribute('disabled') });"""
       else Js.void
 
-  override def onEvent(event: F7Event)(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
-    event match
-      case ChangedField(field) if deps.contains(field) =>
-        reRender() & form.onEvent(ChangedField(this))
-      case ChangedField(f) if f == this => updateFieldStatus()
-      case _ => Js.void
-
-  override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
-    super.updateFieldStatus() &
-      currentRenderedOptions
-        .flatMap:
-          case (renderedOptions, ids2Option, option2Id) if !currentRenderedValue.exists(_ == currentValue) =>
-            this.currentRenderedValue = Some(currentValue)
-            option2Id.get(currentValue).map(optionId => Js.setChecked(optionId, true))
-          case _ => Some(Js.void)
-        .getOrElse(Js.void)
+  override def updateFieldWithoutReRendering()(using Form7, FSContext, Seq[RenderHint]) =
+    super
+      .updateFieldWithoutReRendering()
+      .flatMap: superJs =>
+        currentRenderedOptions
+          .map:
+            case (renderedOptions, ids2Option, option2Id)
+                 if !currentRenderedValue.exists(_ == currentValue) =>
+              option2Id
+                .get(currentValue)
+                .map: optionId =>
+                  currentRenderedValue = Some(currentValue)
+                  Success(superJs & Js.setChecked(optionId, true))
+                .getOrElse(Failure(Exception("CurrentValue is not one of the rendered values")))
+            case _ => Success(superJs)
+          .getOrElse(Success(superJs))
 
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)

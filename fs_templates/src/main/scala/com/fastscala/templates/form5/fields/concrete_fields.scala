@@ -1797,8 +1797,6 @@ class F5CodeField(
     if predicate.applyOrElse[FormField, Boolean](this, _ => false) then List(this) else Nil
 
 class F5SaveButtonField[B](
-  using Conversion[B, Elem]
-)(
   btn: FSContext => B,
   val disabled: () => Boolean = () => false,
   val enabled: () => Boolean = () => true,
@@ -1806,7 +1804,9 @@ class F5SaveButtonField[B](
   val toInitialState: B => B = identity[B],
   val toChangedState: B => B = identity[B],
   val toErrorState: B => B = identity[B],
-)(implicit renderer: ButtonFieldRenderer
+)(using
+  renderer: ButtonFieldRenderer,
+  conv: Conversion[B, Elem],
 ) extends StandardFormField:
   def readOnly: () => Boolean = () => false
 

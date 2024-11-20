@@ -19,7 +19,6 @@ import org.eclipse.jetty.websocket.api.Session
 import org.slf4j.LoggerFactory
 
 import com.fastscala.js.Js
-import com.fastscala.js.rerenderers.RerendererDebugStatus
 import com.fastscala.routing.RoutingHandlerNoSessionHelper
 import com.fastscala.routing.method.{ Get, Post }
 import com.fastscala.routing.resp.{ Ok, Redirect, Response, ServerError, VoidResponse }
@@ -286,8 +285,6 @@ class FSPage(
   var wsLock: AnyRef = new AnyRef,
   val debugLbl: Option[String] = None,
 ) extends FSHasSession:
-  var rerendererDebugStatus: RerendererDebugStatus.Value = RerendererDebugStatus.Disabled
-
   def periodicKeepAliveEnabled: Boolean =
     session.fsSystem.config.getBoolean("com.fastscala.core.periodic-page-keep-alive.enabled")
 
@@ -486,7 +483,7 @@ class FSSession(
   //    FSSession.logger.trace(s"GC SESSION lived ${((System.currentTimeMillis() - createdAt) / 1000d).formatted("%.2f")}s session_id=$id #pages=${pages.keys.size} #anonymous_pages=${anonymousPages.keys.size}, evt_type=gc_session")
 
   val pages = mu.Map[String, FSPage]()
-  val anonymousPages = mu.Map[String, FSAnonymousPage[?]]()
+  val anonymousPages = mu.Map[String, FSAnonymousPage[? <: FSXmlEnv]]()
 
   def nPages(): Int = pages.size
 

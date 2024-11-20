@@ -40,8 +40,8 @@ class F7CheckboxOptField(using val renderer: CheckboxF7FieldRenderer)
     if currentValue == None then JS.setIndeterminate(elemId)
     else Js.void
 
-  override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
-    super.updateFieldStatus() & Js.setCheckboxTo(elemId, currentValue)
+  override def updateFieldWithoutReRendering()(using Form7, FSContext, Seq[RenderHint]) =
+    super.updateFieldWithoutReRendering().map(_ & Js.setCheckboxTo(elemId, currentValue))
 
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)

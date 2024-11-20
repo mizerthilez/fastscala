@@ -14,8 +14,8 @@ trait StandardF7Field extends F7FieldWithValidations:
 
   def visible: () => Boolean = () => enabled
 
-  override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
-    super.updateFieldStatus() & updateValidation()
+  override def updateFieldWithoutReRendering()(using Form7, FSContext, Seq[RenderHint]) =
+    super.updateFieldWithoutReRendering().map(_ & updateValidation())
 
   override def postValidation(errors: Seq[(F7Field, NodeSeq)])(using Form7, FSContext): Js =
     updateValidation()

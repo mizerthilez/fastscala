@@ -39,5 +39,5 @@ trait F7FieldWithDisabled extends F7Field with F7FieldInputFieldMixin:
         else Js.removeAttr(elemId, "disabled")
       else Js.void
 
-  override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
-    super.updateFieldStatus() & updateFieldDisabledStatus()
+  override def updateFieldWithoutReRendering()(using Form7, FSContext, Seq[RenderHint]) =
+    super.updateFieldWithoutReRendering().map(_ & updateFieldDisabledStatus())

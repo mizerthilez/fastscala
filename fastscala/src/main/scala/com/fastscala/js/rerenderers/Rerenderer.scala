@@ -23,7 +23,7 @@ class Rerenderer[Env <: FSXmlEnv](
     val rendered = renderFunc(this):
       if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
       else fsc
-    fsc.page.rerendererDebugStatus.render:
+    RerendererDebugStatusState().render:
       rendered.getId match
         case Some(id) =>
           aroundId = id
@@ -32,7 +32,7 @@ class Rerenderer[Env <: FSXmlEnv](
 
   def rerender(): Js = rootRenderContext
     .map: fsc ?=>
-      fsc.page.rerendererDebugStatus.rerender(
+      RerendererDebugStatusState().rerender(
         aroundId,
         Js.replace(aroundId, render()),
       )

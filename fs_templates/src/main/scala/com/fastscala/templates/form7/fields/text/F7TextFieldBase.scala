@@ -48,14 +48,16 @@ trait F7TextFieldBase[T](using val renderer: TextF7FieldRenderer)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
-  override def updateFieldStatus()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
-    super.updateFieldStatus() &
-      currentRenderedValue
-        .filter(_ != currentValue)
-        .map: _ =>
-          currentRenderedValue = Some(currentValue)
-          Js.setElementValue(elemId, toString(currentValue))
-        .getOrElse(Js.void)
+  override def updateFieldWithoutReRendering()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]) =
+    super
+      .updateFieldWithoutReRendering()
+      .map:
+        _ & currentRenderedValue
+          .filter(_ != currentValue)
+          .map: _ =>
+            currentRenderedValue = Some(currentValue)
+            Js.setElementValue(elemId, toString(currentValue))
+          .getOrElse(Js.void)
 
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)

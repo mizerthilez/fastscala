@@ -1,5 +1,6 @@
 package com.fastscala.templates.form7.fields.select
 
+import scala.util.{ Failure, Success }
 import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
@@ -46,27 +47,22 @@ trait F7SelectFieldBase[T](using val renderer: SelectF7FieldRenderer)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
-  var currentRenderedOptions = Option.empty[(Seq[T], Map[String, T], Map[T, String])]
-
-  override def onEvent(event: F7Event)(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
-    event match
-      case ChangedField(field) if deps.contains(field) =>
-        reRender() & form.onEvent(ChangedField(this))
-      case ChangedField(f) if f == this => updateFieldStatus()
-      case _ => Js.void
-
-  override def updateFieldStatus()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
-    super.updateFieldStatus() &
-      currentRenderedOptions
-        .flatMap:
-          case (renderedOptions, ids2Option, option2Id) if !currentRenderedValue.exists(_ == currentValue) =>
-            option2Id
-              .get(currentValue)
-              .map: valueId =>
-                currentRenderedValue = Some(currentValue)
-                Js.setElementValue(elemId, valueId)
-          case _ => Some(Js.void)
-        .getOrElse(Js.void)
+  override def updateFieldWithoutReRendering()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]) =
+    super
+      .updateFieldWithoutReRendering()
+      .flatMap: superJs =>
+        currentRenderedOptions
+          .map:
+            case (renderedOptions, ids2Option, option2Id)
+                 if !currentRenderedValue.exists(_ == currentValue) =>
+              option2Id
+                .get(currentValue)
+                .map: valueId =>
+                  currentRenderedValue = Some(currentValue)
+                  Success(superJs & Js.setElementValue(elemId, valueId))
+                .getOrElse(Failure(Exception("CurrentValue is not one of the rendered values")))
+            case _ => Success(superJs)
+          .getOrElse(Success(superJs))
 
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)
@@ -90,13 +86,12 @@ trait F7SelectFieldBase[T](using val renderer: SelectF7FieldRenderer)
           .callback(
             Js.elementValueById(elemId),
             ids2Option.get(_) match
+              case Some(value) if currentValue == value => Js.void
               case Some(value) =>
                 currentRenderedValue = Some(value)
-                if currentValue != value then
-                  setFilled()
-                  currentValue = value
-                  form.onEvent(ChangedField(this))
-                else Js.void
+                setFilled()
+                currentValue = value
+                form.onEvent(ChangedField(this))
               case None =>
                 // Log error
                 Js.void,

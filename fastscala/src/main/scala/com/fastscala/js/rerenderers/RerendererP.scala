@@ -24,7 +24,7 @@ class RerendererP[Env <: FSXmlEnv, P](
       if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
       else fsc
     }(param)
-    fsc.page.rerendererDebugStatus.render:
+    RerendererDebugStatusState().render:
       rendered.getId match
         case Some(id) =>
           aroundId = id
@@ -33,7 +33,7 @@ class RerendererP[Env <: FSXmlEnv, P](
 
   def rerender(param: P): Js = rootRenderContext
     .map: fsc ?=>
-      fsc.page.rerendererDebugStatus.rerender(
+      RerendererDebugStatusState().rerender(
         aroundId,
         Js.replace(aroundId, render(param)),
       )

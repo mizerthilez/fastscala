@@ -1,7 +1,10 @@
 package com.fastscala.js.rerenderers
 
-import com.fastscala.core.FSXmlEnv
+import com.fastscala.core.{ FSXmlEnv, FSSessionVar }
 import com.fastscala.js.Js
+
+object RerendererDebugStatusState
+    extends FSSessionVar[RerendererDebugStatus.Value](RerendererDebugStatus.Disabled)
 
 object RerendererDebugStatus extends Enumeration:
   val Enabled = Value

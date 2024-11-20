@@ -1,6 +1,7 @@
 package com.fastscala.templates.form7
 
 import scala.annotation.tailrec
+import scala.util.{ Success, Try }
 import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
@@ -35,11 +36,14 @@ trait F7Field extends F7FieldWithState with ElemWithRandomId:
   def onEvent(event: F7Event)(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
     event match
       case ChangedField(field) if deps.contains(field) =>
-        updateFieldStatus() & form.onEvent(ChangedField(this))
-      case ChangedField(f) if f == this => updateFieldStatus()
+        updateFieldWithoutReRendering().getOrElse(reRender()) & form.onEvent(ChangedField(this))
+      case ChangedField(field) if field == this =>
+        updateFieldWithoutReRendering().getOrElse(reRender())
       case _ => Js.void
 
-  def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js = Js.void
+  /** Tries to update the field without needing to rerender. If
+    */
+  def updateFieldWithoutReRendering()(using Form7, FSContext, Seq[RenderHint]): Try[Js] = Success(Js.void)
 
   def deps: Set[F7Field]
 

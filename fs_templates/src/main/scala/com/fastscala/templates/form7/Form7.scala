@@ -6,7 +6,7 @@ import scala.xml.{ Elem, NodeSeq }
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 import com.fastscala.templates.form7.formmixins.F7FormWithValidationStrategy
-import com.fastscala.templates.form7.mixins.FocusableF7Field
+import com.fastscala.templates.form7.mixins.{ FocusableF7Field, F7FieldWithValue }
 import com.fastscala.templates.utils.ElemWithRandomId
 import com.fastscala.utils.RenderableWithFSContext
 import com.fastscala.xml.scala_xml.ScalaXmlElemUtils.RichElem
@@ -35,6 +35,14 @@ trait Form7
   def formRenderHints(): Seq[RenderHint] = Nil
 
   def changedField(field: F7Field)(using FSContext): Js = onEvent(ChangedField(field))
+
+  def changedField(field: F7Field)(mutate: F7Field => Unit)(using FSContext): Js =
+    mutate(field)
+    onEvent(ChangedField(field))
+
+  def changedField[T](field: F7Field & F7FieldWithValue[T], value: T)(using FSContext): Js =
+    changedField(field):
+      case f: F7FieldWithValue[T @unchecked] => f.currentValue = value
 
   def onEvent(event: F7Event)(using Form7, FSContext): Js =
     given Seq[RenderHint] = formRenderHints()

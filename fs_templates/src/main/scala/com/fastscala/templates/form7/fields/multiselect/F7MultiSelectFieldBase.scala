@@ -47,32 +47,26 @@ trait F7MultiSelectFieldBase[T](using val renderer: MultiSelectF7FieldRenderer)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
-  var currentRenderedOptions = Option.empty[(Seq[T], Map[String, T], Map[T, String])]
-
-  override def onEvent(event: F7Event)(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Js =
-    event match
-      case ChangedField(field) if deps.contains(field) =>
-        reRender() & form.onEvent(ChangedField(this))
-      case ChangedField(f) if f == this => updateFieldStatus()
-      case _ => Js.void
-
-  override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
-    super.updateFieldStatus() &
-      currentRenderedOptions
-        .flatMap:
-          case (renderedOptions, ids2Option, option2Id) if !currentRenderedValue.exists(_ == currentValue) =>
-            currentRenderedValue = Some(currentValue)
-            val selectedIndexes =
-              renderedOptions.zipWithIndex.filter(e => currentValue.contains(e._1)).map(_._2)
-            Some(Js:
-              s"""var element = document.getElementById('${elemId}');
-               |var selected = [${selectedIndexes.mkString(",")}];
-               |for (var i = 0; i < element.options.length; i++) {
-               |    element.options[i].selected = selected.includes(i);
-               |}""".stripMargin
-            )
-          case _ => Some(Js.void)
-        .getOrElse(Js.void)
+  override def updateFieldWithoutReRendering()(using Form7, FSContext, Seq[RenderHint]) =
+    super
+      .updateFieldWithoutReRendering()
+      .map:
+        _ & currentRenderedOptions
+          .flatMap:
+            case (renderedOptions, ids2Option, option2Id)
+                 if !currentRenderedValue.exists(_ == currentValue) =>
+              currentRenderedValue = Some(currentValue)
+              val selectedIndexes =
+                renderedOptions.zipWithIndex.filter(e => currentValue.contains(e._1)).map(_._2)
+              Some(Js:
+                s"""var element = document.getElementById('${elemId}');
+             |var selected = [${selectedIndexes.mkString(",")}];
+             |for (var i = 0; i < element.options.length; i++) {
+             |    element.options[i].selected = selected.includes(i);
+             |}""".stripMargin
+              )
+            case _ => Some(Js.void)
+          .getOrElse(Js.void)
 
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)

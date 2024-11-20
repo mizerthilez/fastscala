@@ -233,13 +233,13 @@ trait ButtonF6FieldRenderer:
   def render(field: F6SaveButtonField[?])(btn: Elem)(implicit hints: Seq[RenderHint]): Elem
 
 class F6SaveButtonField[B](
-  using Conversion[B, Elem]
-)(
   btn: FSContext => B,
   val toInitialState: B => B = identity[B],
   val toChangedState: B => B = identity[B],
   val toErrorState: B => B = identity[B],
-)(implicit renderer: ButtonF6FieldRenderer
+)(using
+  renderer: ButtonF6FieldRenderer,
+  conv: Conversion[B, Elem],
 ) extends StandardF6Field
        with F6FieldWithReadOnly
        with F6FieldWithDependencies

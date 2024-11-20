@@ -20,3 +20,5 @@ trait F7FieldWithLabel extends Mutable:
 
   def labelStrF(f: () => String): this.type = mutate:
     _label = () => Some(<label>{f()}</label>)
+
+  override def toString: String = label.map(_.toString).getOrElse(super.toString)

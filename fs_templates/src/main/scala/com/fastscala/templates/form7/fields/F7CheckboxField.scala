@@ -39,8 +39,8 @@ class F7CheckboxField(using val renderer: CheckboxF7FieldRenderer)
 
   def focusJs: Js = Js.focus(elemId) & Js.select(elemId)
 
-  override def updateFieldStatus()(using Form7, FSContext, Seq[RenderHint]): Js =
-    super.updateFieldStatus() & Js.setChecked(elemId, currentValue)
+  override def updateFieldWithoutReRendering()(using Form7, FSContext, Seq[RenderHint]) =
+    super.updateFieldWithoutReRendering().map(_ & Js.setChecked(elemId, currentValue))
 
   def render()(using form: Form7, fsc: FSContext, hints: Seq[RenderHint]): Elem =
     if !enabled then renderer.renderDisabled(this)
@@ -54,13 +54,12 @@ class F7CheckboxField(using val renderer: CheckboxF7FieldRenderer)
             Js.isCheckedById(elemId),
             str =>
               str.toBooleanOption match
+                case Some(value) if currentValue == value => Js.void
                 case Some(value) =>
                   currentRenderedValue = Some(value)
-                  if currentValue != value then
-                    setFilled()
-                    currentValue = value
-                    form.onEvent(ChangedField(this))
-                  else Js.void
+                  setFilled()
+                  currentValue = value
+                  form.onEvent(ChangedField(this))
                 case None =>
                   // Log error
                   Js.void,

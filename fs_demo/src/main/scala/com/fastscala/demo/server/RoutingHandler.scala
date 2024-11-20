@@ -21,7 +21,6 @@ import com.fastscala.js.Js
 import com.fastscala.routing.method.Get
 import com.fastscala.routing.resp.{ Ok, Response }
 import com.fastscala.routing.{ FilterUtils, RoutingHandlerHelper }
-import com.fastscala.xml.scala_xml.FSScalaXmlEnv
 
 class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
   val logger = LoggerFactory.getLogger(getClass.getName)
@@ -128,7 +127,7 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
 
         FSDemoMainMenu
           .serve()
-          .map(servePage[FSScalaXmlEnv.type](_))
+          .map(servePage(_))
           .orElse:
             Some(req).collect:
               case Get("demo") => servePage(SimpleTableExamplePage())

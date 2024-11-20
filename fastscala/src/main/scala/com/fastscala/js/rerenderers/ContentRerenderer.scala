@@ -21,7 +21,7 @@ class ContentRerenderer[Env <: FSXmlEnv](
 
   def render()(using fsc: FSContext): env.Elem =
     rootRenderContext = Some(fsc)
-    fsc.page.rerendererDebugStatus.render:
+    RerendererDebugStatusState().render:
       outterElem
         .withIdIfNotSet(aroundId)
         .pipe: elem =>
@@ -32,7 +32,7 @@ class ContentRerenderer[Env <: FSXmlEnv](
 
   def rerender(): Js = rootRenderContext
     .map: fsc ?=>
-      fsc.page.rerendererDebugStatus.rerender(
+      RerendererDebugStatusState().rerender(
         aroundId,
         JsUtils.generic.replace(aroundId, render()),
       )

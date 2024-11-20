@@ -148,11 +148,6 @@ lazy val fs_taskmanager = (project in file(FSRoot + "fs_taskmanager"))
     Compile / mainClass := Some("com.fastscala.taskmanager.server.JettyServer"),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "scala",
     publishArtifact := true,
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % "3.5.5",
-      "at.favre.lib" % "bcrypt" % "0.10.2",
-      "com.lihaoyi" %% "scalatags" % "0.13.1",
-    ),
     bashScriptEnvConfigLocation := Some("/etc/default/" + (Linux / packageName).value),
     rpmRelease := "1.0.0",
     rpmVendor := "kezlisolutions",
