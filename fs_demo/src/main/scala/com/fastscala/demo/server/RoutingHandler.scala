@@ -19,7 +19,7 @@ import com.fastscala.demo.docs.forms.BasicFormExamplePage
 import com.fastscala.demo.docs.tables.*
 import com.fastscala.js.Js
 import com.fastscala.routing.method.Get
-import com.fastscala.routing.resp.{ Ok, Response }
+import com.fastscala.routing.resp.{ Ok, Redirect, Response }
 import com.fastscala.routing.{ FilterUtils, RoutingHandlerHelper }
 
 class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
@@ -134,10 +134,10 @@ class RoutingHandler(implicit fss: FSSystem) extends RoutingHandlerHelper:
               case Get("demo", "simple_tables") => servePage(SimpleTableExamplePage())
               case Get("demo", "sortable_tables") => servePage(SortableTableExamplePage())
               case Get("demo", "paginated_tables") => servePage(PaginatedTableExamplePage())
-              case Get("demo", "selectable_rows_tables") =>
-                servePage(SelectableRowsTableExamplePage())
+              case Get("demo", "selectable_rows_tables") => servePage(SelectableRowsTableExamplePage())
               case Get("demo", "tables_sel_cols") => servePage(SelectableColsTableExamplePage())
               case Get("demo", "simple_form") => servePage(BasicFormExamplePage())
               case Get("demo", "simple_modal") => servePage(BootstrapModalPage())
-
               case Get("demo", "chartjs", "simple") => servePage(SimpleChartjsPage())
+          .orElse:
+            Some(Redirect.temporaryRedirect("/"))

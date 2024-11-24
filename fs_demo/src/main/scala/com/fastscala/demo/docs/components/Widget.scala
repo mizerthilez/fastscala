@@ -71,7 +71,7 @@ abstract class Widget extends Mutable:
   def renderWidgetHeader()(implicit fsc: FSContext): Elem =
     import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     card_header.d_flex.justify_content_between.align_items_center.apply {
-      widgetTitleNs ++ <div>{widgetTopRight()}</div>
+      widgetTitleNs ++ <div class="ms-auto">{widgetTopRight()}</div>
     } pipe transformWidgetCardHeader
 
   def renderWidgetContents()(implicit fsc: FSContext): Elem =

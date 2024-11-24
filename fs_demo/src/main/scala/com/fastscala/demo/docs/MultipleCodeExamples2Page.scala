@@ -77,12 +77,12 @@ abstract class MultipleCodeExamples2Page extends BasePage:
     ++
       div.row:
         div.col_md_6.mb_2:
-          div.border.border_secondary_subtle.bg_white:
+          div.border.border_secondary_subtle:
             div:
               rendered
         ++
           div.col_md_6.mb_2:
-            div.border.border_secondary_subtle.bg_white:
+            div.border.border_secondary_subtle:
               div.p_3.apply:
                 contents
 
@@ -91,7 +91,7 @@ abstract class MultipleCodeExamples2Page extends BasePage:
 
   val lines =
     IO.toString(Path.of(getClass.getResource(file).toURI()), StandardCharsets.UTF_8).split("\\n")
-  val stackTracePos = if JettyServer.useVirtualThreads then 2 else 3
+  val stackTracePos = if JettyServer.useVirtualThreads then 2 else 2
 
   def renderSnippet(
     title: String,

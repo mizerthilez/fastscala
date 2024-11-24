@@ -4,7 +4,7 @@ import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
 import com.fastscala.templates.bootstrap5.utils.{ BSBtn, ImmediateInputFields }
-import com.fastscala.utils.Lazy
+import com.fastscala.utils.{ Lazy, given }
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 
 trait Table5Paginated extends Table5SeqDataSource:
@@ -37,31 +37,35 @@ trait Table5Paginated extends Table5SeqDataSource:
       .toList
       .filter(_ >= 0)
 
-  def renderPagesButtons()(implicit fsc: FSContext): Elem = div.d_grid.d_flex.mb_3.mx_3.gap_1.apply:
-    BSBtn().BtnLight
-      .lbl("«")
-      .ajax:
-        implicit fsc =>
-          currentPage() = math.max(0, currentPage() - 1)
-          rerenderTableAround()
-      .btn ++
-      visiblePages()
-        .map: page =>
-          (if currentPage() == page then BSBtn().BtnPrimary else BSBtn().BtnLight)
-            .lbl((page + 1).toString)
-            .ajax:
-              implicit fsc =>
-                currentPage() = page
-                rerenderTableAround()
-            .btn
-        .mkNS ++
-      BSBtn().BtnLight
-        .lbl("»")
-        .ajax:
-          implicit fsc =>
-            currentPage() = math.min(maxPages, currentPage() + 1)
+  def renderPagesButtons()(implicit fsc: FSContext): Elem =
+    ul.mb_3.mx_3.withClass("pagination"):
+      li.withClass("page-item"):
+        BSBtn()
+          .withClass("page-link")
+          .lbl("«")
+          .ajax: fsc ?=>
+            currentPage() = math.max(0, currentPage() - 1)
             rerenderTableAround()
-        .btn
+          .btn ++
+          visiblePages()
+            .map: page =>
+              li.withClass(s"page-item ${if currentPage() == page then "active" else ""}"):
+                BSBtn()
+                  .withClass("page-link")
+                  .lbl((page + 1).toString)
+                  .ajax: fsc ?=>
+                    currentPage() = page
+                    rerenderTableAround()
+                  .btn
+            .mkNS ++
+          li.withClass("page-item"):
+            BSBtn()
+              .withClass("page-link")
+              .lbl("»")
+              .ajax: fsc ?=>
+                currentPage() = math.min(maxPages, currentPage() + 1)
+                rerenderTableAround()
+              .btn
 
   def renderPageSizeDropdown()(implicit fsc: FSContext): Elem =
     ImmediateInputFields
