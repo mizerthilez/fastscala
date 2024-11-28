@@ -5,6 +5,8 @@ import java.lang.reflect.Field
 import scalikejdbc.*
 import scalikejdbc.interpolation.SQLSyntax
 
+import com.fastscala.utils.given
+
 trait Table[R] extends TableBase:
   def createSampleRow(): R
 
@@ -60,20 +62,22 @@ trait Table[R] extends TableBase:
   def selectAll(): List[R] = select(SQLSyntax.empty)
 
   def select(rest: SQLSyntax): List[R] =
-    DB.readOnly:
-      implicit session =>
-        val query = selectFromSQL.append(rest)
-        sql"${query}".map(fromWrappedResultSet).list()
+    DB.readOnly: session ?=>
+      val query = selectFromSQL.append(rest)
+      sql"${query}".map(fromWrappedResultSet).list()
+
+  def select(modify: SQLSyntax => SQLSyntax): List[R] =
+    DB.readOnly: session ?=>
+      sql"${modify(selectFromSQL)}".map(fromWrappedResultSet).list()
 
   def delete(rest: SQLSyntax): Long =
-    DB.localTx:
-      implicit session =>
-        val query = deleteFrom.append(rest)
-        sql"${query}".map(fromWrappedResultSet).executeUpdate().longValue()
+    DB.localTx: session ?=>
+      val query = deleteFrom.append(rest)
+      sql"${query}".map(fromWrappedResultSet).executeUpdate().longValue()
 
   def listFromQuery(query: SQLSyntax): List[R] =
-    DB.readOnly:
-      implicit session => sql"${query}".map(fromWrappedResultSet).list()
+    DB.readOnly: session ?=>
+      sql"${query}".map(fromWrappedResultSet).list()
 
   override def fromWrappedResultSet(rs: WrappedResultSet): R =
     super.fromWrappedResultSet(rs).asInstanceOf[R]

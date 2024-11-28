@@ -83,9 +83,9 @@ class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]: Typeable]
   def getForIdsX(ids: K*): List[R] =
     ids.toList.flatMap(id => table.getForIdOpt(id))
 
-  override def beforeSaved(table: TableBase, row: RowBase): Unit = ()
+  override def preSave(table: TableBase, row: RowBase): Unit = ()
 
-  def saved(t: TableBase, row: RowBase): Unit = (table, row) match
+  def postSave(t: TableBase, row: RowBase): Unit = (table, row) match
     case (`table`, row: R) =>
       entries += row.key -> row
       if status == CacheStatus.NONE_LOADED then
@@ -93,9 +93,9 @@ class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]: Typeable]
         logger.trace(s"${table.tableName} cache status: $status")
     case _ =>
 
-  def beforeDelete(t: TableBase, row: RowBase): Unit = (table, row) match
+  def preDelete(t: TableBase, row: RowBase): Unit = (table, row) match
     case (`table`, row: R) =>
       if status != CacheStatus.NONE_LOADED then entries -= row.key
     case _ =>
 
-  override def deleted(table: TableBase, row: RowBase): Unit = ()
+  override def postDelete(table: TableBase, row: RowBase): Unit = ()

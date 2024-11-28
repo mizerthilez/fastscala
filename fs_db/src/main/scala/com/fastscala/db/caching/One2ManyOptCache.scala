@@ -29,9 +29,9 @@ class One2ManyOptCache[
 
   def getMany(oneId: K): Seq[M] = cacheMany.select(filterOneOnMany(oneId))
 
-  override def beforeSaved(table: TableBase, row: RowBase): Unit = ()
+  override def preSave(table: TableBase, row: RowBase): Unit = ()
 
-  override def saved(table: TableBase, row: RowBase): Unit = (table, row) match
+  override def postSave(table: TableBase, row: RowBase): Unit = (table, row) match
     case (`cacheOne`, row: O) =>
     case (`cacheMany`, many: M) =>
       getOne(many)
@@ -41,7 +41,7 @@ class One2ManyOptCache[
           many2One(many) = one
     case _ =>
 
-  override def beforeDelete(table: TableBase, row: RowBase): Unit = (table, row) match
+  override def preDelete(table: TableBase, row: RowBase): Unit = (table, row) match
     case (`cacheOne`, row: O) =>
     case (`cacheMany`, row: M) =>
       many2One
@@ -53,4 +53,4 @@ class One2ManyOptCache[
           many2One -= row
     case _ =>
 
-  override def deleted(table: TableBase, row: RowBase): Unit = ()
+  override def postDelete(table: TableBase, row: RowBase): Unit = ()

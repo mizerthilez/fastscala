@@ -19,7 +19,7 @@ object TestEntity3 extends PgTable[TestEntity3]:
   override def createSampleRow(): TestEntity3 = new TestEntity3
 
 trait TableRowSpecBase extends AnyFlatSpec:
-  def runTests() =
+  def runTests(): Unit =
     "Create table" should "succeed" in {
       DB.localTx:
         implicit session => TestEntity3.__createTableSQL.foreach(_.execute())
@@ -33,7 +33,6 @@ trait TableRowSpecBase extends AnyFlatSpec:
         implicit session =>
           val example = new TestEntity3()
           val single = TestEntity3.selectAll().head
-
           assert(example.myInt == single.myInt)
           assert(example.myLong == single.myLong)
           assert(example.myDouble == single.myDouble)

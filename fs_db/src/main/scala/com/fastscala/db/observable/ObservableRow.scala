@@ -7,12 +7,14 @@ trait ObservableRow[K, R <: ObservableRow[K, R]]
        with ObservableRowBase
        with RowWithIdBase:
   self: R =>
-  override def saveX()(implicit obs: DBObserver): R = try
-    obs.beforeSaved(table, this)
-    save()
-  finally obs.saved(table, this)
+  override def saveX()(implicit obs: DBObserver): R =
+    try
+      obs.preSave(table, this)
+      save()
+    finally obs.postSave(table, this)
 
-  override def deleteX()(implicit obs: DBObserver): Unit = try
-    obs.beforeDelete(table, this)
-    delete()
-  finally obs.deleted(table, this)
+  override def deleteX()(implicit obs: DBObserver): Unit =
+    try
+      obs.preDelete(table, this)
+      delete()
+    finally obs.postDelete(table, this)

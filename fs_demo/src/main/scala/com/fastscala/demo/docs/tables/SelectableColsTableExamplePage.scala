@@ -84,7 +84,7 @@ class SelectableColsTableExamplePage extends MultipleCodeExamples2Page:
           case ColCallingCodes => _.sortBy(_.callingCodes.mkString(", "))
           case ColFlag => _.sortBy(_.flag)
 
-        override def allColumns(): List[C] = List(
+        override def allColumns: List[C] = List(
           ColName,
           ColCCA2,
           ColCCN3,

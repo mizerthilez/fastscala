@@ -43,7 +43,7 @@ class UsersPage extends BasePage:
           ColFirstName,
           ColLastName,
           ColEmail,
-          DefaultColActions,
+          ColActionsDefault,
           ColSelectRow,
         )
 

@@ -9,6 +9,7 @@ import com.fastscala.demo.docs.js.JsUtilsPage
 import com.fastscala.demo.docs.loggedout.LoginPage
 import com.fastscala.demo.docs.navigation.*
 import com.fastscala.demo.docs.navigation.DefaultBSMenuRenderers.given
+import com.fastscala.demo.docs.other.JSTreePage
 import com.fastscala.demo.docs.tables.ModifyingTableExamplePage
 
 object FSDemoMainMenu
@@ -66,8 +67,7 @@ object FSDemoMainMenu
         ),
       ),
       MenuSection("Js utils")(
-        RoutingMenuItem("demo", "js", "overview")("Overview", JsUtilsPage()),
-        SimpleMenuItem("BarChart", "/demo/chartjs/simple"),
+        RoutingMenuItem("demo", "js", "overview")("Overview", JsUtilsPage())
       ),
       MenuSection("Bootstrap utils")(
         RoutingMenuItem("demo", "bootstrap", "buttons")(
@@ -121,7 +121,8 @@ object FSDemoMainMenu
       MenuSection("Logged in")(
         RoutingMenuItem("demo", "login")("Login example", LoginPage())
       ),
-      //  MenuSection("chart.js integration")(
-      //    SimpleMenuItem("Simple", "/demo/chartjs/simple")
-      //  ),
+      MenuSection("Other integrations")(
+        SimpleMenuItem("ChartJS", "/demo/chartjs/simple"),
+        RoutingMenuItem("demo", "jstree", "simple")("JSTree", JSTreePage()),
+      ),
     )

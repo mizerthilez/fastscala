@@ -1,9 +1,8 @@
-package com.fastscala.templates.bootstrap5.components
+package com.fastscala.templates.bootstrap5.utils
 
 import scala.xml.Elem
 
 import com.fastscala.core.FSContext
-import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.xml.scala_xml.ScalaXmlNodeSeqUtils.MkNSFromElems
 
 object BSBtnDropdown:

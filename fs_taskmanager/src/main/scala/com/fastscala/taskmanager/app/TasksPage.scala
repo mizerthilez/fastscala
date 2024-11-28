@@ -92,7 +92,7 @@ class TasksPage extends BasePage:
           ColStatus,
           ColName,
           ColAssignedTo,
-          DefaultColActions,
+          ColActionsDefault,
           ColSelectRow,
         )
 

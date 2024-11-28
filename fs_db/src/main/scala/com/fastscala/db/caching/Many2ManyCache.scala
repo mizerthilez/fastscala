@@ -64,15 +64,15 @@ class Many2ManyCache[
       .select(sqls"where ${filterLeftOnJoin(left.key)} and ${filterRightOnJoin(right.key)}")
       .headOption
 
-  override def beforeSaved(table: TableBase, row: RowBase): Unit = ()
+  override def preSave(table: TableBase, row: RowBase): Unit = ()
 
-  override def saved(table: TableBase, row: RowBase): Unit = (table, row) match
+  override def postSave(table: TableBase, row: RowBase): Unit = (table, row) match
     case (`cacheL`, row: L) =>
     case (`cacheJ`, row: J) =>
     case (`cacheR`, row: R) =>
     case _ =>
 
-  override def beforeDelete(table: TableBase, row: RowBase): Unit = (table, row) match
+  override def preDelete(table: TableBase, row: RowBase): Unit = (table, row) match
     case (`cacheL`, row: L) =>
       val relevantOnTheRight: ListBuffer[R] = left2Right.getOrElse(row, ListBuffer[R]())
       left2Right -= row
@@ -94,4 +94,4 @@ class Many2ManyCache[
       relevantOnTheLeft.foreach(l => left2Right(l) -= row)
     case _ =>
 
-  override def deleted(table: TableBase, row: RowBase): Unit = ()
+  override def postDelete(table: TableBase, row: RowBase): Unit = ()

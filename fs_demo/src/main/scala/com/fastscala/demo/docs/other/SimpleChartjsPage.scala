@@ -1,4 +1,4 @@
-package com.fastscala.demo.docs.chartjs
+package com.fastscala.demo.docs.other
 
 import scala.xml.NodeSeq
 
