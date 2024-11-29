@@ -26,7 +26,7 @@ class BootstrapModalPage extends MultipleCodeExamples2Page:
                 )
 
               override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] =
-                Some(BSBtn().BtnPrimary.lbl("Hide Modal").onclick(hide() & removeAndDeleteContext()).btn)
+                Some(BSBtn().BtnPrimary.lbl("Remove Modal").onclick(hide() & removeAndDeleteContext()).btn)
             .installAndShow()
           )
           .btn

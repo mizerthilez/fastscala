@@ -10,7 +10,6 @@ class Rerenderer[Env <: FSXmlEnv](
   renderFunc: Rerenderer[Env] => FSContext => env.Elem,
   idOpt: Option[String] = None,
   debugLabel: Option[String] = None,
-  gcOldFSContext: Boolean = true,
 ):
   self =>
   val Js = JsUtils.generic
@@ -20,9 +19,7 @@ class Rerenderer[Env <: FSXmlEnv](
 
   def render()(using fsc: FSContext): env.Elem =
     rootRenderContext = Some(fsc)
-    val rendered = renderFunc(this):
-      if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
-      else fsc
+    val rendered = fsc.inNewChildContextFor(this, debugLabel = debugLabel)(renderFunc(this)(_))
     RerendererDebugStatusState().render:
       rendered.getId match
         case Some(id) =>

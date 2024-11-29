@@ -1,6 +1,5 @@
 package com.fastscala.templates.bootstrap5.modals
 
-import scala.util.chaining.given
 import scala.xml.{ Elem, NodeSeq }
 
 import com.fastscala.core.FSContext
@@ -83,14 +82,11 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
 
   def dispose(): Js = Js(s"""$$('#$modalId').modal('dispose')""")
 
-  def deleteContext()(implicit fsc: FSContext): Unit = fsc.page.rootFSContext.deleteContext(this)
+  def deleteContext()(implicit fsc: FSContext): Unit = fsc.page.deleteContextFor(this)
 
-  def removeAndDeleteContext()(implicit fsc: FSContext): Js = JS.removeId(modalId) &
-    fsc.page.rootFSContext
-      .getOrCreateContext(this)
-      .callback: () =>
-        deleteContext()
-        Js.void
+  def removeAndDeleteContext()(implicit fsc: FSContext): Js = JS.removeId(modalId) & fsc.callback: () =>
+    deleteContext()
+    Js.void
 
   def handleUpdate(): Js = Js(s"""$$('#$modalId').modal('handleUpdate')""")
 
@@ -153,8 +149,7 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
 
   def renderModal()(implicit fsc: FSContext): Elem =
     fsc.page.rootFSContext
-      .createNewChildContextAndGCExistingOne(this, Some("modal"))
-      .pipe: fsc ?=>
+      .inNewChildContextFor(this, Some("modal")): fsc ?=>
         transformModalElem:
           div.withAttr("tabindex" -> "-1"):
             transformModalDialogElem:

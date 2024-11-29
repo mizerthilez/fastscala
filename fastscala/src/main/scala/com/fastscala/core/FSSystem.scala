@@ -119,37 +119,16 @@ class FSContext(
               throw ex
         case None => page.wsQueue = js :: page.wsQueue
 
-  def createNewChildContextAndGCExistingOne(key: AnyRef, debugLabel: Option[String] = None): FSContext =
+  def inNewChildContextFor[T](contextFor: AnyRef, debugLabel: Option[String] = None)(f: FSContext => T): T =
     if deleted then throw new Exception("Trying to create child of deleted context")
-    page.key2FSContext
-      .get(key)
-      .foreach: existing =>
-        children -= existing
-        existing.delete()
+    // If it already exists, delete:
+    page.deleteContextFor(contextFor)
+
     val newContext = new FSContext(session, page, Some(this), debugLbl = debugLabel)
-    page.key2FSContext(key) = newContext
+    page.key2FSContext(contextFor) = newContext
     if logger.isTraceEnabled then logger.trace(s"Creating context ${newContext.fullPath} ($newContext)")
     children += newContext
-    newContext
-
-  def getOrCreateContext(key: AnyRef, debugLabel: Option[String] = None): FSContext =
-    if deleted then throw new Exception("Trying to get child of deleted context")
-    page.key2FSContext.getOrElseUpdate(
-      key, {
-        val newContext = new FSContext(session, page, Some(this), debugLbl = debugLabel)
-        if logger.isTraceEnabled then logger.trace(s"Creating context ${newContext.fullPath} ($newContext)")
-        children += newContext
-        newContext
-      },
-    )
-
-  def deleteContext(key: AnyRef): Unit =
-    page.key2FSContext
-      .get(key)
-      .foreach: existing =>
-        if logger.isTraceEnabled then logger.trace(s"DELETING CONTEXT ${existing.fullPath} ($existing)")
-        children -= existing
-        existing.delete()
+    f(newContext)
 
   def delete(): Unit =
     if logger.isTraceEnabled then logger.trace(s"Delete context $fullPath")
@@ -312,6 +291,22 @@ class FSPage(
 
   val rootFSContext =
     new FSContext(session, this, onPageUnload = onPageUnload, debugLbl = Some("page_root_context"))
+
+  def inContextFor[T](contextFor: AnyRef)(f: FSContext => T): T =
+    if !key2FSContext.contains(contextFor) then
+      throw new Exception(s"Trying to get context for $contextFor, but wasn't found")
+    if key2FSContext(contextFor).deleted then
+      throw new Exception(s"Trying to get context for $contextFor, but it was deleted")
+    f(key2FSContext(contextFor))
+
+  def deleteContextFor(key: AnyRef): Unit =
+    import FSContext.logger
+    key2FSContext
+      .get(key)
+      .foreach: existing =>
+        if logger.isTraceEnabled then logger.trace(s"DELETING CONTEXT ${existing.fullPath} ($existing)")
+        existing.parentFSContext.foreach(_.children -= existing)
+        existing.delete()
 
   def deleteOlderThan(ts: Long): Unit =
     val callbacksToRemove = callbacks.filter(_._2.keepAliveAt < ts)

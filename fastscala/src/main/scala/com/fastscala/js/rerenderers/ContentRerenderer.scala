@@ -12,7 +12,6 @@ class ContentRerenderer[Env <: FSXmlEnv](
   renderFunc: ContentRerenderer[Env] => FSContext => env.NodeSeq,
   id: Option[String] = None,
   debugLabel: Option[String] = None,
-  gcOldFSContext: Boolean = true,
 ):
   val outterElem: env.Elem = env.buildElem("div")()
 
@@ -26,9 +25,7 @@ class ContentRerenderer[Env <: FSXmlEnv](
         .withIdIfNotSet(aroundId)
         .pipe: elem =>
           elem.withContents:
-            renderFunc(this):
-              if gcOldFSContext then fsc.createNewChildContextAndGCExistingOne(this, debugLabel = debugLabel)
-              else fsc
+            fsc.inNewChildContextFor(this, debugLabel = debugLabel)(renderFunc(this)(_))
 
   def rerender(): Js = rootRenderContext
     .map: fsc ?=>

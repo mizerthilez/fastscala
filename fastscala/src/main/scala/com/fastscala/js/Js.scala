@@ -245,38 +245,29 @@ class JsXmlUtils[Env <: FSXmlEnv](using val env: Env) extends JsUtils:
     render: Rerenderer[env.type] => FSContext => env.Elem,
     idOpt: Option[String] = None,
     debugLabel: Option[String] = None,
-    gcOldFSContext: Boolean = true,
   ): Rerenderer[env.type] =
-    new Rerenderer(render, idOpt = idOpt, debugLabel = debugLabel, gcOldFSContext = gcOldFSContext)
+    new Rerenderer(render, idOpt = idOpt, debugLabel = debugLabel)
 
   def rerenderableP[P](
     render: RerendererP[env.type, P] => FSContext => P => env.Elem,
     idOpt: Option[String] = None,
     debugLabel: Option[String] = None,
-    gcOldFSContext: Boolean = true,
   ): RerendererP[env.type, P] =
-    new RerendererP(render, idOpt = idOpt, debugLabel = debugLabel, gcOldFSContext = gcOldFSContext)
+    new RerendererP(render, idOpt = idOpt, debugLabel = debugLabel)
 
   def rerenderableContents(
     render: ContentRerenderer[env.type] => FSContext => env.NodeSeq,
     id: Option[String] = None,
     debugLabel: Option[String] = None,
-    gcOldFSContext: Boolean = true,
   ): ContentRerenderer[env.type] =
-    new ContentRerenderer(render, id = id, debugLabel = debugLabel, gcOldFSContext = gcOldFSContext)
+    new ContentRerenderer(render, id = id, debugLabel = debugLabel)
 
   def rerenderableContentsP[P](
     render: ContentRerendererP[env.type, P] => FSContext => P => env.NodeSeq,
     id: Option[String] = None,
     debugLabel: Option[String] = None,
-    gcOldFSContext: Boolean = true,
   ): ContentRerendererP[env.type, P] =
-    new ContentRerendererP(
-      render,
-      id = id,
-      debugLabel = debugLabel,
-      gcOldFSContext = gcOldFSContext,
-    )
+    new ContentRerendererP(render, id = id, debugLabel = debugLabel)
 
   def append2Body(ns: env.NodeSeq): Js =
     val elemId = IdGen.id("template")
