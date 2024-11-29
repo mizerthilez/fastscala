@@ -53,14 +53,16 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
   lazy val modalContentsFooterRenderer: ScalaXmlRerenderer =
     JS.rerenderable(_ => fsc ?=> renderModalFooterContent(), debugLabel = Some("modal-contents-footer"))
 
-  def append2DOM()(implicit fsc: FSContext): Js = JS.append2Body(modalRenderer.render())
+  def append2DOM()(using FSContext): Js = JS.append2Body(modalRenderer.render())
+
+  var modalInstalled: Option[String] = None
 
   def installAndShow(
     backdrop: Boolean = true,
     backdropStatic: Boolean = false,
     focus: Boolean = true,
     keyboard: Boolean = true,
-  )(implicit fsc: FSContext
+  )(using FSContext
   ): Js =
     install(backdrop, backdropStatic, focus, keyboard) & show() & removeOnHidden()
 
@@ -69,9 +71,10 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
     backdropStatic: Boolean = false,
     focus: Boolean = true,
     keyboard: Boolean = true,
-  )(implicit fsc: FSContext
+  )(using fsc: FSContext
   ): Js =
-    append2DOM() &
+    append2DOM()(using fsc.page.rootFSContext) `&`:
+      modalInstalled = Some(modalId)
       Js(
         s""";new bootstrap.Modal(document.getElementById('$modalId'), {
            |  backdrop: ${if backdropStatic then "'static'" else backdrop.toString},
@@ -82,16 +85,16 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
 
   def dispose(): Js = Js(s"""$$('#$modalId').modal('dispose')""")
 
-  def deleteContext()(implicit fsc: FSContext): Unit = fsc.page.deleteContextFor(this)
+  def deleteContext()(using fsc: FSContext): Unit = fsc.page.deleteContextFor(modalRenderer)
 
-  def removeAndDeleteContext()(implicit fsc: FSContext): Js = JS.removeId(modalId) & fsc.callback: () =>
-    deleteContext()
-    Js.void
+  def removeAndDeleteContext(modalId: String = modalId)(using fsc: FSContext): Js =
+    JS.removeId(modalId) & fsc.callback: () =>
+      deleteContext()
+      Js.void
 
   def handleUpdate(): Js = Js(s"""$$('#$modalId').modal('handleUpdate')""")
 
-  def hideAndRemoveAndDeleteContext()(implicit fsc: FSContext): Js =
-    hide() & onHidden(removeAndDeleteContext())
+  def hideAndRemoveAndDeleteContext()(using FSContext): Js = hide() & removeOnHidden()
 
   def hide(): Js = Js(s"""$$('#$modalId').modal('hide')""")
 
@@ -111,34 +114,40 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
     s"""$$('#$modalId').on('hidden.bs.modal', function (e) {${js.cmd}});"""
   )
 
-  def removeOnHidden()(implicit fsc: FSContext): Js = onHidden(removeAndDeleteContext())
+  def removeOnHidden()(using fsc: FSContext): Js =
+    modalInstalled
+      .flatMap: modalId =>
+        fsc.page.inContextForOption(modalRenderer): fsc ?=>
+          modalInstalled = None
+          onHidden(removeAndDeleteContext(modalId))
+      .getOrElse(JS.void)
 
   def modalHeaderTitle: String
 
   def modalHeaderTitleNs: Elem = <h1 class="modal-title fs-5">{modalHeaderTitle}</h1>
 
-  def modalHeaderContents()(implicit fsc: FSContext): NodeSeq =
+  def modalHeaderContents()(using FSContext): NodeSeq =
     modalHeaderTitleNs ++
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 
-  def modalBodyContents()(implicit fsc: FSContext): NodeSeq
+  def modalBodyContents()(using FSContext): NodeSeq
 
-  def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq]
+  def modalFooterContents()(using FSContext): Option[NodeSeq]
 
-  def rerenderModal()(implicit fsc: FSContext): Js = modalRenderer.rerender()
+  def rerenderModal()(using FSContext): Js = modalRenderer.rerender()
 
-  def rerenderModalContent()(implicit fsc: FSContext): Js = modalContentsRenderer.rerender()
+  def rerenderModalContent()(using FSContext): Js = modalContentsRenderer.rerender()
 
-  def rerenderModalFooterContent()(implicit fsc: FSContext): Js =
+  def rerenderModalFooterContent()(using FSContext): Js =
     modalContentsFooterRenderer.rerender()
 
-  def renderModalFooterContent()(implicit fsc: FSContext): Elem =
+  def renderModalFooterContent()(using FSContext): Elem =
     modalFooterContents()
       .map: contents =>
         transformModalFooterElem(div(contents))
       .getOrElse(<div style="display:none;"></div>)
 
-  def renderModalContent()(implicit fsc: FSContext): Elem =
+  def renderModalContent()(using FSContext): Elem =
     transformModalContentElem:
       div.apply:
         transformModalHeaderElem(div(modalHeaderContents()))
@@ -147,14 +156,12 @@ abstract class BSModal5Base extends ClassEnrichableMutable with Mutable:
             ++
             modalContentsFooterRenderer.render()
 
-  def renderModal()(implicit fsc: FSContext): Elem =
-    fsc.page.rootFSContext
-      .inNewChildContextFor(this, Some("modal")): fsc ?=>
-        transformModalElem:
-          div.withAttr("tabindex" -> "-1"):
-            transformModalDialogElem:
-              div.withClass(modalClasses):
-                modalContentsRenderer.render()
+  def renderModal()(using fsc: FSContext): Elem =
+    transformModalElem:
+      div.withAttr("tabindex" -> "-1"):
+        transformModalDialogElem:
+          div.withClass(modalClasses):
+            modalContentsRenderer.render()
 
 object BSModal5:
   def verySimple(
@@ -163,16 +170,16 @@ object BSModal5:
     onHidden: Js = JS.void,
   )(
     contents: BSModal5Base => FSContext => NodeSeq
-  )(implicit fsc: FSContext
+  )(using FSContext
   ): Js =
     val modal = new BSModal5Base:
       override def modalHeaderTitle: String = title
 
-      override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = contents(this)(fsc)
+      override def modalBodyContents()(using fsc: FSContext): NodeSeq = contents(this)(fsc)
 
-      override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] = Some(
+      override def modalFooterContents()(using FSContext): Option[NodeSeq] = Some:
         BSBtn().BtnPrimary.lbl(closeBtnText).onclick(hideAndRemoveAndDeleteContext()).btn
-      )
+
     modal.installAndShow() & modal.onHidden(onHidden)
 
   def okCancel(
@@ -184,17 +191,16 @@ object BSModal5:
     onHidden: Js = JS.void,
   )(
     contents: BSModal5Base => FSContext => NodeSeq
-  )(implicit fsc: FSContext
+  )(using FSContext
   ): Js =
     import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
     val modal = new BSModal5Base:
       override def modalHeaderTitle: String = title
 
-      override def modalBodyContents()(implicit fsc: FSContext): NodeSeq = contents(this)(fsc)
+      override def modalBodyContents()(using fsc: FSContext): NodeSeq = contents(this)(fsc)
 
-      override def modalFooterContents()(implicit fsc: FSContext): Option[NodeSeq] =
-        Some(
-          BSBtn().BtnSecondary.lbl(cancelBtnText).ajax(onCancel(this)).btn ++
-            BSBtn().BtnPrimary.lbl(okBtnText).ajax(onOk(this)).btn.ms_2
-        )
+      override def modalFooterContents()(using FSContext): Option[NodeSeq] = Some:
+        BSBtn().BtnSecondary.lbl(cancelBtnText).ajax(onCancel(this)).btn ++
+          BSBtn().BtnPrimary.lbl(okBtnText).ajax(onOk(this)).btn.ms_2
+
     modal.installAndShow() & modal.onHidden(onHidden)

@@ -299,6 +299,11 @@ class FSPage(
       throw new Exception(s"Trying to get context for $contextFor, but it was deleted")
     f(key2FSContext(contextFor))
 
+  def inContextForOption[T](contextFor: AnyRef)(f: FSContext => T): Option[T] =
+    if !key2FSContext.contains(contextFor) then None
+    if key2FSContext(contextFor).deleted then None
+    Some(f(key2FSContext(contextFor)))
+
   def deleteContextFor(key: AnyRef): Unit =
     import FSContext.logger
     key2FSContext
