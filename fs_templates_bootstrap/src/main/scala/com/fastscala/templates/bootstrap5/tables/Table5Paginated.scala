@@ -38,7 +38,7 @@ trait Table5Paginated extends Table5SeqDataSource:
       .filter(_ >= 0)
 
   def renderPagesButtons()(implicit fsc: FSContext): Elem =
-    ul.mb_3.mx_3.withClass("pagination"):
+    ul.mb_3.withClass("pagination pagination-sm"):
       li.withClass("page-item"):
         BSBtn()
           .withClass("page-link")
@@ -77,10 +77,10 @@ trait Table5Paginated extends Table5SeqDataSource:
           currentPage() = 0
           rerenderTableAround()
         ,
+        classes = "form-select form-select-sm",
         style = "max-width: 200px; float: right;",
       )
       .mb_3
-      .mx_3
 
   def renderPaginationBottomControls()(implicit fsc: FSContext): Elem =
     row.apply:

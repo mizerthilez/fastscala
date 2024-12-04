@@ -32,6 +32,6 @@ trait Table5SelectableRowsWithActions extends Table5SelectableRows with Table5St
         val contents = BSBtnDropdown(actionsBtnToIncludeInRowDropdown)(
           actionsForRows(Set(elem))*
         )
-        <td class="py-1">{contents}</td>
+        <td class="py-2">{contents}</td>
     },
   )

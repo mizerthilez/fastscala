@@ -7,6 +7,7 @@ import com.fastscala.taskmanager.db.DB
 import com.fastscala.templates.bootstrap5.helpers.BSHelpers
 import com.fastscala.templates.bootstrap5.toast.BSToast2
 import com.fastscala.templates.bootstrap5.utils.BSBtn
+
 trait BasePage extends com.fastscala.demo.docs.BasePage:
   import BSHelpers.{ given, * }
 
