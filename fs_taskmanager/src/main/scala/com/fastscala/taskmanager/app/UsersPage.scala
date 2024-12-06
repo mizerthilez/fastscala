@@ -74,11 +74,10 @@ class UsersPage extends BasePage:
                   F7StringField().label("Email").rw(user.email, user.email = _).inputTypeEmail,
                 )
 
-                override def postSubmitForm()(implicit fsc: FSContext): Js = super.postSubmitForm() & {
-                  DB().users += user
-                  table.rerenderTable() &
-                    hideAndRemoveAndDeleteContext()
-                }
+                override def postSubmitForm()(implicit fsc: FSContext): Js =
+                  super.postSubmitForm() `&`:
+                    DB().users += user
+                    table.rerenderTable()
               .installAndShow()
           .btn ++ table.actionsDropdownBtnRenderer.render()
 

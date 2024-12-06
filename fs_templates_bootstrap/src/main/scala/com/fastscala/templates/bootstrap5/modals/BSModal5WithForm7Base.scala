@@ -3,6 +3,7 @@ package com.fastscala.templates.bootstrap5.modals
 import scala.xml.NodeSeq
 
 import com.fastscala.core.FSContext
+import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.utils.BSBtn
 import com.fastscala.templates.form7.{ F7FormRenderer, Form7 }
 import com.fastscala.utils.given
@@ -31,3 +32,6 @@ abstract class BSModal5WithForm7Base(
 
   def modalFooterContents()(using FSContext): Option[NodeSeq] = Some:
     ScalaXmlElemUtils.showIf(cancelBtnEnabled)(cancelBtn.btn.me_2) ++ saveBtn.btn
+
+  override def postSubmitForm()(implicit fsc: FSContext): Js =
+    super.postSubmitForm() & hideAndRemoveAndDeleteContext()

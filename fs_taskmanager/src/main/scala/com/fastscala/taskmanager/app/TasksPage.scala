@@ -75,8 +75,8 @@ class TasksPage extends BasePage:
                       .option2String(_.map(_.fullName).getOrElse("Unassigned"))
                       .rw(row.assignedTo, row.assignedTo = _)
 
-                    override def postSubmitForm()(implicit fsc: FSContext): Js = super.postSubmitForm() &
-                      hideAndRemoveAndDeleteContext() & tdRerenderer.rerenderer.rerender()
+                    override def postSubmitForm()(implicit fsc: FSContext): Js =
+                      super.postSubmitForm() & tdRerenderer.rerenderer.rerender()
                   .installAndShow()
                 .cmd
               td.apply:
@@ -123,11 +123,10 @@ class TasksPage extends BasePage:
                     .rw(task.name, task.name = _)
                 )
 
-                override def postSubmitForm()(implicit fsc: FSContext): Js = super.postSubmitForm() & {
-                  DB().tasks += task
-                  tasksTable.rerenderTable() &
-                    hideAndRemoveAndDeleteContext()
-                }
+                override def postSubmitForm()(implicit fsc: FSContext): Js =
+                  super.postSubmitForm() `&`:
+                    DB().tasks += task
+                    tasksTable.rerenderTable()
               .installAndShow()
           .btn ++ tasksTable.actionsDropdownBtnRenderer.render()
 
