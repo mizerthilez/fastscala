@@ -26,7 +26,11 @@ trait Table5SelectableRowsWithActions extends Table5SelectableRows with Table5St
   )
 
   lazy val ColActionsDefault = ColNsFullTd(
-    actionsBtnToIncludeInRowDropdown.content.toString(),
+    actionsBtnToIncludeInRowDropdown.titleOpt
+      .map(_.toString)
+      .orElse:
+        actionsBtnToIncludeInRowDropdown.content.lastOption.map(_.toString)
+      .getOrElse(""),
     implicit fsc => {
       case (tableBodyRerenderer, trRerenderer, tdRerenderer, elem, rowIdx, colIdx, rows) =>
         val contents = BSBtnDropdown(actionsBtnToIncludeInRowDropdown)(

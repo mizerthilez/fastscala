@@ -56,13 +56,20 @@ trait Table5Sortable extends Table5Base with Table5StandardColumns:
     fsc: FSContext,
   ): Elem =
     val elem = super.renderTableHeadTRTH()
-    ({
-      if isSortable(col) then
-        val chevron =
-          if currentSortCol() == Some(col) then
-            if currentSortAsc() then "bi-chevron-double-down" else "bi-chevron-double-up"
-          else "bi-chevron-expand"
-        elem.withAppendedToContents(<i class={s"bi $chevron"} style="float: right;padding: 0;"></i>)
-      else elem
-    }).withAttr("onclick"): old =>
-      clickedClientSide().cmd
+
+    if elem.child.exists: e =>
+          e.label == "div" `&&`:
+            e.child.exists: el =>
+              el.label == "input" `&&`:
+                el.attribute("type").flatMap(_.headOption.map(_.text)) == Some("checkbox")
+    then elem
+    else
+      (if isSortable(col) then
+         val chevron =
+           if currentSortCol() == Some(col) then
+             if currentSortAsc() then "bi-chevron-double-down" else "bi-chevron-double-up"
+           else "bi-chevron-expand"
+         elem
+           .withAppendedToContents(<i class={s"bi $chevron"} style="float: right;padding: 0;"></i>)
+       else elem)
+      .withAttr("onclick")(_ => clickedClientSide().cmd)

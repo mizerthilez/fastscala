@@ -64,9 +64,15 @@ trait Table5SelectableRows extends Table5Base with Table5ColsLabeled:
 
   def onRowSelectionChanged(trRerenderer: TRRerenderer): Js = trRerenderer.rerenderer.rerender()
 
+  def showAllSelectOnTH: Boolean = false
+
+  var allSelected: Boolean = false
+
   val ColSelectRow = new Table5StandardColumn[R]:
 
     override def label: String = ""
+
+    var selectAllChkBoxId: String = ""
 
     override def renderTH(
     )(implicit
@@ -76,7 +82,26 @@ trait Table5SelectableRows extends Table5Base with Table5ColsLabeled:
       colIdx: TableColIdx,
       pageRows: Seq[(String, R)],
       fsc: FSContext,
-    ): Elem = <th></th>
+    ): Elem = if showAllSelectOnTH then
+      val contents = ImmediateInputFields
+        .checkbox(
+          () => allSelected,
+          selected =>
+            allSelected = selected
+            if selected then
+              allSelectedRowsEvenIfNotVisible.clear()
+              allSelectedRowsEvenIfNotVisible ++= rows(rowsHints())
+            else allSelectedRowsEvenIfNotVisible.clear()
+            onSelectedRowsChange() & rerenderTableAround()
+          ,
+          "",
+        )
+        .m_0
+        .py_0
+        .d_inline_block
+      selectAllChkBoxId = contents.child.find(_.label == "input").flatMap(_.attribute("id")).get.head.text
+      <th class="align-middle text-center">{contents}</th>
+    else <th></th>
 
     override def renderTD(
     )(implicit
@@ -95,8 +120,11 @@ trait Table5SelectableRows extends Table5Base with Table5ColsLabeled:
           selected =>
             if selected then allSelectedRowsEvenIfNotVisible += value
             else allSelectedRowsEvenIfNotVisible -= value
-            onSelectedRowsChange() &
-              onRowSelectionChanged(trRerenderer)
+            onSelectedRowsChange() & onRowSelectionChanged(trRerenderer) `&`:
+              if selected then Js.void
+              else
+                allSelected = false
+                Js.setCheckboxTo(selectAllChkBoxId, Some(false))
           ,
           "",
         )
