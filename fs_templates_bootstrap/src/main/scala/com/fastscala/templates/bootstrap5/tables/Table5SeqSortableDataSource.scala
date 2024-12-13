@@ -5,7 +5,13 @@ import scala.util.chaining.scalaUtilChainingOps
 trait Table5SeqSortableDataSource extends Table5SeqDataSource with Table5Sortable:
   def seqRowsSource: Seq[R]
 
-  def rowsSorter: PartialFunction[C, Seq[R] => Seq[R]]
+  def rowsSorter: PartialFunction[C, Seq[R] => Seq[R]] =
+    columns().foldLeft(PartialFunction.empty): (pf, col) =>
+      col match
+        case ColStr(title, render) =>
+          pf.orElse:
+            case `col` => _.sortBy(render)
+        case _ => pf
 
   def isSortable(col: C): Boolean = rowsSorter.isDefinedAt(col)
 

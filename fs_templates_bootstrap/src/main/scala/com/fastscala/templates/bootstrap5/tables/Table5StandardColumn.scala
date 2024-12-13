@@ -73,8 +73,7 @@ trait Table5StandardColumn[R] extends ClassEnrichableMutable:
 trait Table5StdColsHelper:
   type R
 
-  def ColStr(title: String, render: R => String) = new Table5StandardColumn[R]:
-
+  case class ColStr(title: String, render: R => String) extends Table5StandardColumn[R]:
     override def label: String = title
 
     override def renderTH(
@@ -101,8 +100,7 @@ trait Table5StdColsHelper:
     ): Elem =
       <td class={additionalClasses}>{render(value)}</td>
 
-  def ColNs(title: String, render: FSContext => R => NodeSeq) = new Table5StandardColumn[R]:
-
+  case class ColNs(title: String, render: FSContext => R => NodeSeq) extends Table5StandardColumn[R]:
     override def label: String = title
 
     override def renderTH(
@@ -129,7 +127,7 @@ trait Table5StdColsHelper:
     ): Elem =
       <td class={additionalClasses}>{render(fsc)(value)}</td>
 
-  def ColNsFull(
+  case class ColNsFull(
     title: String,
     render: FSContext => (
       TableBodyRerenderer,
@@ -140,8 +138,7 @@ trait Table5StdColsHelper:
       TableColIdx,
       Seq[(String, R)],
     ) => NodeSeq,
-  ) = new Table5StandardColumn[R]:
-
+  ) extends Table5StandardColumn[R]:
     override def label: String = title
 
     override def renderTH(
@@ -170,7 +167,7 @@ trait Table5StdColsHelper:
         render(fsc)(tableBodyRerenderer, trRerenderer, tdRerenderer, value, rowIdx, colIdx, rows)
       }</td>
 
-  def ColNsFullTd(
+  case class ColNsFullTd(
     title: String,
     render: FSContext => (
       TableBodyRerenderer,
@@ -181,8 +178,7 @@ trait Table5StdColsHelper:
       TableColIdx,
       Seq[(String, R)],
     ) => Elem,
-  ) = new Table5StandardColumn[R]:
-
+  ) extends Table5StandardColumn[R]:
     override def label: String = title
 
     override def renderTH(

@@ -7,7 +7,7 @@ import com.fastscala.js.Js
 import com.fastscala.templates.bootstrap5.helpers.ClassEnrichableMutable
 import com.fastscala.templates.utils.Mutable
 import com.fastscala.utils.IdGen
-import com.fastscala.xml.scala_xml.JS, JS.given
+import com.fastscala.xml.scala_xml.JS
 
 abstract class BSToast2Base extends ClassEnrichableMutable with Mutable:
   import com.fastscala.templates.bootstrap5.helpers.BSHelpers.{ given, * }
@@ -92,7 +92,7 @@ abstract class BSToast2Base extends ClassEnrichableMutable with Mutable:
     keyboard: Boolean = true,
   )(using FSContext
   ): Js =
-    (install(backdrop, backdropStatic, focus, keyboard) & show()).printBeforeExec
+    install(backdrop, backdropStatic, focus, keyboard) & show()
 
   def install(
     backdrop: Boolean = true,
