@@ -2,7 +2,7 @@ package com.fastscala.demo.docs.other
 
 import scala.xml.NodeSeq
 
-import com.fastscala.chartjs.*
+import com.fastscala.chartjs.*, ChartJsNullable2Option.given
 import com.fastscala.core.FSContext
 import com.fastscala.demo.docs.MultipleCodeExamples2Page
 import com.fastscala.xml.scala_xml.JS
@@ -15,7 +15,6 @@ class SimpleChartjsPage extends MultipleCodeExamples2Page:
 
   def renderContentsWithSnippets()(implicit fsc: FSContext): Unit =
     renderSnippet("Source"):
-      import com.fastscala.chartjs.ChartJsNullable2Option.*
       <canvas id="chart"></canvas> ++ JS.inScriptTag(
         ChartJs(
           `type` = BarChartType,

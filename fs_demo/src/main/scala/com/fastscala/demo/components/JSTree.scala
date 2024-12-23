@@ -16,6 +16,8 @@ class JSTreeSimpleNode[T](
   val value: T,
   val id: String,
   val open: Boolean = false,
+  val disabled: Boolean = false,
+  val icon: Option[String] = None,
 )(
   children: Seq[JSTreeNode[T]]
 ) extends JSTreeNode[T]:
@@ -32,16 +34,30 @@ abstract class JSTreeNode[T]:
 
   def open: Boolean
 
+  def disabled: Boolean
+
+  def icon: Option[String]
+
   def childrenF: () => Seq[JSTreeNode[T]]
 
   def renderLi(): Elem =
     val appendedChildren = if open then <ul>{childrenF().map(_.renderLi()).mkNS}</ul> else NodeSeq.Empty
-    <li id={id} class={if !open then "jstree-closed" else ""}>{titleNs}{appendedChildren}</li>
+    val dataJSTree = Some(
+      List(
+        icon.map(icon => s""""icon":"$icon""""),
+        Some(disabled).filter(_ == true).map(disabled => s""""disabled":$disabled"""),
+      ).flatten
+    ).filter(_.nonEmpty).map(_.mkString("{", ",", "}")).getOrElse(null)
+    <li id={id} data-jstree={dataJSTree} class={if !open then "jstree-closed" else ""}>{titleNs}{
+      appendedChildren
+    }</li>
 
 abstract class JSTree[T] extends ElemWithRandomId:
   def rootNodes: Seq[JSTreeNode[T]]
 
   def render()(implicit fsc: FSContext): Elem = <div id={elemId}></div>
+
+  def renderAndInit()(implicit fsc: FSContext): NodeSeq = render() ++ init().onDOMContentLoaded.inScriptTag
 
   //  protected val childrenOfId = collection.mutable.Map[String, Seq[JSTreeNode[T]]]()
   protected val nodeById = collection.mutable.Map[String, JSTreeNode[T]]()
