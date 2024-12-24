@@ -1,16 +1,21 @@
 import sbt.*
 import sbt.Keys.*
 
+import xerial.sbt.Sonatype.sonatypeCentralHost
+import scala.concurrent.duration.*
+
 resolvers += Resolver.mavenLocal
 
+ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
+
 ThisBuild / organization := "com.fastscala"
+ThisBuild / version := "0.0.5"
 ThisBuild / scalaVersion := "3.5.2"
 
 ThisBuild / shellPrompt := { state => Project.extract(state).currentRef.project + "> " }
 
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
-ThisBuild / scalacOptions ++= Seq("-Xmax-inlines", "64")
 ThisBuild / scalacOptions += "-Wunused:imports"
 
 addCommandAlias(
@@ -22,22 +27,46 @@ addCommandAlias(
   "compile; scalafixAll; scalafmtSbt; scalafmtAll",
 )
 
+lazy val commonSettings = Seq(
+  organization := "com.fastscala",
+  sonatypeCentralDeploymentName := s"${organization.value}.${name.value}-${version.value}",
+  sonatypeCredentialHost := Sonatype.sonatypeCentralHost,
+  sonatypeProfileName := "com.fastscala",
+  publishMavenStyle := true,
+  licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+  homepage := Some(url("https://www.fastscala.com/")),
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/mizerthilez/fastscala"),
+      "scm:git@github.com:mizerthilez/fastscala.git",
+    )
+  ),
+  developers := List(
+    Developer(
+      id = "david",
+      name = "David Miguel Antunes",
+      email = "davidmiguel@antunes.net",
+      url = url("https://www.linkedin.com/in/david-miguel-antunes/"),
+    )
+  ),
+  // isSnapshot := false,
+  publishTo := sonatypePublishToBundle.value,
+)
+
 val FSRoot = "./"
 
 lazy val root = (project in file(".")).aggregate(
-  fastscala,
+  fs_core,
   fs_circe,
   fs_scala_xml,
   fs_db,
-  fs_chartjs,
-  fs_templates,
-  fs_templates_bootstrap,
-  fs_demo,
+  fs_components,
 )
 
-lazy val fastscala = (project in file(FSRoot + "fastscala"))
+lazy val fs_core = (project in file(FSRoot + "fs-core"))
   .settings(
-    name := "fastscala",
+    commonSettings,
+    name := "fs-core",
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.5.12",
       // "net.logstash.logback" % "logstash-logback-encoder" % "8.0",
@@ -54,68 +83,62 @@ lazy val fastscala = (project in file(FSRoot + "fastscala"))
     ),
   )
 
-lazy val fs_circe = (project in file(FSRoot + "fs_circe"))
+lazy val fs_circe = (project in file(FSRoot + "fs-circe"))
   .settings(
-    name := "fs_circe",
+    commonSettings,
+    name := "fs-circe",
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % "0.14.10",
       "io.circe" %% "circe-generic" % "0.14.10",
       "io.circe" %% "circe-parser" % "0.14.10",
     ),
   )
-  .dependsOn(fastscala)
+  .dependsOn(fs_core)
 
-lazy val fs_scala_xml = (project in file(FSRoot + "fs_scala_xml_support"))
+lazy val fs_scala_xml = (project in file(FSRoot + "fs-scala-xml"))
   .settings(
-    name := "fs_scala_xml",
+    commonSettings,
+    name := "fs-scala-xml",
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %% "scala-xml" % "2.3.0"
     ),
   )
-  .dependsOn(fastscala)
+  .dependsOn(fs_core)
 
-lazy val fs_db = (project in file(FSRoot + "fs_db"))
+lazy val fs_db = (project in file(FSRoot + "fs-db"))
   .settings(
-    name := "fs_db",
+    commonSettings,
+    name := "fs-db",
     libraryDependencies ++= Seq(
       "org.postgresql" % "postgresql" % "42.7.4",
       "org.xerial" % "sqlite-jdbc" % "3.47.0.0",
       "org.scalikejdbc" %% "scalikejdbc" % "4.3.2",
       "com.google.guava" % "guava" % "33.3.1-jre",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
-      "org.scala-lang.modules" %% "scala-xml" % "2.3.0",
     ),
     Test / parallelExecution := false,
   )
-  .dependsOn(fastscala)
-  .dependsOn(fs_scala_xml)
+  .dependsOn(fs_core)
   .dependsOn(fs_circe)
+  .dependsOn(fs_scala_xml)
 
-lazy val fs_templates = (project in file(FSRoot + "fs_templates"))
+lazy val fs_components = (project in file(FSRoot + "fs-components"))
   .settings(
-    name := "fs_templates",
+    commonSettings,
+    name := "fs-components",
+    scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies ++= Seq(
       "joda-time" % "joda-time" % "2.13.0"
     ),
   )
-  .dependsOn(fastscala)
+  .dependsOn(fs_core)
+  .dependsOn(fs_circe)
   .dependsOn(fs_scala_xml)
 
-lazy val fs_templates_bootstrap = (project in file(FSRoot + "fs_templates_bootstrap"))
-  .settings(name := "fs_templates_bootstrap")
-  .dependsOn(fs_templates)
-  .dependsOn(fs_circe)
-
-lazy val fs_chartjs = (project in file(FSRoot + "fs_chartjs"))
-  .settings(name := "fs_chartjs")
-  .dependsOn(fastscala)
-  .dependsOn(fs_scala_xml)
-  .dependsOn(fs_circe)
-
-lazy val fs_demo = (project in file(FSRoot + "fs_demo"))
+lazy val fs_demo = (project in file(FSRoot + "fs-demo"))
   .enablePlugins(JavaServerAppPackaging, SystemdPlugin)
   .settings(
-    name := "fs_demo",
+    name := "fs-demo",
     Compile / packageBin / mainClass := Some("com.fastscala.demo.server.JettyServer"),
     Compile / mainClass := Some("com.fastscala.demo.server.JettyServer"),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "scala",
@@ -137,13 +160,13 @@ lazy val fs_demo = (project in file(FSRoot + "fs_demo"))
     javaOptions += "-Xmx2G",
     javaOptions += "-Xms400M",
   )
-  .dependsOn(fs_templates_bootstrap)
-  .dependsOn(fs_chartjs)
+  .dependsOn(fs_components)
+  .dependsOn(fs_db)
 
-lazy val fs_taskmanager = (project in file(FSRoot + "fs_taskmanager"))
+lazy val fs_taskmanager = (project in file(FSRoot + "fs-taskmanager"))
   .enablePlugins(JavaServerAppPackaging, SystemdPlugin)
   .settings(
-    name := "fs_taskmanager",
+    name := "fs-taskmanager",
     Compile / packageBin / mainClass := Some("com.fastscala.taskmanager.server.JettyServer"),
     Compile / mainClass := Some("com.fastscala.taskmanager.server.JettyServer"),
     Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "scala",
