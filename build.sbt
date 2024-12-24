@@ -8,7 +8,7 @@ resolvers += Resolver.mavenLocal
 
 ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
 
-ThisBuild / organization := "com.fastscala"
+ThisBuild / organization := "io.ironduck"
 ThisBuild / version := "0.0.5"
 ThisBuild / scalaVersion := "3.5.2"
 
@@ -28,10 +28,10 @@ addCommandAlias(
 )
 
 lazy val commonSettings = Seq(
-  organization := "com.fastscala",
+  organization := "io.ironduck",
   sonatypeCentralDeploymentName := s"${organization.value}.${name.value}-${version.value}",
   sonatypeCredentialHost := Sonatype.sonatypeCentralHost,
-  sonatypeProfileName := "com.fastscala",
+  sonatypeProfileName := "io.ironduck",
   publishMavenStyle := true,
   licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
   homepage := Some(url("https://www.fastscala.com/")),
@@ -43,10 +43,10 @@ lazy val commonSettings = Seq(
   ),
   developers := List(
     Developer(
-      id = "david",
-      name = "David Miguel Antunes",
-      email = "davidmiguel@antunes.net",
-      url = url("https://www.linkedin.com/in/david-miguel-antunes/"),
+      id = "mizerthilez",
+      name = "Kevin Hsu",
+      email = "xuxiang999@gmail.com",
+      url = url("https://mizerthilez.github.io/"),
     )
   ),
   // isSnapshot := false,
@@ -55,13 +55,15 @@ lazy val commonSettings = Seq(
 
 val FSRoot = "./"
 
-lazy val root = (project in file(".")).aggregate(
-  fs_core,
-  fs_circe,
-  fs_scala_xml,
-  fs_db,
-  fs_components,
-)
+lazy val root = (project in file("."))
+  .aggregate(
+    fs_core,
+    fs_circe,
+    fs_scala_xml,
+    fs_db,
+    fs_components,
+  )
+  .settings(commonSettings)
 
 lazy val fs_core = (project in file(FSRoot + "fs-core"))
   .settings(
@@ -134,53 +136,3 @@ lazy val fs_components = (project in file(FSRoot + "fs-components"))
   .dependsOn(fs_core)
   .dependsOn(fs_circe)
   .dependsOn(fs_scala_xml)
-
-lazy val fs_demo = (project in file(FSRoot + "fs-demo"))
-  .enablePlugins(JavaServerAppPackaging, SystemdPlugin)
-  .settings(
-    name := "fs-demo",
-    Compile / packageBin / mainClass := Some("com.fastscala.demo.server.JettyServer"),
-    Compile / mainClass := Some("com.fastscala.demo.server.JettyServer"),
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "scala",
-    publishArtifact := true,
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % "3.5.5",
-      "at.favre.lib" % "bcrypt" % "0.10.2",
-      "com.lihaoyi" %% "scalatags" % "0.13.1",
-    ),
-    bashScriptEnvConfigLocation := Some("/etc/default/" + (Linux / packageName).value),
-    rpmRelease := "1.0.0",
-    rpmVendor := "kezlisolutions",
-    rpmLicense := Some("none"),
-    Linux / daemonUser := "fs_demo",
-    Linux / daemonGroup := "fs_demo",
-    // javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005",
-    Compile / run / fork := true,
-    Compile / run / connectInput := true,
-    javaOptions += "-Xmx2G",
-    javaOptions += "-Xms400M",
-  )
-  .dependsOn(fs_components)
-  .dependsOn(fs_db)
-
-lazy val fs_taskmanager = (project in file(FSRoot + "fs-taskmanager"))
-  .enablePlugins(JavaServerAppPackaging, SystemdPlugin)
-  .settings(
-    name := "fs-taskmanager",
-    Compile / packageBin / mainClass := Some("com.fastscala.taskmanager.server.JettyServer"),
-    Compile / mainClass := Some("com.fastscala.taskmanager.server.JettyServer"),
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "src" / "main" / "scala",
-    publishArtifact := true,
-    bashScriptEnvConfigLocation := Some("/etc/default/" + (Linux / packageName).value),
-    rpmRelease := "1.0.0",
-    rpmVendor := "kezlisolutions",
-    rpmLicense := Some("none"),
-    Linux / daemonUser := "fs_taskmanager",
-    Linux / daemonGroup := "fs_taskmanager",
-    // javaOptions += "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005",
-    Compile / run / fork := true,
-    Compile / run / connectInput := true,
-    javaOptions += "-Xmx2G",
-    javaOptions += "-Xms400M",
-  )
-  .dependsOn(fs_demo)
