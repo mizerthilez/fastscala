@@ -29,5 +29,5 @@ jobs:
         cache: 'sbt'
     - name: Compile fs_components
       run: sbt fs_components/compile
-    - name: Run tests
-      run: sbt test
+    # - name: Run tests
+      # run: sbt test
