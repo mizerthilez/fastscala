@@ -1,12 +1,9 @@
 import sbt.*
 import sbt.Keys.*
 
-import xerial.sbt.Sonatype.sonatypeCentralHost
 import scala.concurrent.duration.*
 
 resolvers += Resolver.mavenLocal
-
-ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
 
 ThisBuild / organization := "com.fastscala"
 ThisBuild / version := "0.0.5"
