@@ -8,7 +8,7 @@ resolvers += Resolver.mavenLocal
 
 ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
 
-ThisBuild / organization := "io.ironduck"
+ThisBuild / organization := "com.fastscala"
 ThisBuild / version := "0.0.5"
 ThisBuild / scalaVersion := "3.5.2"
 
@@ -27,32 +27,6 @@ addCommandAlias(
   "compile; scalafixAll; scalafmtSbt; scalafmtAll",
 )
 
-lazy val commonSettings = Seq(
-  organization := "io.ironduck",
-  sonatypeCentralDeploymentName := s"${organization.value}.${name.value}-${version.value}",
-  sonatypeCredentialHost := Sonatype.sonatypeCentralHost,
-  sonatypeProfileName := "io.ironduck",
-  publishMavenStyle := true,
-  licenses := Seq("APL2" -> url("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-  homepage := Some(url("https://www.fastscala.com/")),
-  scmInfo := Some(
-    ScmInfo(
-      url("https://github.com/mizerthilez/fastscala"),
-      "scm:git@github.com:mizerthilez/fastscala.git",
-    )
-  ),
-  developers := List(
-    Developer(
-      id = "mizerthilez",
-      name = "Kevin Hsu",
-      email = "xuxiang999@gmail.com",
-      url = url("https://mizerthilez.github.io/"),
-    )
-  ),
-  // isSnapshot := false,
-  publishTo := sonatypePublishToBundle.value,
-)
-
 val FSRoot = "./"
 
 lazy val root = (project in file("."))
@@ -63,11 +37,9 @@ lazy val root = (project in file("."))
     fs_db,
     fs_components,
   )
-  .settings(commonSettings)
 
 lazy val fs_core = (project in file(FSRoot + "fs-core"))
   .settings(
-    commonSettings,
     name := "fs-core",
     libraryDependencies ++= Seq(
       "ch.qos.logback" % "logback-classic" % "1.5.12",
@@ -87,7 +59,6 @@ lazy val fs_core = (project in file(FSRoot + "fs-core"))
 
 lazy val fs_circe = (project in file(FSRoot + "fs-circe"))
   .settings(
-    commonSettings,
     name := "fs-circe",
     libraryDependencies ++= Seq(
       "io.circe" %% "circe-core" % "0.14.10",
@@ -99,7 +70,6 @@ lazy val fs_circe = (project in file(FSRoot + "fs-circe"))
 
 lazy val fs_scala_xml = (project in file(FSRoot + "fs-scala-xml"))
   .settings(
-    commonSettings,
     name := "fs-scala-xml",
     libraryDependencies ++= Seq(
       "org.scala-lang.modules" %% "scala-xml" % "2.3.0"
@@ -109,7 +79,6 @@ lazy val fs_scala_xml = (project in file(FSRoot + "fs-scala-xml"))
 
 lazy val fs_db = (project in file(FSRoot + "fs-db"))
   .settings(
-    commonSettings,
     name := "fs-db",
     libraryDependencies ++= Seq(
       "org.postgresql" % "postgresql" % "42.7.4",
@@ -126,7 +95,6 @@ lazy val fs_db = (project in file(FSRoot + "fs-db"))
 
 lazy val fs_components = (project in file(FSRoot + "fs-components"))
   .settings(
-    commonSettings,
     name := "fs-components",
     scalacOptions ++= Seq("-Xmax-inlines", "64"),
     libraryDependencies ++= Seq(
