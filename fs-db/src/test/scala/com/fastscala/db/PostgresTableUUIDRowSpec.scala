@@ -17,7 +17,7 @@ class TestEntity4(
 ) extends PgRowWithUUID[TestEntity4]:
   override def table: PgTableWithUUID[TestEntity4] = TestEntity4
 
-object TestEntity4 extends PgTableWithUUID[TestEntity4]:
+object TestEntity4 extends PgTableWithUUID[TestEntity4](h2 = true):
   override def createSampleRow(): TestEntity4 = new TestEntity4()
 
 class PostgresTableUUIDRowSpec extends AnyFlatSpec with PostgresDB:

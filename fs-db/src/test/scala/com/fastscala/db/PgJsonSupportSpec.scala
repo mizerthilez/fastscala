@@ -10,7 +10,7 @@ class TestEntity7(
 ) extends RowWithLongId[TestEntity7]:
   override def table: PgTableWithLongId[TestEntity7] & PgTableWithJsonSupport[TestEntity7] = TestEntity7
 
-object TestEntity7 extends PgTableWithLongId[TestEntity7] with PgTableWithJsonSupport[TestEntity7]:
+object TestEntity7 extends PgTableWithLongId[TestEntity7] with PgTableWithJsonSupport[TestEntity7](h2 = true):
   import io.circe.syntax.*
   val testJson: Json = List(1, 2, 3).asJson
   override def createSampleRow(): TestEntity7 = new TestEntity7()

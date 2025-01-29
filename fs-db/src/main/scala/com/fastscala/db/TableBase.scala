@@ -88,9 +88,12 @@ trait TableBase:
       "timestamp with time zone" + columnConstrains.mkString(" ", " ", "")
 
     case _ =>
-      throw new Exception(
-        s"Unexpected field class ${clas.getSimpleName} for field ${field.getName}"
-      )
+      if classOf[scala.reflect.Enum].isAssignableFrom(clas) then
+        "integer" + columnConstrains.mkString(" ", " ", "")
+      else if clas.isInterface() then "text" + columnConstrains.mkString(" ", " ", "")
+      else
+        throw new Exception:
+          s"Unexpected field class ${clas.getSimpleName} for field ${field.getName}"
 
   def setValue(
     rs: WrappedResultSet,
@@ -116,15 +119,15 @@ trait TableBase:
       case "java.lang.Integer" | "int" if nullable => field.set(instance, rs.intOpt(idx))
       case "java.lang.Integer" | "int" => field.set(instance, rs.int(idx))
 
-      case "scala.Enumeration$Value" =>
-        field.set(instance, enumSampleToValue(field.get(instance), rs.int(idx)))
-
-      case "scala.Enumeration$Val" if nullable =>
+      case "scala.Enumeration$Val" | "scala.Enumeration$Value" if nullable =>
         field.set(
           instance,
           rs.intOpt(idx)
             .map(i => enumSampleToValue(field.get(instance).asInstanceOf[Some[AnyRef]].get, i)),
         )
+
+      case "scala.Enumeration$Val" | "scala.Enumeration$Value" =>
+        field.set(instance, enumSampleToValue(field.get(instance), rs.int(idx)))
 
       case "java.lang.Short" | "short" if nullable => field.set(instance, rs.shortOpt(idx))
       case "java.lang.Short" | "short" => field.set(instance, rs.short(idx))
@@ -166,7 +169,37 @@ trait TableBase:
         )
 
       case unknown =>
-        throw new Exception(s"Unknown value type $unknown of field ${fieldName(field)}")
+        if classOf[scala.reflect.Enum].isAssignableFrom(valueType) then
+          if nullable then
+            val vType = field.get(instance).asInstanceOf[Some[?]].get.getClass
+            field.set(
+              instance,
+              for
+                method <- vType.getMethods.find(_.getName == "fromOrdinal")
+                ordinal <- rs.intOpt(idx)
+              yield method.invoke(vType.getEnclosingClass.newInstance, ordinal),
+            )
+          else
+            val vType = field.get(instance).getClass
+            for method <- vType.getMethods.find(_.getName == "fromOrdinal") do
+              field.set(instance, method.invoke(vType.getEnclosingClass.newInstance, rs.int(idx)))
+        else if valueType.isInterface() then
+          if nullable then
+            val v = field.get(instance).asInstanceOf[Some[?]].get
+            field.set(
+              instance,
+              for name <- rs.stringOpt(idx)
+              yield Class.forName(v.getClass.getName.stripSuffix(v.toString + '$') + name + '$').newInstance,
+            )
+          else
+            val v = field.get(instance)
+            field.set(
+              instance,
+              Class
+                .forName(v.getClass.getName.stripSuffix(v.toString + '$') + rs.string(idx) + '$')
+                .newInstance,
+            )
+        else throw new Exception(s"Unknown value type $unknown of field ${fieldName(field)}")
   catch
     case ex: Exception =>
       throw new Exception(
@@ -240,6 +273,8 @@ trait TableBase:
     case v: java.time.LocalTime => sqls"$v"
     case v: java.time.LocalDateTime => sqls"$v"
     case v: java.time.OffsetDateTime => sqls"$v"
+    case v: scala.reflect.Enum => sqls"${v.ordinal}"
+    case v if v.getClass.getConstructors().forall(_.getParameterCount() == 0) => sqls"$v"
 
   def valueToLiteral(value: Any): SQLSyntax = value match
     case null => SQLSyntax.createUnsafely("null")
@@ -266,6 +301,9 @@ trait TableBase:
     case v: java.time.LocalDateTime =>
       SQLSyntax.createUnsafely(v.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
     case v: java.time.OffsetDateTime => ???
+    case v: scala.reflect.Enum => valueToLiteral(v.ordinal)
+    case v if v.getClass.getConstructors().forall(_.getParameterCount() == 0) =>
+      SQLSyntax.createUnsafely(s"'$v'::text")
 
   protected def enumSampleToValue(sample: AnyRef, id: Int): AnyRef = sample match
     case sample: scala.Enumeration#Value =>

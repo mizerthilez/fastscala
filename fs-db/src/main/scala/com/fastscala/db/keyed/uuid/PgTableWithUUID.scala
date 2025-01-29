@@ -7,7 +7,9 @@ import scalikejdbc.interpolation.SQLSyntax
 
 import com.fastscala.db.keyed.uuid.{ PgRowWithUUID, TableWithUUIDBase }
 
-trait PgTableWithUUID[R <: PgRowWithUUID[R]] extends PgTable[R] with TableWithUUIDBase[R]:
+trait PgTableWithUUID[R <: PgRowWithUUID[R]](val h2: Boolean = false)
+    extends PgTable[R]
+       with TableWithUUIDBase[R]:
   protected lazy val PlaceholderUUID = PgTableWithUUID.PlaceholderUUID
 
   protected lazy val PlaceholderOptionalUUID = Some(PgTableWithUUID.PlaceholderUUID)
@@ -31,7 +33,8 @@ trait PgTableWithUUID[R <: PgRowWithUUID[R]] extends PgTable[R] with TableWithUU
 
   def getForIds(uuid: UUID*): List[R] = select(
     SQLSyntax.createUnsafely(
-      """ WHERE uuid = ANY(?::UUID[])""",
+      if h2 then """ WHERE ARRAY_CONTAINS(?, uuid)"""
+      else """ WHERE uuid = ANY(?::UUID[])""",
       Seq(uuid.map(_.toString).toArray[String]),
     )
   )
@@ -39,7 +42,8 @@ trait PgTableWithUUID[R <: PgRowWithUUID[R]] extends PgTable[R] with TableWithUU
   def deleteAll(rows: Seq[R]): Long =
     delete(
       SQLSyntax.createUnsafely(
-        """ WHERE uuid = ANY(?::UUID[])""",
+        if h2 then """ WHERE ARRAY_CONTAINS(?, uuid)"""
+        else """ WHERE uuid = ANY(?::UUID[])""",
         Seq(rows.flatMap(_.uuid.map(_.toString)).toArray[String]),
       )
     )

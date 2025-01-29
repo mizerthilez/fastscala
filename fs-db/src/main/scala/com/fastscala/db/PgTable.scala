@@ -41,7 +41,7 @@ trait PgTableWithUUIDSupport[R] extends Table[R]:
 
     case _ => super.setValue(rs, idx, field, valueType, instance, nullable)
 
-trait PgTableWithJsonSupport[R] extends Table[R]:
+trait PgTableWithJsonSupport[R](val h2: Boolean = false) extends Table[R]:
   override def fieldTypeToSQLType(
     field: java.lang.reflect.Field,
     clas: Class[?],
@@ -52,11 +52,13 @@ trait PgTableWithJsonSupport[R] extends Table[R]:
     case _ => super.fieldTypeToSQLType(field, clas, value, columnConstrains)
 
   override def valueToFragment(field: Field, value: Any): SQLSyntax = value match
-    case v: io.circe.Json => sqls"${v.noSpaces}::json"
+    case v: io.circe.Json => if h2 then sqls"${v.noSpaces} FORMAT JSON" else sqls"${v.noSpaces}::json"
     case _ => super.valueToFragment(field, value)
 
   override def valueToLiteral(value: Any): SQLSyntax = value match
-    case v: io.circe.Json => SQLSyntax.createUnsafely(s"'${v.noSpaces}'::json")
+    case v: io.circe.Json =>
+      SQLSyntax.createUnsafely:
+        if h2 then s"'${v.noSpaces}' FORMAT JSON" else s"'${v.noSpaces}'::json"
     case _ => super.valueToLiteral(value)
 
   override def setValue(

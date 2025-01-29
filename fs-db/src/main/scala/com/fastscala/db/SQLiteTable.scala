@@ -22,6 +22,10 @@ trait SQLiteTable[R] extends Table[R]:
     case v: java.util.UUID => sqls"${v.toString}"
     case _ => super.valueToFragment(field, value)
 
+  override def valueToLiteral(value: Any): SQLSyntax = value match
+    case v: java.util.UUID => SQLSyntax.createUnsafely(s"'${v.toString}'::text")
+    case _ => super.valueToLiteral(value)
+
   override def setValue(
     rs: WrappedResultSet,
     idx: Int,
