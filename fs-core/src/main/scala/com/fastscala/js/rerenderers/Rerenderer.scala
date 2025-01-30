@@ -19,7 +19,7 @@ class Rerenderer[Env <: FSXmlEnv](
 
   def render()(using fsc: FSContext): env.Elem =
     rootRenderContext = Some(fsc)
-    val rendered = fsc.inNewChildContextFor(this, debugLabel = debugLabel)(renderFunc(this)(_))
+    val rendered = fsc.runInNewOrRenewedChildContextFor(this, debugLabel = debugLabel)(renderFunc(this)(_))
     RerendererDebugStatusState().render:
       rendered.getId match
         case Some(id) =>

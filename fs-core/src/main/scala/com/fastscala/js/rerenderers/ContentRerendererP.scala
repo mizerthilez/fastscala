@@ -25,7 +25,7 @@ class ContentRerendererP[Env <: FSXmlEnv, P](
         .withIdIfNotSet(aroundId)
         .pipe: elem =>
           elem.withContents:
-            fsc.inNewChildContextFor(this, debugLabel = debugLabel)(renderFunc(this)(_)(param))
+            fsc.runInNewOrRenewedChildContextFor(this, debugLabel = debugLabel)(renderFunc(this)(_)(param))
 
   def rerender(param: P): Js = rootRenderContext
     .map: fsc ?=>

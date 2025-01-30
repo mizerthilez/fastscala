@@ -119,7 +119,12 @@ class FSContext(
               throw ex
         case None => page.wsQueue = js :: page.wsQueue
 
-  def inNewChildContextFor[T](contextFor: AnyRef, debugLabel: Option[String] = None)(f: FSContext => T): T =
+  def runInNewOrRenewedChildContextFor[T](
+    contextFor: AnyRef,
+    debugLabel: Option[String] = None,
+  )(
+    f: FSContext => T
+  ): T =
     if deleted then throw new Exception("Trying to create child of deleted context")
     // If it already exists, delete:
     page.deleteContextFor(contextFor)
@@ -310,7 +315,6 @@ class FSPage(
       .get(key)
       .foreach: existing =>
         if logger.isTraceEnabled then logger.trace(s"DELETING CONTEXT ${existing.fullPath} ($existing)")
-        existing.parentFSContext.foreach(_.children -= existing)
         existing.delete()
 
   def deleteOlderThan(ts: Long): Unit =

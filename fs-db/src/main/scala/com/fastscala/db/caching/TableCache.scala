@@ -41,14 +41,16 @@ class TableCache[K, R <: Row[R] & ObservableRowBase & RowWithId[K, R]: Typeable]
     entries.values.toList
 
   def select(rest: SQLSyntax): List[R] =
-    val rslt = table.select(rest)
-    rslt.map(loaded =>
-      entries.get(loaded.key) match
-        case Some(existing) =>
-          existing.copyFrom(loaded)
-          existing
-        case None => loaded
-    )
+    table
+      .select(rest)
+      .map: loaded =>
+        entries.get(loaded.key) match
+          case Some(existing) =>
+            existing.copyFrom(loaded)
+            existing
+          case None => loaded
+
+  def apply(key: K): R = getForIdX(key)
 
   def getForIdX(key: K): R = getForIdOptX(key).get
 

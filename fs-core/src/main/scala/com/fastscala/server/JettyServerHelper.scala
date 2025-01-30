@@ -10,12 +10,15 @@ import org.eclipse.jetty.server.handler.{ ContextHandler, ResourceHandler, Stati
 import org.eclipse.jetty.util.VirtualThreads
 import org.eclipse.jetty.util.resource.{ ResourceFactory, Resources }
 import org.eclipse.jetty.util.thread.QueuedThreadPool
+import org.slf4j.LoggerFactory
 
 import com.fastscala.core.FSSystem
 import com.fastscala.utils.{ FSOptimizedResourceHandler, Jetty12StatisticsCollector }
 import com.fastscala.websockets.FSWebsocketJettyContextHandler
 
 abstract class JettyServerHelper:
+  val logger = LoggerFactory.getLogger(getClass.getName)
+
   val config = ConfigFactory.load()
 
   def appName: String
@@ -120,10 +123,14 @@ abstract class JettyServerHelper:
     if setupPrometheusJvmMetrics then JvmMetrics.builder().register()
 
     if prometheusHttpServerEnabled then
-      HTTPServer
-        .builder()
-        .port(prometheusHttpServerPort)
-        .buildAndStart()
+      try
+        HTTPServer
+          .builder()
+          .port(prometheusHttpServerPort)
+          .buildAndStart()
+      catch
+        case ex: java.net.BindException if ex.getMessage.contains("Address already in use") =>
+          logger.error(s"Prometheus port ($prometheusHttpServerPort) already in use")
 
     server.setHandler(statHandler)
 
