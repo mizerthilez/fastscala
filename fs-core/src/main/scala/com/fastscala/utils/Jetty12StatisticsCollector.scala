@@ -117,10 +117,10 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
     result.build()
 
   // format: off
-  def buildGauge(name: String, help: String, value: Double): MetricSnapshot[?] =
+  def buildGauge(name: String, help: String, value: Double): MetricSnapshot =
     buildGauge(name, help, value, null)
 
-  def buildGauge(name: String, help: String, value: Double, unit: PUnit): MetricSnapshot[?] =
+  def buildGauge(name: String, help: String, value: Double, unit: PUnit): MetricSnapshot =
     GaugeSnapshot
       .builder()
       .name(PrometheusNaming.sanitizeMetricName(name))
@@ -129,10 +129,10 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
       .dataPoint(new GaugeSnapshot.GaugeDataPointSnapshot(value, Labels.EMPTY, null))
       .build()
 
-  def buildCounter(name: String, help: String, value: Double): MetricSnapshot[?] =
+  def buildCounter(name: String, help: String, value: Double): MetricSnapshot =
     buildCounter(name, help, value, null)
 
-  def buildCounter(name: String, help: String, value: Double, unit: PUnit): MetricSnapshot[?] =
+  def buildCounter(name: String, help: String, value: Double, unit: PUnit): MetricSnapshot =
     CounterSnapshot
       .builder()
       .name(PrometheusNaming.sanitizeMetricName(name))
@@ -142,7 +142,7 @@ class Jetty12StatisticsCollector(val statisticsHandler: StatisticsHandler) exten
       .build()
   // format: on
 
-  def buildStatusCounter(): MetricSnapshot[?] =
+  def buildStatusCounter(): MetricSnapshot =
     val name = "jetty_responses_total"
     val counter = CounterSnapshot
       .builder()

@@ -39,18 +39,18 @@ lazy val fs_core = (project in file(FSRoot + "fs-core"))
   .settings(
     name := "fs-core",
     libraryDependencies ++= Seq(
-      "ch.qos.logback" % "logback-classic" % "1.5.12",
+      "ch.qos.logback" % "logback-classic" % "1.5.16",
       // "net.logstash.logback" % "logstash-logback-encoder" % "8.0",
       "org.slf4j" % "slf4j-api" % "2.0.16",
-      "com.github.loki4j" % "loki-logback-appender" % "1.5.2",
-      "io.prometheus" % "prometheus-metrics-core" % "1.3.2",
-      "io.prometheus" % "prometheus-metrics-instrumentation-jvm" % "1.3.2",
-      "io.prometheus" % "prometheus-metrics-exporter-httpserver" % "1.3.2",
+      "com.github.loki4j" % "loki-logback-appender" % "1.6.0",
+      "io.prometheus" % "prometheus-metrics-core" % "1.3.5",
+      "io.prometheus" % "prometheus-metrics-instrumentation-jvm" % "1.3.5",
+      "io.prometheus" % "prometheus-metrics-exporter-httpserver" % "1.3.5",
       "com.typesafe" % "config" % "1.4.3",
       "it.unimi.dsi" % "dsiutils" % "2.7.3",
-      "org.apache.commons" % "commons-text" % "1.12.0",
-      "org.eclipse.jetty" % "jetty-server" % "12.0.14",
-      "org.eclipse.jetty.websocket" % "jetty-websocket-jetty-server" % "12.0.14",
+      "org.apache.commons" % "commons-text" % "1.13.0",
+      "org.eclipse.jetty" % "jetty-server" % "12.0.16",
+      "org.eclipse.jetty.websocket" % "jetty-websocket-jetty-server" % "12.0.16",
     ),
   )
 
@@ -78,11 +78,11 @@ lazy val fs_db = (project in file(FSRoot + "fs-db"))
   .settings(
     name := "fs-db",
     libraryDependencies ++= Seq(
-      "org.postgresql" % "postgresql" % "42.7.4",
-      "org.xerial" % "sqlite-jdbc" % "3.47.0.0",
+      "org.postgresql" % "postgresql" % "42.7.5",
+      "org.xerial" % "sqlite-jdbc" % "3.48.0.0",
       "com.h2database" % "h2" % "2.3.232",
       "org.scalikejdbc" %% "scalikejdbc" % "4.3.2",
-      "com.google.guava" % "guava" % "33.3.1-jre",
+      "com.google.guava" % "guava" % "33.4.0-jre",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
     ),
     Test / parallelExecution := false,

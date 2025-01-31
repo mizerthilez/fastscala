@@ -20,8 +20,6 @@
 
 package com.fastscala.db.util
 
-import scala.xml.*
-
 object Utils:
   var enableProfiling = true
 
@@ -34,11 +32,6 @@ object Utils:
     val v = f
     r(System.currentTimeMillis() - start)
     v
-
-  def printNs = (ns: NodeSeq) =>
-    println(ns); ns
-  def printNs(s: String) = (ns: NodeSeq) =>
-    println(s + ":\n" + ns); ns
 
   var idx = 0
   var lastOpen = false

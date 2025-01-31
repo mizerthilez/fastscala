@@ -19,15 +19,19 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      JAVA_OPTS: -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
+
     steps:
     - uses: actions/checkout@v4
-    - name: Set up JDK 21
+    - name: Setup JDK
       uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
         cache: 'sbt'
+    - uses: sbt/setup-sbt@v1
     - name: Compile fs_components
       run: sbt fs_components/compile
-    # - name: Run tests
-      # run: sbt test
+    - name: Run tests
+      run: sbt test
