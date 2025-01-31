@@ -7,7 +7,7 @@ import com.fastscala.js.Js
 import com.fastscala.components.form7.*
 import com.fastscala.components.form7.renderers.StandardF7FieldRenderer
 
-trait StandardF7Field extends F7FieldWithValidations:
+trait StandardF7Field extends F7FieldWithValidations with F7FieldWithOnChangedField:
   def renderer: StandardF7FieldRenderer
 
   var showingValidation = false

@@ -105,7 +105,6 @@ trait JSTreeWithContextMenu[T, N <: JSTreeNodeWithContextMenu[T, N]] extends JST
                 .map: action =>
                   JS.asJsStr(action.label).cmd + ": " + renderJSTreeContextMenuAction(node, action)
                 .mkString("({", ",", "})")
-            println(s"GET MENU ITEMS FOR NODE '$id'")
             Js(s"env.callback(eval(${JS.asJsStr(menuItems)}));")
           case None => throw new Exception(s"Could not find node for id '$id'"),
       env = Js("{callback: callback}"),

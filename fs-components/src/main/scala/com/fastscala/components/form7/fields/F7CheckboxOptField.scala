@@ -23,6 +23,20 @@ class F7CheckboxOptField(using val renderer: CheckboxF7FieldRenderer)
        with F7FieldWithAdditionalAttrs
        with F7FieldWithDependencies
        with F7FieldWithReadOnly:
+  var _switchingToUndefinedAllowed: () => Boolean = () => true
+
+  def switchingToUndefinedAllowed: Boolean = _switchingToUndefinedAllowed()
+
+  def allowSwitchingToUndefined: this.type = switchingToUndefinedAllowed(true)
+
+  def disableSwitchingToUndefined: this.type = switchingToUndefinedAllowed(false)
+
+  def switchingToUndefinedAllowed(v: Boolean): this.type = mutate:
+    _switchingToUndefinedAllowed = () => v
+
+  def switchingToUndefinedAllowed(f: () => Boolean): this.type = mutate:
+    _switchingToUndefinedAllowed = f
+
   def defaultValue: Option[Boolean] = None
 
   def loadFromString(str: String): Seq[(F7Field, NodeSeq)] =
@@ -54,6 +68,7 @@ class F7CheckboxOptField(using val renderer: CheckboxF7FieldRenderer)
           .callback: () =>
             setFilled()
             currentValue match
+              case Some(false) if !switchingToUndefinedAllowed => currentValue = Some(true)
               case Some(false) => currentValue = None
               case None => currentValue = Some(true)
               case Some(true) => currentValue = Some(false)
