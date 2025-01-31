@@ -72,16 +72,16 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
 
   def rootNodes: Seq[N]
 
-  def render()(implicit fsc: FSContext): Elem = <div id={elemId}></div>
+  def render()(using FSContext): Elem = <div id={elemId}></div>
 
-  def renderAndInit()(implicit fsc: FSContext): NodeSeq = render() ++ init().onDOMContentLoaded.inScriptTag
+  def renderAndInit()(using FSContext): NodeSeq = render() ++ init().onDOMContentLoaded.inScriptTag
 
-  def rerender()(implicit fsc: FSContext): Js = JS.void
+  def rerender()(using FSContext): Js = JS.void
 
   //  protected val childrenOfId = collection.mutable.Map[String, Seq[N]]()
   protected val nodeById = collection.mutable.Map[String, N]()
 
-  def jsTreeConfig: JSTreeConfig =
+  def jsTreeConfig(using FSContext): JSTreeConfig =
     implicit def nonOption2Option[T](v: T): Option[T] = Some(v)
 
     JSTreeConfig(
@@ -94,7 +94,7 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
       plugins = this.plugins,
     )
 
-  def init()(implicit fsc: FSContext): Js = Js {
+  def init()(using fsc: FSContext): Js = Js:
     val callback = fsc.anonymousPageURL(
       implicit fsc =>
         Option(Request.getParameters(fsc.page.req).getValue("id")) match
@@ -129,7 +129,6 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
     import io.circe.syntax.given
 
     s"""$$('#$elemId').jstree(${config.asJson.toString.trimQuoteInData});"""
-  }.printBeforeExec
 
 object JSTree:
   import io.circe.generic.semiauto.*
@@ -138,6 +137,7 @@ object JSTree:
   given Encoder[Js] = Encoder.encodeString.contramap[Js](_.cmd)
   given Encoder[Data] = deriveEncoder[Data]
   given Encoder[Core] = deriveEncoder[Core]
+  given Encoder[ContextMenu] = deriveEncoder[ContextMenu]
   given Encoder[JSTreeConfig] = deriveEncoder[JSTreeConfig]
 
   extension (config: String)

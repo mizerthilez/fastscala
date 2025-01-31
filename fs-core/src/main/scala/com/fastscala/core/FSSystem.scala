@@ -161,6 +161,7 @@ class FSContext(
     async: Boolean = true,
     expectReturn: Boolean = true,
     ignoreErrors: Boolean = false,
+    env: Js = Js("{}"),
   ): Js =
     if logger.isTraceEnabled then logger.trace(s"CREATING CALLBACK IN CONTEXT ${fullPath}")
     session.fsSystem.gc()
@@ -177,7 +178,7 @@ class FSContext(
 
     Js.fromString(
       session.fsSystem.beforeCallBackJs.map(js => s"""(function() {${js.cmd}})();""").getOrElse("") +
-        s"window._fs.callback(${if arg.cmd.trim == "" then "''" else arg.cmd},${Js.asJsStr(page.id).cmd},${Js.asJsStr(funcId).cmd},$ignoreErrors,$async,$expectReturn);"
+        s"window._fs.callback(${if arg.cmd.trim == "" then "''" else arg.cmd},${Js.asJsStr(page.id).cmd},${Js.asJsStr(funcId).cmd},$ignoreErrors,$async,$expectReturn,$env);"
     )
 
   def anonymousPageURL[Env <: FSXmlEnv](
@@ -357,7 +358,7 @@ class FSPage(
       s"""window._fs = {
          |  sessionId: ${Js.asJsStr(session.id).cmd},
          |  pageId: ${Js.asJsStr(id).cmd},
-         |  callback: function(arg, pageId, funcId, ignoreErrors, async, expectReturn) {
+         |  callback: function(arg, pageId, funcId, ignoreErrors, async, expectReturn, env) {
          |    const xhr = new XMLHttpRequest();
          |    xhr.open("POST", "/${session.fsSystem.FSPrefix}/cb/"+pageId+"/"+funcId+"?time=" + new Date().getTime() + (ignoreErrors ? "&ignore_errors=true" : ""), async);
          |    xhr.setRequestHeader("Content-type", "text/plain;charset=utf-8");
