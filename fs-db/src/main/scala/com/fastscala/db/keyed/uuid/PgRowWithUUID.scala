@@ -1,5 +1,6 @@
 package com.fastscala.db.keyed.uuid
 
+import com.github.f4b6a3.uuid.alt.GUID
 import java.util.UUID
 import scala.reflect.Typeable
 
@@ -18,7 +19,7 @@ trait PgRowWithUUID[R <: PgRowWithUUID[R]: Typeable]
 
   def saveSQL(): SQL[Nothing, NoExtractor] =
     val sql = if uuid.isEmpty then
-      uuid = Some(UUID.randomUUID())
+      uuid = Some(GUID.v7.toUUID)
       table.insertSQL(this)
     else table.updateSQL(this, sqls" where uuid = ${uuid.get.toString}::UUID")
     sql

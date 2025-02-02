@@ -83,6 +83,7 @@ lazy val fs_db = (project in file(FSRoot + "fs-db"))
       "com.h2database" % "h2" % "2.3.232",
       "org.scalikejdbc" %% "scalikejdbc" % "4.3.2",
       "com.google.guava" % "guava" % "33.4.0-jre",
+      "com.github.f4b6a3" % "uuid-creator" % "6.0.0",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
     ),
     Test / parallelExecution := false,
