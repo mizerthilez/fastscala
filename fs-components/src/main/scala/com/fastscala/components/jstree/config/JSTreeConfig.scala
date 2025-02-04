@@ -13,9 +13,17 @@ case class Data(
   data: Option[Js] = None,
 )
 
+case class Themes(
+  dots: Option[Boolean] = None,
+  icons: Option[Boolean] = Some(true),
+  ellipsis: Option[Boolean] = Some(true),
+  stripes: Option[Boolean] = Some(true),
+)
+
 case class Core(
   check_callback: Option[Boolean] = None,
   data: Option[Data] = None,
+  themes: Option[Themes] = None,
 )
 
 case class JSTreeConfig(

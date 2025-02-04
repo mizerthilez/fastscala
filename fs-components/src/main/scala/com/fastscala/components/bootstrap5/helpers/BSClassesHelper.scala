@@ -277,6 +277,8 @@ trait BSClassesHelper[T] extends Any:
 
   def bg_gradient: T = withClass("bg-gradient")
 
+  def bg_grey: T = withClass("bg-grey")
+
   def bg_info: T = withClass("bg-info")
 
   def bg_info_subtle: T = withClass("bg-info-subtle")

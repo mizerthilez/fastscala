@@ -88,13 +88,14 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
       core = Core(
         check_callback = true,
         data = Data(
-          data = Js("""function (node) { console.log(node); return { 'id' : node.id }; }""")
+          data = Js("""function (node) { return { 'id' : node.id }; }""")
         ),
+        themes = Themes(),
       ),
       plugins = this.plugins,
     )
 
-  def init()(using fsc: FSContext): Js = Js:
+  def init(using fsc: FSContext)(config: JSTreeConfig = jsTreeConfig, onSelect: Js = Js.void): Js = Js:
     val callback = fsc.anonymousPageURL(
       implicit fsc =>
         Option(Request.getParameters(fsc.page.req).getValue("id")) match
@@ -114,21 +115,20 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
     )
 
     import com.softwaremill.quicklens.*
-    val config: JSTreeConfig = jsTreeConfig.pipe: config =>
-      config
-        .modify(_.core)
-        .setToIf(config.core.isEmpty)(Some(Core()))
-        .pipe: config =>
-          config
-            .modify(_.core.each.data)
-            .setToIf(config.core.get.data.isEmpty)(Some(Data()))
-            .modify(_.core.each.data.each.url)
-            .setTo(Some(callback))
+    val jsTreeConfig = config
+      .modify(_.core)
+      .setToIf(config.core.isEmpty)(Some(Core()))
+      .pipe: config =>
+        config
+          .modify(_.core.each.data)
+          .setToIf(config.core.get.data.isEmpty)(Some(Data()))
+          .modify(_.core.each.data.each.url)
+          .setTo(Some(callback))
 
     import JSTree.{ *, given }
     import io.circe.syntax.given
 
-    s"""$$('#$elemId').jstree(${config.asJson.toString.trimQuoteInData});"""
+    s"""$$('#$elemId').on("changed.jstree", function(e, data){${onSelect.cmd}}).jstree(${jsTreeConfig.asJson.toString.trimQuoteInData});"""
 
 object JSTree:
   import io.circe.generic.semiauto.*
@@ -136,6 +136,7 @@ object JSTree:
 
   given Encoder[Js] = Encoder.encodeString.contramap[Js](_.cmd)
   given Encoder[Data] = deriveEncoder[Data]
+  given Encoder[Themes] = deriveEncoder[Themes]
   given Encoder[Core] = deriveEncoder[Core]
   given Encoder[ContextMenu] = deriveEncoder[ContextMenu]
   given Encoder[JSTreeConfig] = deriveEncoder[JSTreeConfig]
