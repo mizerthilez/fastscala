@@ -26,11 +26,11 @@ trait JSTreeContextMenuAction:
 
   def subactions: Seq[JSTreeContextMenuAction]
 
-  def run: FSContext => Js
+  def run: FSContext => String => Js
 
 class DefaultJSTreeContextMenuAction(
   val label: String,
-  val run: FSContext => Js,
+  val run: FSContext => String => Js,
   val shortcut: Option[Int] = None,
   val shortcutLabel: Option[String] = None,
   val separatorBefore: Boolean = false,
@@ -72,7 +72,7 @@ object RenderableMenuAction:
       if action.subactions.nonEmpty then Some(JS._false)
       else
         fsc.runInNewOrRenewedChildContextFor((menu, node.id, action.label)):
-          implicit fsc => Some(JS.function()(fsc.callback(() => action.run(fsc))))
+          implicit fsc => Some(JS.function()(fsc.callback(() => action.run(fsc)(node.id))))
     ,
     _disabled = Some(action.disabled),
     icon = action.icon,
