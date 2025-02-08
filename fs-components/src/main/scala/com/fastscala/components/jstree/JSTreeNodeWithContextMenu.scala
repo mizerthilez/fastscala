@@ -1,5 +1,7 @@
 package com.fastscala.components.jstree
 
+import io.circe.generic.semiauto.*
+
 import com.fastscala.components.jstree.config.*
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
@@ -44,6 +46,16 @@ trait JSTreeNodeWithContextMenu[T, N <: JSTreeNodeWithContextMenu[T, N]] extends
   self: N =>
   def actions: Seq[JSTreeContextMenuAction]
 
+  import JSTreeNodeWithContextMenu.{ *, given }
+  import com.fastscala.core.circe.CirceSupport.given
+
+  def onEdit(onEdit: OnEditData => Js)(using fsc: FSContext): Js =
+    fsc.callbackJSONDecoded[OnEditData](Js("{id: node.id, text: node.text}"), onEdit)
+
+object JSTreeNodeWithContextMenu:
+  case class OnEditData(id: String, text: String)
+  given io.circe.Decoder[OnEditData] = deriveDecoder
+
 case class RenderableMenuAction(
   action: Option[Js],
   _disabled: Option[Boolean],
@@ -57,7 +69,6 @@ case class RenderableMenuAction(
 )
 
 object RenderableMenuAction:
-  import io.circe.generic.semiauto.*
   import JSTree.given
   import com.fastscala.utils.toOption
   given encoder: io.circe.Encoder[RenderableMenuAction] = deriveEncoder

@@ -132,6 +132,17 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
 
     s"""$$('#$elemId').on("changed.jstree", function(e, data){${onSelect.cmd}}).jstree(${jsTreeConfig.asJson.toString.trimQuoteInData});"""
 
+  def refreshJSTreeNode(node: String): Js =
+    Js(s"""$$('#$elemId').jstree(true).refresh_node('$node')""")
+
+  def loadAndEditJSTreeNode(parent: String, node: String, onEdit: Js): Js =
+    Js:
+      s"""$$('#$elemId').jstree(true).load_node('$parent', function(){ this.edit('$node', null, function(node, success, cancelled){ if (!cancelled && success) {${onEdit.cmd}} }) })"""
+
+  def editJSTreeNode(node: String, onEdit: Js): Js =
+    Js:
+      s"""$$('#$elemId').jstree(true).edit('$node', null, function(node, success, cancelled){ if (!cancelled && success) {${onEdit.cmd}} })"""
+
 object JSTree:
   import io.circe.generic.semiauto.*
   import io.circe.Encoder
