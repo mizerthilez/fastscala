@@ -53,7 +53,7 @@ abstract class JSTreeNode[T, +N <: JSTreeNode[T, N]]:
 
   def icon: Option[String]
 
-  def childrenF: () => Seq[N]
+  def childrenF: () => collection.Seq[N]
 
   def renderLi(): Elem =
     val appendedChildren = if open then <ul>{childrenF().map(_.renderLi()).mkNS}</ul> else NodeSeq.Empty
@@ -139,9 +139,9 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
     Js:
       s"""$$('#$elemId').jstree(true).load_node('$parent', function(){ this.edit('$node', null, function(node, success, cancelled){ if (!cancelled && success) {${onEdit.cmd}} }) })"""
 
-  def editJSTreeNode(node: String, onEdit: Js): Js =
+  def editJSTreeNode(node: String, onEdit: Js, text: Option[String] = None): Js =
     Js:
-      s"""$$('#$elemId').jstree(true).edit('$node', null, function(node, success, cancelled){ if (!cancelled && success) {${onEdit.cmd}} })"""
+      s"""$$('#$elemId').jstree(true).edit('$node', ${text.map(t => s"'$t'").getOrElse("null")}, function(node, success, cancelled){ if (!cancelled && success) {${onEdit.cmd}} })"""
 
 object JSTree:
   import io.circe.generic.semiauto.*
