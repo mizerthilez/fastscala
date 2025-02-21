@@ -10,10 +10,12 @@ import com.fastscala.utils.IdGen
 import com.fastscala.xml.scala_xml.JS
 import com.fastscala.xml.scala_xml.JS.ScalaXmlRerenderer
 
-abstract class BSOffcanvasBase extends ClassEnrichableMutable with Mutable:
+trait BSOffcanvasBase extends ClassEnrichableMutable with Mutable:
   import com.fastscala.components.bootstrap5.helpers.BSHelpers.{ *, given }
 
   val offcanvasId = IdGen.id("offcanvas")
+
+  val position: OffcanvasPosition
 
   var offcanvasClasses = ""
 
@@ -21,12 +23,25 @@ abstract class BSOffcanvasBase extends ClassEnrichableMutable with Mutable:
     offcanvasClasses += s" $clas"
     this
 
-  def transformOffcanvasElem(elem: Elem): Elem =
-    elem.offcanvas.withId(offcanvasId).withAttr("tabindex" -> "-1")
+  var onOffcanvasTransforms: Elem => Elem = identity[Elem]
+  var onOffcanvasHeaderTransforms: Elem => Elem = identity[Elem]
+  var onOffcanvasBodyTransforms: Elem => Elem = identity[Elem]
 
-  def transformOffcanvasHeaderElem(elem: Elem): Elem = elem.offcanvas_header
+  def onOffcanvas(f: Elem => Elem): this.type = mutate:
+    onOffcanvasTransforms = onOffcanvasTransforms andThen f
 
-  def transformOffcanvasBodyElem(elem: Elem): Elem = elem.offcanvas_body
+  def onOffcanvasHeader(f: Elem => Elem): this.type = mutate:
+    onOffcanvasHeaderTransforms = onOffcanvasHeaderTransforms andThen f
+
+  def onOffcanvasBody(f: Elem => Elem): this.type = mutate:
+    onOffcanvasBodyTransforms = onOffcanvasBodyTransforms andThen f
+
+  def transformOffcanvasElem(elem: Elem): Elem = onOffcanvasTransforms:
+    elem.offcanvas.withId(offcanvasId).withClass(position.clas).withAttr("tabindex" -> "-1")
+
+  def transformOffcanvasHeaderElem(elem: Elem): Elem = onOffcanvasHeaderTransforms(elem.offcanvas_header)
+
+  def transformOffcanvasBodyElem(elem: Elem): Elem = onOffcanvasBodyTransforms(elem.offcanvas_body)
 
   lazy val offcanvasRenderer: ScalaXmlRerenderer =
     JS.rerenderable(_ => implicit fsc => renderOffcanvas(), debugLabel = Some("offcanvas"))

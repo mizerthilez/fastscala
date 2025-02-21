@@ -18,7 +18,11 @@ trait Js:
   def cmdEscaped: String =
     "'" + StringEscapeUtils.escapeEcmaScript(cmd.replaceAll("\n", "")) + "'"
 
-  def &(js: Js) = RawJs(cmd + ";" + js.cmd)
+  def &(js: Js) = (this, js) match
+    case (Js.Void, Js.Void) => Js.Void
+    case (Js.Void, js) => js
+    case (js, Js.Void) => js
+    case (js1, js2) => RawJs(js1.cmd + ";" + js2.cmd)
 
   def onDOMContentLoaded: Js = Js:
     s"""(function () {
@@ -40,6 +44,18 @@ trait Js:
     Content.Sink.write(resp, true, BufferUtil.toBuffer(cmd.getBytes(charsetName)))
 
   override def toString: String = cmd
+
+class JsFunc0(body0: => Js) extends JsFunc1(_ => body0):
+  override def cmd: String = s"""function(){$body0}"""
+
+class JsFunc1(body1: Js => Js) extends JsFunc2((arg1, _) => body1(arg1)):
+  override def cmd: String = s"""function(arg1){${body1(Js("arg1"))}}"""
+
+class JsFunc2(body2: (Js, Js) => Js) extends JsFunc3((arg1, arg2, _) => body2(arg1, arg2)):
+  override def cmd: String = s"""function(arg1, arg2){${body2(Js("arg1"), Js("arg2"))}}"""
+
+class JsFunc3(body3: (Js, Js, Js) => Js) extends Js:
+  override def cmd: String = s"""function(arg1, arg2, arg3){${body3(Js("arg1"), Js("arg2"), Js("arg3"))}}"""
 
 case class RawJs(js: String) extends Js:
   override def cmd: String = js
@@ -156,7 +172,16 @@ trait JsUtils:
 
   def alert(text: String): Js = Js(s"""alert("${escapeStr(text)}");""")
 
-  def function()(body: Js): Js = Js(s"""function(){$body}""")
+  def undefined(js: Js): Js = Js(s"""($js === undefined)""")
+
+  def function0(body: => Js): Js = Js(s"""function(){$body}""")
+
+  def function1(body: Js => Js): Js = Js(s"""function(arg1){${body(Js("arg1"))}}""")
+
+  def function2(body: (Js, Js) => Js): Js = Js(s"""function(arg1, arg2){${body(Js("arg1"), Js("arg2"))}}""")
+
+  def function3(body: (Js, Js, Js) => Js): Js = Js:
+    s"""function(arg1, arg2, arg3){${body(Js("arg1"), Js("arg2"), Js("arg3"))}}"""
 
   def copy2Clipboard(text: String): Js = Js(s"navigator.clipboard.writeText('${escapeStr(text)}');")
 
@@ -242,6 +267,8 @@ trait JsUtils:
   def catchAndLogErrors(js: Js): Js = Js(s"""try {${js.cmd}} catch (error) { console.error(error); }""")
 
 object Js extends JsUtils:
+  val Void = Js("")
+
   def apply(s: String): Js = RawJs(s)
 
 object JsUtils:

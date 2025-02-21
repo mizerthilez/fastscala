@@ -7,8 +7,6 @@ import com.fastscala.xml.scala_xml.JS
 import scala.xml.NodeSeq
 
 object BSOffcanvas:
-  import com.fastscala.components.bootstrap5.helpers.BSHelpers.{ *, given }
-
   def start(
     title: String,
     backdrop: Boolean = true,
@@ -19,7 +17,7 @@ object BSOffcanvas:
   )(
     contents: BSOffcanvasBase => FSContext => NodeSeq
   )(using FSContext
-  ): Js = apply(_.offcanvas_start, title, onHidden)(contents)
+  ): Js = apply(OffcanvasPosition.Start, title, onHidden)(contents)
 
   def end(
     title: String,
@@ -31,7 +29,7 @@ object BSOffcanvas:
   )(
     contents: BSOffcanvasBase => FSContext => NodeSeq
   )(using FSContext
-  ): Js = apply(_.offcanvas_end, title, onHidden)(contents)
+  ): Js = apply(OffcanvasPosition.End, title, onHidden)(contents)
 
   def top(
     title: String,
@@ -43,7 +41,7 @@ object BSOffcanvas:
   )(
     contents: BSOffcanvasBase => FSContext => NodeSeq
   )(using FSContext
-  ): Js = apply(_.offcanvas_top, title, onHidden)(contents)
+  ): Js = apply(OffcanvasPosition.Top, title, onHidden)(contents)
 
   def bottom(
     title: String,
@@ -55,19 +53,19 @@ object BSOffcanvas:
   )(
     contents: BSOffcanvasBase => FSContext => NodeSeq
   )(using FSContext
-  ): Js = apply(_.offcanvas_bottom, title, onHidden)(contents)
+  ): Js = apply(OffcanvasPosition.Bottom, title, onHidden)(contents)
 
   private def apply(
-    transform: BSOffcanvasBase => BSOffcanvasBase,
+    offcanvasPosition: OffcanvasPosition,
     title: String,
     onHidden: Js = JS.void,
   )(
     contents: BSOffcanvasBase => FSContext => NodeSeq
   )(using fsc: FSContext
   ): Js =
-    val offcanvas = transform(new BSOffcanvasBase:
+    val offcanvas = new BSOffcanvasBase:
+      override val position: OffcanvasPosition = offcanvasPosition
       override def offcanvasHeaderTitle: String = title
-
       override def offcanvasBodyContents()(using FSContext): NodeSeq = contents(this)(fsc)
-    )
+
     offcanvas.installAndShow() & offcanvas.onHidden(onHidden)

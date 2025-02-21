@@ -41,7 +41,7 @@ trait F7Field extends F7FieldWithState with ElemWithRandomId:
         updateFieldWithoutReRendering().getOrElse(reRender())
       case _ => Js.void
 
-  /** Tries to update the field without needing to rerender. If
+  /** Tries to update the field without needing to rerender.
     */
   def updateFieldWithoutReRendering()(using Form7, FSContext, Seq[RenderHint]): Try[Js] = Success(Js.void)
 

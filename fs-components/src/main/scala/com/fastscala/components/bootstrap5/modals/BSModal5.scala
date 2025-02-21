@@ -13,6 +13,7 @@ object BSModal5:
     title: String,
     closeBtnText: String,
     onHidden: Js = JS.void,
+    modalFooterButton: BSBtn = BSBtn().BtnPrimary,
   )(
     contents: BSModal5Base => FSContext => NodeSeq
   )(using FSContext
@@ -23,7 +24,7 @@ object BSModal5:
       override def modalBodyContents()(using fsc: FSContext): NodeSeq = contents(this)(fsc)
 
       override def modalFooterContents()(using FSContext): Option[NodeSeq] = Some:
-        BSBtn().BtnPrimary.lbl(closeBtnText).onclick(hideAndRemoveAndDeleteContext()).btn
+        modalFooterButton.lbl(closeBtnText).onclick(hideAndRemoveAndDeleteContext()).btn
 
     modal.installAndShow() & modal.onHidden(onHidden)
 

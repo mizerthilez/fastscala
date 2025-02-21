@@ -12,6 +12,7 @@ object BSHelpers extends BSClassesHelper[Elem] with BasicElemsHelper:
       extends AnyVal
          with ScalaXmlElemUtils
          with BSClassesHelper[Elem]
+         with BSColorsHelper[Elem]
          with BSDataHelper[Elem]:
     def elem: Elem = el
     protected def setAttribute(name: String, value: String): Elem = withAttr((name, value))
