@@ -76,8 +76,6 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
 
   def renderAndInit()(using FSContext): NodeSeq = render() ++ init().onDOMContentLoaded.inScriptTag
 
-  def rerender()(using FSContext): Js = JS.void
-
   //  protected val childrenOfId = collection.mutable.Map[String, Seq[N]]()
   protected val nodeById = collection.mutable.Map[String, N]()
 
@@ -97,20 +95,18 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
       plugins = this.plugins,
     )
 
+  def registerNodes(nodes: collection.Seq[N]): Unit =
+    nodes.foreach: node =>
+      nodeById += (node.id -> node)
+
   def init(using fsc: FSContext)(config: JSTreeConfig = jsTreeConfig, onSelect: Js = Js.void): Js = Js:
     val callback = fsc.anonymousPageURL(
       implicit fsc =>
         Option(Request.getParameters(fsc.page.req).getValue("id")) match
           case Some("#") =>
-            <ul>{rootNodes.tap(_.foreach(node => nodeById += (node.id -> node))).map(_.renderLi()).mkNS}</ul>
+            <ul>{rootNodes.tap(registerNodes).map(_.renderLi()).mkNS}</ul>
           case Some(id) =>
-            <ul>{
-              nodeById(id)
-                .childrenF()
-                .tap(_.foreach(node => nodeById += (node.id -> node)))
-                .map(_.renderLi())
-                .mkNS
-            }</ul>
+            <ul>{nodeById(id).childrenF().tap(registerNodes).map(_.renderLi()).mkNS}</ul>
           case None => throw new Exception(s"Id parameter not found")
       ,
       "nodes.html",
@@ -131,6 +127,9 @@ abstract class JSTree[T, N <: JSTreeNode[T, N]] extends ElemWithRandomId:
     import io.circe.syntax.given
 
     s"""$$('#$elemId').on("changed.jstree", function(e, data){${onSelect.cmd}}).jstree(${jsTreeConfig.asJson.toString.trimQuoteInData});"""
+
+  def refresh(): Js =
+    Js(s"""$$('#$elemId').jstree(true).refresh($$('#$elemId').jstree(true).get_node('#'));""")
 
   def refreshJSTreeNode(node: String): Js =
     Js(s"""$$('#$elemId').jstree(true).refresh_node('$node')""")
