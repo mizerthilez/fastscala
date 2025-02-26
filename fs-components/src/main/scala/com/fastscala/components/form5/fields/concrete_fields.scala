@@ -955,7 +955,7 @@ class F5DoubleField(
 ) extends F5TextField[Double](
       getOpt = () => Some(get()),
       setOpt = doubleOpt => doubleOpt.map(double => set(double)).getOrElse(Js.void),
-      toString = _.map(value => prefix + " " + value.formatted("%.2f") + " " + suffix)
+      toString = _.map(value => prefix + " " + value.toString + " " + suffix)
         .map(_.trim)
         .getOrElse(""),
       fromString = str =>

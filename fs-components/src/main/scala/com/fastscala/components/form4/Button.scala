@@ -1,10 +1,11 @@
-package com.fastscala.components.utils
+package com.fastscala.components.form4
 
 import scala.xml.{ Elem, Node, NodeSeq }
 
 import com.fastscala.core.FSContext
 import com.fastscala.js.Js
 
+@deprecated
 case class Button(
   classes: String = "btn",
   styles: String = "",

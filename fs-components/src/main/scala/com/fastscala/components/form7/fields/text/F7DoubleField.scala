@@ -17,7 +17,7 @@ class F7DoubleField(using TextF7FieldRenderer)
   def defaultValue: Double = 0
 
   def toString(value: Double): String =
-    (prefix + " " + value.formatted("%.2f") + " " + suffix).trim
+    (prefix + " " + value.toString + " " + suffix).trim
 
   def fromString(str: String): Either[String, Double] =
     str.toLowerCase.trim
